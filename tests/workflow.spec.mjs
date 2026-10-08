@@ -23,7 +23,7 @@ test("mobile opportunity cards open detailed information", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(ROOT + "#explore")
   await expect(page.getByRole("textbox", { name: "Tìm cơ hội" })).toBeVisible()
-  const item = page.getByRole("button", { name: /NATIF/ }).first()
+  const item = page.getByRole("button", { name: /^Xem chi tiết:/ }).first()
   await expect(item).toBeVisible()
   await item.click()
   await expect(page.getByRole("textbox", { name: "Bước tiếp theo" })).toBeVisible()
