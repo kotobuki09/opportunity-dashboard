@@ -1,3 +1,5 @@
+# Validates data/seen.json and builds the app on every PR; on main also deploys to GitHub Pages.
+# Repo Settings > Pages > Source must be "GitHub Actions". Data rules: SCHEMA.md, AGENTS.md.
 name: Validate and deploy dashboard
 
 on:
