@@ -10,7 +10,7 @@ test("URL dedupe drops tracking parameters but not meaningful queries", () => {
 
 test("monitor rejects local and unexpected destinations",()=>{
   for (const u of ["file:///etc/passwd","http://localhost/","http://127.0.0.1/a",
-    "http://10.0.0.3/", "https://host.local/a", "https://example.org:8080/a",
+    "http://10.0.0.3/", "http://[::1]/", "https://host.local/a", "https://example.org:8080/a",
     "https://u:p@example.org/"]) assert.equal(validatePublicUrl(u).safe,false,u)
   assert.equal(validatePublicUrl("https://www.nsf.gov/funding/").safe,true)
   assert.equal(isPrivateIp("192.168.1.1"),true)
