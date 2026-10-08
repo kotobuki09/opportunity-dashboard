@@ -24,11 +24,13 @@ import {
   Columns3Icon,
   EllipsisVerticalIcon,
   ExternalLinkIcon,
+  SearchIcon,
   SearchXIcon,
   XIcon,
 } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
+import type { LocalApi } from "@/lib/local-state"
 import { DataTableFacetedFilter } from "@/components/data-table-faceted-filter"
 import { DeadlineBadge, STATUS_LABEL, StatusSelect } from "@/components/opportunity-bits"
 import { OpportunityDrawer } from "@/components/opportunity-drawer"
@@ -109,18 +111,14 @@ const COLUMN_LABEL: Record<string, string> = {
 }
 
 type Facet = "cat" | "proj" | "win" | "status"
-type Scope = "open" | "tracking" | "expired"
+type Scope = "open" | "tracking" | "upcoming" | "expired" | "all"
 const SCOPES: { value: Scope; label: string }[] = [
   { value: "open", label: "Đang mở" },
   { value: "tracking", label: "Đang theo đuổi" },
+  { value: "upcoming", label: "Sắp mở" },
   { value: "expired", label: "Đã hết hạn" },
+  { value: "all", label: "Tất cả" },
 ]
-
-type LocalApi = {
-  statusOf: (r: OpportunityRow) => Status
-  noteOf: (r: OpportunityRow) => string
-  patch: (id: string, e: { status?: Status; note?: string }) => void
-}
 
 function useMediaQuery(query: string) {
   return React.useSyncExternalStore(
@@ -162,15 +160,17 @@ export function DataTable({
   rows,
   showCategory,
   local,
+  defaultScope = "open",
 }: {
   rows: OpportunityRow[]
   showCategory: boolean
   local: LocalApi
+  defaultScope?: Scope
 }) {
   const isMobile = useIsMobile()
   const isWide = useMediaQuery("(min-width: 1536px)")
   const { statusOf, noteOf, patch } = local
-  const [scope, setScope] = React.useState<Scope>("open")
+  const [scope, setScope] = React.useState<Scope>(defaultScope)
   const [query, setQuery] = React.useState("")
   const [pickedCats, setCats] = React.useState<Set<string>>(new Set())
   const cats = React.useMemo(() => (showCategory ? pickedCats : new Set<string>()), [showCategory, pickedCats])
@@ -185,7 +185,11 @@ export function DataTable({
 
   const inScope = React.useCallback(
     (r: OpportunityRow, s: Scope) =>
-      s === "expired" ? isExpired(r) : s === "tracking" ? TRACKING.includes(statusOf(r)) && !isExpired(r) : isAccepting(r) && statusOf(r) !== "đã tham gia" && statusOf(r) !== "bỏ qua",
+      s === "all" ? true
+        : s === "upcoming" ? r.state === "opens_later"
+        : s === "expired" ? isExpired(r)
+        : s === "tracking" ? TRACKING.includes(statusOf(r)) && !isExpired(r)
+        : isAccepting(r) && statusOf(r) !== "đã tham gia" && statusOf(r) !== "bỏ qua",
     [statusOf]
   )
   const matches = React.useCallback(
@@ -453,13 +457,16 @@ export function DataTable({
       </div>
       <div className="flex flex-col gap-4 px-4 lg:px-6">
         <div className="flex flex-wrap items-center gap-2">
-          <Input
-            placeholder="Tìm cơ hội, ghi chú, mức tiền…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="h-8 w-full sm:w-64"
-            aria-label="Tìm kiếm"
-          />
+          <div className="relative w-full sm:w-72">
+            <SearchIcon className="pointer-events-none absolute left-2.5 top-2 size-4 text-muted-foreground" />
+            <Input
+              placeholder="Tìm tên, chương trình, ghi chú…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="h-8 w-full pl-9"
+              aria-label="Tìm cơ hội"
+            />
+          </div>
           {showCategory && (
             <DataTableFacetedFilter
               title="Loại"
@@ -499,8 +506,34 @@ export function DataTable({
           <span>{data.length} cơ hội khớp · {scopeCounts[scope]} trong phạm vi</span>
           <span>{filtersActive ? "Đang áp dụng bộ lọc" : "Chọn bộ lọc để thu hẹp kết quả"}</span>
         </div>
-        <div className="overflow-hidden rounded-lg border">
-          <Table>
+        {isMobile ? (
+          <div className="space-y-3">
+            {table.getRowModel().rows.length ? table.getRowModel().rows.map((row) => (
+              <button type="button" key={row.id} onClick={() => setSelectedId(row.original.id)}
+                className="block w-full space-y-2 rounded-xl border bg-card p-4 text-left shadow-xs focus-visible:outline-2 focus-visible:outline-ring">
+                <span className="block text-sm font-semibold leading-5">{row.original.title}</span>
+                <span className="flex flex-wrap items-center gap-2">
+                  <DeadlineBadge row={row.original} />
+                  {row.original.project[0] && <Badge variant="secondary">{row.original.project[0]}</Badge>}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  {row.original.deadline_iso ? formatDate(row.original.deadline_iso) : row.original.deadline}
+                  {" · " + STATUS_LABEL[statusOf(row.original)]}
+                </span>
+                <span className="block line-clamp-2 text-xs text-muted-foreground">
+                  {row.original.fit_note || row.original.eligibility_note || row.original.value_text}
+                </span>
+                <span className="block text-[11px] text-muted-foreground">
+                  {row.original.verified_at ? "Kiểm tra " + formatDay(row.original.verified_at) : "Chưa ghi nhận xác minh"}
+                </span>
+              </button>
+            )) : <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+              Không tìm thấy cơ hội. Hãy thử điều chỉnh phạm vi hoặc bộ lọc.
+            </div>}
+          </div>
+        ) : (
+          <div className="overflow-hidden rounded-lg border">
+            <Table>
             <TableHeader className="sticky top-0 z-10 bg-muted">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -553,8 +586,9 @@ export function DataTable({
                 </TableRow>
               )}
             </TableBody>
-          </Table>
-        </div>
+            </Table>
+          </div>
+        )}
         <div className="flex items-center justify-between px-4">
           <div className="hidden flex-1 text-sm text-muted-foreground lg:flex">
             {data.length} / {scoped.length} cơ hội khớp bộ lọc
@@ -616,6 +650,11 @@ export function DataTable({
         note={selected ? noteOf(selected) : ""}
         onStatusChange={(s) => selected && patch(selected.id, { status: s })}
         onNoteChange={(n) => selected && patch(selected.id, { note: n })}
+        entry={selected ? local.entryOf(selected) : {}}
+        onNextActionChange={(value) => selected && patch(selected.id, { nextAction: value })}
+        onAddTask={(value) => selected && local.addTask(selected.id, value)}
+        onToggleTask={(taskId) => selected && local.toggleTask(selected.id, taskId)}
+        onRemoveTask={(taskId) => selected && local.removeTask(selected.id, taskId)}
       />
     </Tabs>
   )
