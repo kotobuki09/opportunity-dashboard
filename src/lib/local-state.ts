@@ -97,6 +97,15 @@ export function useLocalState(items: Opportunity[]) {
     })
   }, [])
 
+  /** Reset one opportunity without disturbing other statuses or personal notes. */
+  const clearEntry = React.useCallback((id: string) => {
+    setStore((previous) => {
+      const next = { ...previous.items }
+      delete next[id]
+      return { items: next }
+    })
+  }, [])
+
   const exportJson = React.useCallback(() => {
     const output = { app: "opportunity-scout", version: 2, exported_at: new Date().toISOString(), items: {} as Record<string, unknown> }
     const byId = new Map(items.map((item) => [item.id, item]))
@@ -146,5 +155,5 @@ export function useLocalState(items: Opportunity[]) {
     return Object.keys(imported).length
   }, [items])
 
-  return { entryOf, statusOf, noteOf, patch, addTask, toggleTask, removeTask, exportJson, importJson }
+  return { entryOf, statusOf, noteOf, patch, addTask, toggleTask, removeTask, clearEntry, exportJson, importJson }
 }

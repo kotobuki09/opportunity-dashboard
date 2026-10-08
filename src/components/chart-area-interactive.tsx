@@ -86,7 +86,7 @@ export function ChartAreaInteractive({
       ...Object.fromEntries(CATEGORIES.map((c) => [catKey(c), 0])),
     }))
     for (const r of rows) {
-      if (r.state !== "open" || !r.deadline_iso) continue
+      if (r.state !== "open" || !r.deadline_iso || ["bỏ qua", "đã tham gia"].includes(statusOf(r))) continue
       const i = Math.floor((new Date(r.deadline_iso).getTime() - start) / (7 * DAY))
       if (i < 0 || i >= weeks) continue
       if (TRACKING.includes(statusOf(r))) buckets[i].tracking++
