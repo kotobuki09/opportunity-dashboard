@@ -654,6 +654,7 @@ export function DataTable({
         onAddTask={(value) => selected && local.addTask(selected.id, value)}
         onToggleTask={(taskId) => selected && local.toggleTask(selected.id, taskId)}
         onRemoveTask={(taskId) => selected && local.removeTask(selected.id, taskId)}
+        onClearPersonal={() => selected && local.clearEntry(selected.id)}
       />
     </Tabs>
   )
