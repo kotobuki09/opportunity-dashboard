@@ -9,7 +9,7 @@ import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { useLocalState } from "@/lib/local-state"
-import { CATEGORIES, DATA, deriveRow, isExpired, type OpportunityRow } from "@/lib/opps"
+import { CATEGORIES, DATA, deriveRow, isAccepting, type OpportunityRow } from "@/lib/opps"
 
 const VIEWS = ["overview", ...CATEGORIES]
 
@@ -22,18 +22,27 @@ export function App() {
   const [view, setView] = React.useState(readView)
   const local = useLocalState(DATA.items)
   const fileRef = React.useRef<HTMLInputElement>(null)
-  const rows = React.useMemo(() => {
-    const now = new Date()
-    return DATA.items.map((it) => deriveRow(it, now))
+  const [now, setNow] = React.useState(() => new Date())
+  React.useEffect(() => {
+    const update = () => setNow(new Date())
+    const timer = window.setInterval(update, 60_000)
+    document.addEventListener("visibilitychange", update)
+    window.addEventListener("focus", update)
+    return () => {
+      window.clearInterval(timer)
+      document.removeEventListener("visibilitychange", update)
+      window.removeEventListener("focus", update)
+    }
   }, [])
+  const rows = React.useMemo(() => DATA.items.map((it) => deriveRow(it, now)), [now])
   const viewRows = React.useMemo(
     () => (view === "overview" ? rows : rows.filter((r) => r.category === view)),
     [rows, view]
   )
   const counts = React.useMemo(() => {
-    const open = rows.filter((r) => !isExpired(r))
+    const open = rows.filter((r) => isAccepting(r) && local.statusOf(r) !== "đã tham gia" && local.statusOf(r) !== "bỏ qua")
     return Object.fromEntries([["overview", open.length], ...CATEGORIES.map((c) => [c, open.filter((r) => r.category === c).length])])
-  }, [rows])
+  }, [rows, local.statusOf])
 
   React.useEffect(() => {
     const onHash = () => setView(readView())
