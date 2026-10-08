@@ -22,7 +22,7 @@ export function SiteHeader({ title, builtAt }: { title: string; builtAt: string 
         <h1 className="truncate text-base font-medium">{title}</h1>
         <div className="ml-auto flex items-center gap-2">
           <span className="hidden text-sm text-muted-foreground sm:inline">
-            Cập nhật {builtAt}
+            Dữ liệu cập nhật {builtAt}
           </span>
           <Button
             variant="ghost"
