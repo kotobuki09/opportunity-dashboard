@@ -78,6 +78,7 @@ import {
   hasValue,
   inWindow,
   isExpired,
+  isAccepting,
   money,
   PROJECTS,
   STATUSES,
@@ -184,7 +185,7 @@ export function DataTable({
 
   const inScope = React.useCallback(
     (r: OpportunityRow, s: Scope) =>
-      s === "expired" ? isExpired(r) : s === "tracking" ? TRACKING.includes(statusOf(r)) && !isExpired(r) : !isExpired(r),
+      s === "expired" ? isExpired(r) : s === "tracking" ? TRACKING.includes(statusOf(r)) && !isExpired(r) : isAccepting(r) && statusOf(r) !== "đã tham gia" && statusOf(r) !== "bỏ qua",
     [statusOf]
   )
   const matches = React.useCallback(
@@ -235,6 +236,9 @@ export function DataTable({
               <span className="truncate font-medium">{row.original.title}</span>
               <span className="truncate text-xs text-muted-foreground">
                 {row.original.fit_note || row.original.eligibility_note || row.original.url.replace(/^https?:\/\//, "")}
+              </span>
+              <span className="text-[11px] text-muted-foreground">
+                {row.original.verified_at ? `Xác minh ${formatDay(row.original.verified_at)}` : "Chưa ghi nhận xác minh"}
               </span>
             </div>
           ),
@@ -490,6 +494,10 @@ export function DataTable({
               <XIcon data-icon="inline-end" />
             </Button>
           )}
+        </div>
+        <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+          <span>{data.length} cơ hội khớp · {scopeCounts[scope]} trong phạm vi</span>
+          <span>{filtersActive ? "Đang áp dụng bộ lọc" : "Chọn bộ lọc để thu hẹp kết quả"}</span>
         </div>
         <div className="overflow-hidden rounded-lg border">
           <Table>
