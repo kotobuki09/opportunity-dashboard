@@ -23,7 +23,7 @@ export function extractAssets(html, base = LIVE) {
     const isStylesheet = !isScript && /\brel\s*=\s*["']stylesheet["']/i.test(tag)
     if (!isScript && !isStylesheet) continue
     const url = new URL(source, baseUrl)
-    if (url.origin !== baseUrl.origin || !url.pathname.startsWith(baseUrl.pathname + "assets/")) {
+    if (url.origin !== baseUrl.origin || !url.pathname.startsWith(baseUrl.pathname.replace(/\/?$/, "/") + "assets/")) {
       throw Error("Asset escaped expected public path: " + source)
     }
     const expectedExtension = isScript ? ".js" : ".css"
