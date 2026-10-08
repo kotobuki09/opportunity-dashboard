@@ -12,7 +12,7 @@ import {
 import {
   formatDate,
   isDue,
-  isExpired,
+  isAccepting,
   money,
   statedAmount,
   TRACKING,
@@ -28,7 +28,7 @@ export function SectionCards({
   statusOf: (r: OpportunityRow) => Status
 }) {
   // Programs already joined are not open opportunities.
-  const open = rows.filter((r) => !isExpired(r) && statusOf(r) !== "đã tham gia")
+  const open = rows.filter((r) => isAccepting(r) && statusOf(r) !== "đã tham gia" && statusOf(r) !== "bỏ qua")
   const due14 = open.filter((r) => isDue(r, 14)).sort((a, b) => a.rank - b.rank)
   const due7 = due14.filter((r) => isDue(r, 7))
   const rolling = open.filter((r) => r.rolling)
@@ -48,6 +48,7 @@ export function SectionCards({
   }
   const currencies = Object.keys(totals).sort((a, b) => (a === "USD" ? -1 : b === "USD" ? 1 : 0))
   const next = due14[0]
+  const verified = open.filter((r) => !!r.verified_at).length
 
   return (
     <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
@@ -68,7 +69,7 @@ export function SectionCards({
           <div className="line-clamp-1 flex gap-2 font-medium">
             {rolling.length} rolling · {opening.length} sắp mở
           </div>
-          <div className="text-muted-foreground">Trên tổng {rows.length} mục đã lưu</div>
+          <div className="text-muted-foreground">{verified}/{open.length} có ngày xác minh · {rows.length} mục đã lưu</div>
         </CardFooter>
       </Card>
       <Card className="@container/card">
@@ -107,8 +108,8 @@ export function SectionCards({
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 font-medium">Rolling hoặc cut-off theo đợt</div>
-          <div className="text-muted-foreground">Không có hạn chót cố định</div>
+          <div className="line-clamp-1 font-medium">Đang nhận liên tục</div>
+          <div className="text-muted-foreground">Có thể có cut-off theo đợt</div>
         </CardFooter>
       </Card>
       <Card className="@container/card">
