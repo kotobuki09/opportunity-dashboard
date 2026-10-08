@@ -1,4 +1,6 @@
 import raw from "@/data/data.json"
+import { computeDeadline, isAcceptingState, isPastState, type DeadlineState } from "@/lib/deadlines"
+export type { DeadlineState } from "@/lib/deadlines"
 
 export type Status = "mới" | "quan tâm" | "đang làm hồ sơ" | "đã nộp" | "đã tham gia" | "bỏ qua"
 
@@ -29,7 +31,6 @@ export type Opportunity = {
   verified_at: string
 }
 
-export type DeadlineState = "open" | "expired" | "missed_cutoff" | "rolling" | "opens_later" | "unknown"
 
 export type OpportunityRow = Opportunity & {
   state: DeadlineState
@@ -91,31 +92,14 @@ export function formatDate(iso: string | null, withTime = true) {
 export const formatDay = (isoDay: string) => { const [y, m, d] = isoDay.split("-"); return `${d}/${m}/${y}` }
 
 export function deriveRow(it: Opportunity, now = new Date()): OpportunityRow {
-  const dl = it.deadline_iso ? new Date(it.deadline_iso) : null
-  const opens = it.opens_iso ? new Date(`${it.opens_iso}T00:00:00+07:00`) : null
-  const notOpenYet = !!(opens && opens > now)
-  const rolling = it.deadline_type === "rolling" || it.deadline_type === "rolling_cutoff"
-  const past = !!(dl && dl < now && it.deadline_type !== "rolling")
-  const daysLeft = dl ? dayNum(dl) - dayNum(now) : null
-  let state: DeadlineState, label: string, rank: number
-  if (notOpenYet) { state = "opens_later"; label = `Mở ${formatDay(it.opens_iso!)}`; rank = 1e15 + (opens?.getTime() ?? 0) }
-  else if (past && it.deadline_type === "rolling_cutoff") { state = "missed_cutoff"; label = "Lỡ cut-off, chờ đợt sau"; rank = 3e15 }
-  else if (past) { state = "expired"; label = "Đã hết hạn"; rank = 4e15 - (dl as Date).getTime() }
-  else if (dl) {
-    state = "open"; rank = dl.getTime()
-    const h = Math.floor((dl.getTime() - now.getTime()) / 3_600_000)
-    label = daysLeft! <= 0 ? (h <= 0 ? "Dưới 1 giờ" : `Còn ${h} giờ`) : daysLeft === 1 ? "Ngày mai" : `Còn ${daysLeft} ngày`
-  } else if (notOpenYet || it.deadline_type === "opens_later") {
-    state = "opens_later"; label = opens ? `Mở ${formatDay(it.opens_iso!)}` : "Sắp mở"; rank = 1e15 + (opens?.getTime() ?? 0)
-  } else if (it.deadline_type === "rolling") { state = "rolling"; label = "Rolling"; rank = 2e15 }
-  else { state = "unknown"; label = "Chưa rõ hạn"; rank = 2.5e15 }
-  return { ...it, state, daysLeft, rank, label, rolling, notOpenYet }
+  return { ...it, ...computeDeadline(it, now) }
 }
 
-/** Exclude pre-opening, expired and missed-cutoff items from actionable open counts. */
-export const isAccepting = (r: OpportunityRow) => r.state === "open" || r.state === "rolling" || r.state === "unknown"
-export const isExpired = (r: OpportunityRow) => r.state === "expired"
-export const isDue = (r: OpportunityRow, days: number) => r.state === "open" && r.daysLeft !== null && r.daysLeft <= days
+/** The word "open" only means that applications are currently accepted. */
+export const isAccepting = (r: OpportunityRow) => isAcceptingState(r.state)
+export const isExpired = (r: OpportunityRow) => isPastState(r.state)
+export const isDue = (r: OpportunityRow, days: number) =>
+  r.state === "open" && r.daysLeft !== null && r.daysLeft >= 0 && r.daysLeft <= days
 
 const nf = new Intl.NumberFormat("vi-VN")
 export function money(n: number, cur: string) {
@@ -140,7 +124,7 @@ export const WINDOWS = [
   { value: "opens", label: "Sắp mở" },
 ] as const
 export function inWindow(r: OpportunityRow, w: string) {
-  if (w === "rolling") return r.rolling
+  if (w === "rolling") return r.state === "rolling" || (r.state === "open" && r.rolling)
   if (w === "opens") return r.state === "opens_later"
   return isDue(r, Number(w))
 }
