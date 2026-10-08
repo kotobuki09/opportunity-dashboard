@@ -134,14 +134,12 @@ export function useLocalState(items: Opportunity[]) {
       if (!key) continue
       imported[key] = cleanEntry(raw)
     }
-    let accepted = 0
     setStore((previous) => {
       const next = { ...previous.items }
       for (const [key, value] of Object.entries(imported)) {
         const previousDate = next[key]?.updated || ""
         if (previousDate && value.updated && value.updated < previousDate) continue
         next[key] = { ...next[key], ...value, updated: value.updated || new Date().toISOString() }
-        accepted++
       }
       return { items: next }
     })
