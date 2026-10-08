@@ -203,7 +203,7 @@ export function DataTable({
         if (!statuses.size && scope === "open" && st === "bỏ qua") return false
       }
       if (query) {
-        const hay = stripVi([r.title, r.category, ...r.project, r.stage_req, r.fit_note, r.eligibility_note, r.value_text, r.deadline, noteOf(r), st].join(" "))
+        const hay = stripVi([r.title, r.category, ...r.project, BENEFIT_LABELS[r.benefit_kind], r.stage_req, r.fit_note, r.eligibility_note, r.value_text, r.deadline, noteOf(r), st].join(" "))
         if (!stripVi(query).split(/\s+/).filter(Boolean).every((w) => hay.includes(w))) return false
       }
       return true
