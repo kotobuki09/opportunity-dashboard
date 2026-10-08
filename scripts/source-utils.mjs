@@ -1,4 +1,5 @@
 import { isIP } from "node:net"
+import { lookup } from "node:dns/promises"
 
 /** Normalize URLs only for deduplication; never change the stored official URL/id. */
 export function canonicalUrl(value) {
@@ -27,7 +28,7 @@ export function isPrivateIp(address) {
     (a[0] === 100 && a[1] >= 64 && a[1] <= 127) ||
     (a[0] === 169 && a[1] === 254) ||
     (a[0] === 172 && a[1] >= 16 && a[1] <= 31) ||
-    (a[0] === 192 && (a[1] === 168 || a[1] === 0)) ||
+    (a[0] === 192 && (a[1] === 168 || a[1] === 0 || a[1] === 0 && a[2] === 2)) ||
     (a[0] === 198 && a[1] >= 18 && a[1] <= 19)
 }
 
@@ -38,13 +39,23 @@ export function validatePublicUrl(input) {
   catch { return { safe: false, reason: "Malformed URL" } }
   if (!["https:", "http:"].includes(url.protocol)) return { safe: false, reason: "Unsupported protocol" }
   if (url.username || url.password) return { safe: false, reason: "Embedded credentials" }
-  const host = url.hostname.toLowerCase().replace(/\.$/, "")
+  const host = url.hostname.toLowerCase().replace(/\.$/, "").replace(/^\[|\]$/g, "")
   if (!host.includes(".") || isIP(host) || host === "localhost" ||
     /\.(localhost|local|internal|test|invalid|example)$/.test(host)) {
     return { safe: false, reason: "Local or reserved hostname" }
   }
   if (url.port && !["80", "443"].includes(url.port)) return { safe: false, reason: "Unexpected port" }
   return { safe: true, url }
+}
+
+/** Avoid requests to DNS names pointing to local/private ranges. */
+export async function ensurePublicHost(url) {
+  const checked = validatePublicUrl(url.href)
+  if (!checked.safe) throw new Error(checked.reason)
+  const answers = await lookup(url.hostname, { all: true })
+  if (!answers.length || answers.some((answer) => isPrivateIp(answer.address))) {
+    throw new Error("Unsafe DNS target")
+  }
 }
 
 export function httpHealth(status) {
