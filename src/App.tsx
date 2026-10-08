@@ -5,6 +5,7 @@ import { AppSidebar } from "@/components/app-sidebar"
 import { DeadlineAgenda } from "@/components/deadline-agenda"
 import { DataTable } from "@/components/data-table"
 import { OpportunityDrawer } from "@/components/opportunity-drawer"
+import { QualityReview } from "@/components/quality-review"
 import { SectionCards } from "@/components/section-cards"
 import { SiteHeader } from "@/components/site-header"
 import { WorkspaceHome } from "@/components/workspace-home"
@@ -15,11 +16,11 @@ import { Toaster } from "@/components/ui/sonner"
 import { useLocalState } from "@/lib/local-state"
 import { CATEGORIES, DATA, deriveRow, isAccepting, isDue, PROJECTS, TRACKING, type Status } from "@/lib/opps"
 
-const MAIN_VIEWS = ["overview", "explore", "board", "calendar", "shortlist"]
+const MAIN_VIEWS = ["overview", "explore", "board", "calendar", "shortlist", "quality"]
 const VIEWS = [...MAIN_VIEWS, ...CATEGORIES]
 const VIEW_LABELS: Record<string, string> = {
   overview: "Tổng quan", explore: "Khám phá cơ hội", board: "Pipeline hồ sơ",
-  calendar: "Lịch hạn nộp", shortlist: "Đang theo đuổi",
+  calendar: "Lịch hạn nộp", shortlist: "Đang theo đuổi", quality: "Kiểm tra dữ liệu",
 }
 function readView() {
   try {
@@ -130,7 +131,9 @@ export function App() {
           ) : view === "board" ? (
             <WorkflowBoard rows={viewRows} statusOf={local.statusOf} onOpen={setSelectedId} onStatusChange={updateStatus} />
           ) : view === "calendar" ? (
-            <DeadlineAgenda rows={viewRows} onOpen={setSelectedId} />
+            <DeadlineAgenda rows={viewRows} statusOf={local.statusOf} onOpen={setSelectedId} />
+          ) : view === "quality" ? (
+            <QualityReview rows={viewRows} onOpen={setSelectedId} now={now} />
           ) : (
             <DataTable key={view + ":" + project} rows={viewRows} showCategory={MAIN_VIEWS.includes(view)}
               defaultScope={view === "shortlist" ? "tracking" : "open"} local={local} />

@@ -46,8 +46,7 @@ Fields starting with `_` are computed by the builder and never stored in `seen.j
 ## Value handling in the dashboard
 
 - Cards always show `value_text` (or "không rõ").
-- KPI "Giá trị công bố" sums stated amounts per currency without conversion
-  (e.g. `$273k + €72k + 3 tỷ ₫`).
+- Display source-stated values per opportunity only. Different benefit kinds (equity, grants, credits, prizes) are **not additive**; the V3 dashboard does not present an aggregate total.
 - For sorting and the value chart only, non-USD amounts are converted with fixed approximate
   rates in `FX_TO_USD` in `scripts/gen-data.mjs` and marked "≈".
 

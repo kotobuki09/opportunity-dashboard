@@ -21,7 +21,8 @@ import {
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
-import { formatDate, formatDay, hasValue, money, type OpportunityRow, type Status } from "@/lib/opps"
+import { BENEFIT_LABELS, formatDate, formatDay, hasValue, money, type OpportunityRow, type Status } from "@/lib/opps"
+import { qualityFor } from "@/lib/data-quality"
 
 const TYPE_LABEL: Record<string, string> = {
   fixed: "Hạn cố định",
@@ -84,7 +85,7 @@ export function OpportunityDrawer({
                   </dd>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <dt className="text-muted-foreground">Giá trị</dt>
+                  <dt className="text-muted-foreground">Giá trị · {BENEFIT_LABELS[item.benefit_kind]}</dt>
                   <dd className="font-medium">
                     {hasValue(item) ? item.value_text : <span className="text-muted-foreground">không rõ</span>}
                     {item.value_rank_approx && item.value_rank_usd != null && (
@@ -129,6 +130,7 @@ export function OpportunityDrawer({
                 <p className="text-muted-foreground">{item.eligibility_note || "Chưa có ghi chú."}</p>
               </div>
               <div className="rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
+                {qualityFor(item).issues.length > 0 && <p className="mb-2 font-medium">Cần rà soát: {qualityFor(item).issues.join(" · ")}</p>}
                 {item.verified_at
                   ? `Nguồn được kiểm tra lần cuối: ${formatDay(item.verified_at)}. Vui lòng xác nhận điều kiện trên trang chính thức trước khi nộp.`
                   : "Chưa có ngày xác minh nguồn. Vui lòng xác nhận hạn chót và điều kiện trên trang chính thức trước khi nộp."}
