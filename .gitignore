@@ -28,3 +28,7 @@ src/data/data.json
 
 # Local / Actions source intelligence review artifacts
 artifacts/
+
+# Browser regression reports
+playwright-report/
+test-results/
