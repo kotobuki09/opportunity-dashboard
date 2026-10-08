@@ -1,18 +1,13 @@
 import * as React from "react"
 
-const MOBILE_BREAKPOINT = 768
-const QUERY = `(max-width: ${MOBILE_BREAKPOINT - 1}px)`
-
+const QUERY = "(max-width: 767px)"
 function subscribe(onChange: () => void) {
-  const mql = window.matchMedia(QUERY)
-  mql.addEventListener("change", onChange)
-  return () => mql.removeEventListener("change", onChange)
+  const media = window.matchMedia(QUERY)
+  media.addEventListener("change", onChange)
+  return () => media.removeEventListener("change", onChange)
 }
 
+/** No effect-based setState: updates synchronously with viewport changes. */
 export function useIsMobile() {
-  return React.useSyncExternalStore(
-    subscribe,
-    () => window.matchMedia(QUERY).matches,
-    () => false,
-  )
+  return React.useSyncExternalStore(subscribe, () => window.matchMedia(QUERY).matches, () => false)
 }

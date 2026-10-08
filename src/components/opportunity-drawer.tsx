@@ -1,4 +1,9 @@
-import { ExternalLinkIcon } from "lucide-react"
+import * as React from "react"
+import { CalendarPlusIcon, ExternalLinkIcon, PlusIcon, Trash2Icon } from "lucide-react"
+import { downloadCalendar } from "@/lib/calendar"
+import type { PersonalEntry } from "@/lib/local-state"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { DeadlineBadge, StatusSelect } from "@/components/opportunity-bits"
@@ -31,17 +36,28 @@ export function OpportunityDrawer({
   onOpenChange,
   status,
   note,
+  entry,
   onStatusChange,
   onNoteChange,
+  onNextActionChange,
+  onAddTask,
+  onToggleTask,
+  onRemoveTask,
 }: {
   item: OpportunityRow | null
   onOpenChange: (open: boolean) => void
   status: Status
   note: string
+  entry?: PersonalEntry
   onStatusChange: (s: Status) => void
   onNoteChange: (note: string) => void
+  onNextActionChange?: (value: string) => void
+  onAddTask?: (text: string) => void
+  onToggleTask?: (id: string) => void
+  onRemoveTask?: (id: string) => void
 }) {
   const isMobile = useIsMobile()
+  const [taskText, setTaskText] = React.useState("")
 
   return (
     <Drawer direction={isMobile ? "bottom" : "right"} open={!!item} onOpenChange={onOpenChange}>
@@ -109,6 +125,11 @@ export function OpportunityDrawer({
                 <div className="font-medium">Điều kiện và lưu ý</div>
                 <p className="text-muted-foreground">{item.eligibility_note || "Chưa có ghi chú."}</p>
               </div>
+              <div className="rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
+                {item.verified_at
+                  ? `Nguồn được kiểm tra lần cuối: ${formatDay(item.verified_at)}. Vui lòng xác nhận điều kiện trên trang chính thức trước khi nộp.`
+                  : "Chưa có ngày xác minh nguồn. Vui lòng xác nhận hạn chót và điều kiện trên trang chính thức trước khi nộp."}
+              </div>
               <Separator />
               <FieldGroup>
                 <Field>
@@ -125,9 +146,53 @@ export function OpportunityDrawer({
                   />
                   <FieldDescription>Chỉ lưu trên trình duyệt này. Dùng Xuất/Nhập để chuyển máy.</FieldDescription>
                 </Field>
+                {onNextActionChange && (
+                  <Field>
+                    <FieldLabel htmlFor="drawer-next-action">Bước tiếp theo</FieldLabel>
+                    <Input id="drawer-next-action" value={entry?.nextAction || ""}
+                      onChange={(event) => onNextActionChange(event.target.value)}
+                      placeholder="Ví dụ: chuẩn bị CV, xin thư giới thiệu..." />
+                  </Field>
+                )}
+                {onAddTask && (
+                  <Field>
+                    <FieldLabel>Checklist hồ sơ</FieldLabel>
+                    <div className="space-y-2">
+                      {(entry?.tasks || []).map((task) => (
+                        <div key={task.id} className="flex items-center gap-2 rounded-md border p-2">
+                          <Checkbox checked={task.done} onCheckedChange={() => onToggleTask?.(task.id)}
+                            aria-label={"Đánh dấu hoàn thành: " + task.text} />
+                          <span className={"min-w-0 flex-1 text-sm " + (task.done ? "text-muted-foreground line-through" : "")}>{task.text}</span>
+                          <Button type="button" size="icon" variant="ghost"
+                            onClick={() => onRemoveTask?.(task.id)} aria-label={"Xóa công việc: " + task.text}>
+                            <Trash2Icon className="size-3.5" />
+                          </Button>
+                        </div>
+                      ))}
+                      <form className="flex gap-2" onSubmit={(event) => {
+                        event.preventDefault()
+                        if (!taskText.trim()) return
+                        onAddTask(taskText)
+                        setTaskText("")
+                      }}>
+                        <Input value={taskText} maxLength={200} onChange={(event) => setTaskText(event.target.value)}
+                          aria-label="Công việc mới" placeholder="Thêm một công việc..." />
+                        <Button type="submit" variant="outline" size="icon" disabled={!taskText.trim()} aria-label="Thêm công việc">
+                          <PlusIcon className="size-4" />
+                        </Button>
+                      </form>
+                    </div>
+                    <FieldDescription>Ghi chú và checklist chỉ lưu trong trình duyệt, có thể xuất JSON để sao lưu.</FieldDescription>
+                  </Field>
+                )}
               </FieldGroup>
             </div>
             <DrawerFooter>
+              {item.deadline_iso && (
+                <Button variant="outline" onClick={() => downloadCalendar([item], "deadline-" + item.id + ".ics")}>
+                  <CalendarPlusIcon /> Thêm hạn nộp vào lịch
+                </Button>
+              )}
               <Button asChild>
                 <a href={item.url} target="_blank" rel="noopener noreferrer">
                   Mở trang chính thức
