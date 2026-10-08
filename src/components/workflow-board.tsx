@@ -1,3 +1,4 @@
+import * as React from "react"
 import { DndContext, useDraggable, useDroppable, type DragEndEvent } from "@dnd-kit/core"
 import { CSS } from "@dnd-kit/utilities"
 import { GripVerticalIcon, KanbanSquareIcon } from "lucide-react"
@@ -44,7 +45,8 @@ function PipelineLane({ stage, rows, statusOf, onOpen, onStatusChange }: {
   onStatusChange: (id: string, status: Status) => void
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: "stage:" + stage })
-  const visible = rows.slice(0, 24)
+  const [expanded, setExpanded] = React.useState(false)
+  const visible = expanded ? rows : rows.slice(0, 24)
   return (
     <section ref={setNodeRef} aria-label={STATUS_LABEL[stage]}
       className={"flex min-h-[420px] w-[276px] min-w-[276px] flex-col gap-3 rounded-xl border p-3 transition-colors " +
@@ -56,10 +58,10 @@ function PipelineLane({ stage, rows, statusOf, onOpen, onStatusChange }: {
       {visible.map((row) => (
         <PipelineCard key={row.id} row={row} stage={statusOf(row)} onOpen={onOpen} onStatusChange={onStatusChange} />
       ))}
-      {rows.length > visible.length && (
-        <p className="px-2 py-1 text-xs text-muted-foreground">
-          +{rows.length - visible.length} cơ hội khác. Dùng Khám phá để xem đầy đủ.
-        </p>
+      {rows.length > 24 && (
+        <Button variant="outline" size="sm" className="w-full" onClick={() => setExpanded((current) => !current)}>
+          {expanded ? "Thu gọn danh sách" : "Xem toàn bộ " + rows.length + " cơ hội"}
+        </Button>
       )}
       {!rows.length && (
         <p className="rounded-lg border border-dashed p-5 text-center text-xs text-muted-foreground">
