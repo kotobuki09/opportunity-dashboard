@@ -53,7 +53,7 @@ Production ready for the *static personal product* means data validity, reliable
 
 - The repo is public; agent submissions default to PRs, never silent source/dataset edits.
 - All source-finding automation is advisory until a human reviews the official page and inserts accurate metadata.
-- Nightly production URL smoke test; source-health artifacts retained at least 14 days.
+- Nightly public HTML plus same-origin JS/CSS availability check through GitHub Actions; source-health artifacts retained at least 14 days. Browser E2E runs before each deploy.
 - Review source integrity warnings at least weekly, immediately for approaching deadlines.
 - Any failed deploy: inspect CI, revert offending commit, confirm production availability.
 - A release is only labeled **verified** after PR CI, main CI, Pages deployment, and live smoke results are recorded in the release notes.
