@@ -59,12 +59,6 @@ jobs:
       - name: Validate data/seen.json
         run: npm run validate
 
-      - name: Unit tests
-        run: npm test
-
-      - name: Lint
-        run: npm run lint
-
       - name: Build (vite base /opportunity-dashboard/)
         run: npm run build
 

@@ -109,11 +109,6 @@ export function OpportunityDrawer({
                 <div className="font-medium">Điều kiện và lưu ý</div>
                 <p className="text-muted-foreground">{item.eligibility_note || "Chưa có ghi chú."}</p>
               </div>
-              <div className="rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
-                {item.verified_at
-                  ? `Nguồn được kiểm tra lần cuối: ${formatDay(item.verified_at)}. Vui lòng xác nhận điều kiện trên trang chính thức trước khi nộp.`
-                  : "Chưa có ngày xác minh nguồn. Vui lòng xác nhận hạn chót và điều kiện trên trang chính thức trước khi nộp."}
-              </div>
               <Separator />
               <FieldGroup>
                 <Field>

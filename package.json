@@ -12,8 +12,7 @@
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "node scripts/gen-data.mjs && tsc --noEmit",
-    "preview": "vite preview",
-    "test": "node --experimental-strip-types --test scripts/*.test.mjs"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

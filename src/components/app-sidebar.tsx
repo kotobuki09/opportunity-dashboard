@@ -26,10 +26,6 @@ import {
   BotIcon,
   LandmarkIcon,
   BugIcon,
-  ListChecksIcon,
-  CalendarDaysIcon,
-  SearchIcon,
-  Columns3Icon,
 } from "lucide-react"
 import { categoryColor } from "@/lib/opps"
 
@@ -65,11 +61,7 @@ export function AppSidebar({
   onImport: () => void
 }) {
   const overview: NavItem[] = [
-    { id: "overview", title: "Tổng quan", icon: <LayoutDashboardIcon /> },
-    { id: "explore", title: "Khám phá cơ hội", icon: <SearchIcon />, count: counts.overview },
-    { id: "board", title: "Pipeline hồ sơ", icon: <Columns3Icon />, count: counts.tracking },
-    { id: "calendar", title: "Lịch hạn nộp", icon: <CalendarDaysIcon />, count: counts.due30 },
-    { id: "shortlist", title: "Đang theo đuổi", icon: <ListChecksIcon />, count: counts.tracking },
+    { id: "overview", title: "Tổng quan", icon: <LayoutDashboardIcon />, count: counts.overview },
   ]
   const byCategory: NavItem[] = categories.map((c) => ({
     id: c,
@@ -96,7 +88,7 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain label="Không gian làm việc" items={overview} active={view} onSelect={onViewChange} />
+        <NavMain items={overview} active={view} onSelect={onViewChange} />
         <NavMain label="Loại cơ hội" items={byCategory} active={view} onSelect={onViewChange} />
         <NavSecondary
           className="mt-auto"
