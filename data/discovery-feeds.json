@@ -22,13 +22,5 @@
     "official_host": "nsf.gov",
     "category_hint": "Tài trợ/Grant",
     "eligibility_caveat": "U.S. program; check partner/host and geographic constraints."
-  },
-  {
-    "id": "grants-gov-new",
-    "name": "Grants.gov new opportunities",
-    "url": "https://www.grants.gov/rss/GG_NewOppByAgency.xml",
-    "official_host": "grants.gov",
-    "category_hint": "Tài trợ/Grant",
-    "eligibility_caveat": "U.S. federal program; do not assume eligibility outside the United States."
   }
 ]

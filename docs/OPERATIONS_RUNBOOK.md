@@ -44,3 +44,11 @@ The public GitHub Pages dashboard hosts non-sensitive opportunity facts and brow
 - **Automatic email/push reminders**: requires a scheduler/queue, verified recipient consent, reliable timezone semantics, unsubscribe and delivery monitoring. A downloaded .ics with VALARM is local, not an email notification.
 - **AI eligibility assessment**: requires authoritative source retrieval, project/applicant profiles, human approval, explainable reasoning, evaluation of false positives/negatives, and controlled model costs.
 - Those services must not be marked implemented until provisioned and independently tested.
+
+## Initial production source intelligence test (2026-10-08)
+
+- The first production monitor checked all 77 source URLs: 69 reachable, 7 restricted and 1 error. Those are HTTP transport checks **only**, not eligibility decisions.
+- The discovery review produced 34 preliminary candidates from official NAFOSTED and NSF feeds. Publication requires manual verification.
+- The initially configured Grants.gov RSS endpoint returned an unsupported XML format/size. It was retired from the active feed catalog rather than weakening the DTD/size protections. The general Grants.gov site may still be used for manual research.
+- New feeds should only be added after one successful check in the scheduled runner and with a documented expected format/host.
+
