@@ -4,7 +4,9 @@
   "title": "Opportunity Scout list (data/seen.json)",
   "description": "Array of opportunities shown on https://kotobuki09.github.io/opportunity-dashboard/. Human-readable rules: SCHEMA.md. Extra checks (unique ids, URL syntax, value ranges) run in scripts/validate.mjs.",
   "type": "array",
-  "items": { "$ref": "#/$defs/opportunity" },
+  "items": {
+    "$ref": "#/$defs/opportunity"
+  },
   "$defs": {
     "date": {
       "type": "string",
@@ -12,22 +14,47 @@
       "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
     },
     "nullableDate": {
-      "anyOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }]
+      "anyOf": [
+        {
+          "$ref": "#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "amount": {
-      "anyOf": [{ "type": "number", "minimum": 0 }, { "type": "null" }]
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "opportunity": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["title", "url", "deadline", "first_seen", "category"],
+      "required": [
+        "title",
+        "url",
+        "deadline",
+        "first_seen",
+        "category"
+      ],
       "properties": {
         "id": {
           "description": "Stable key for browser status/notes. Default sha1(url)[:12]. Never change once set.",
           "type": "string",
           "pattern": "^[A-Za-z0-9_-]{4,64}$"
         },
-        "title": { "type": "string", "minLength": 3, "maxLength": 300 },
+        "title": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 300
+        },
         "url": {
           "description": "Official page (http/https). Also the dedupe key.",
           "type": "string",
@@ -39,7 +66,9 @@
           "type": "string",
           "minLength": 1
         },
-        "first_seen": { "$ref": "#/$defs/date" },
+        "first_seen": {
+          "$ref": "#/$defs/date"
+        },
         "category": {
           "enum": [
             "Học bổng/Fellowship",
@@ -60,41 +89,122 @@
               "format": "date-time",
               "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}(:\\d{2})?(Z|[+-]\\d{2}:\\d{2})$"
             },
-            { "type": "null" }
+            {
+              "type": "null"
+            }
           ]
         },
-        "deadline_type": { "enum": ["fixed", "rolling", "rolling_cutoff", "opens_later", "unknown"] },
-        "opens_iso": { "$ref": "#/$defs/nullableDate" },
-        "value_text": { "type": "string", "minLength": 1 },
-        "value_usd_estimate": { "$ref": "#/$defs/amount" },
-        "value_usd_min": { "$ref": "#/$defs/amount" },
-        "value_amount_max": { "$ref": "#/$defs/amount" },
-        "value_currency": {
-          "anyOf": [{ "type": "string", "pattern": "^[A-Z]{3}$" }, { "type": "null" }]
+        "deadline_type": {
+          "enum": [
+            "fixed",
+            "rolling",
+            "rolling_cutoff",
+            "opens_later",
+            "unknown"
+          ]
         },
-        "fit_note": { "type": "string" },
-        "eligibility_note": { "type": "string" },
-        "stage_req": { "type": "string" },
+        "opens_iso": {
+          "$ref": "#/$defs/nullableDate"
+        },
+        "value_text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value_usd_estimate": {
+          "$ref": "#/$defs/amount"
+        },
+        "value_usd_min": {
+          "$ref": "#/$defs/amount"
+        },
+        "value_amount_max": {
+          "$ref": "#/$defs/amount"
+        },
+        "value_currency": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Z]{3}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fit_note": {
+          "type": "string"
+        },
+        "eligibility_note": {
+          "type": "string"
+        },
+        "stage_req": {
+          "type": "string"
+        },
         "project": {
           "description": "Best-fit ERA Lab project(s), best first.",
           "anyOf": [
-            { "type": "string", "minLength": 1 },
-            { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
-            { "type": "null" }
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "uniqueItems": true
+            },
+            {
+              "type": "null"
+            }
           ]
         },
-        "status": { "enum": ["mới", "quan tâm", "đang làm hồ sơ", "đã nộp", "đã tham gia", "bỏ qua"] },
+        "status": {
+          "enum": [
+            "mới",
+            "quan tâm",
+            "đang làm hồ sơ",
+            "đã nộp",
+            "đã tham gia",
+            "bỏ qua"
+          ]
+        },
         "verified_at": {
           "description": "YYYY-MM-DD (VN) when the official page was last checked and the item confirmed still open.",
           "$ref": "#/$defs/date"
+        },
+        "benefit_kind": {
+          "description": "Explicit nature of benefit; do not infer from monetary value. Different kinds must not be aggregated together.",
+          "enum": [
+            "grant",
+            "prize",
+            "equity",
+            "credits",
+            "stipend",
+            "contract",
+            "in_kind",
+            "unknown"
+          ]
         }
       },
       "dependentSchemas": {
         "value_amount_max": {
-          "if": { "properties": { "value_amount_max": { "type": "number" } } },
+          "if": {
+            "properties": {
+              "value_amount_max": {
+                "type": "number"
+              }
+            }
+          },
           "then": {
-            "required": ["value_currency"],
-            "properties": { "value_currency": { "type": "string" } }
+            "required": [
+              "value_currency"
+            ],
+            "properties": {
+              "value_currency": {
+                "type": "string"
+              }
+            }
           }
         }
       }

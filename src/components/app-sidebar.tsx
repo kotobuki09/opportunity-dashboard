@@ -30,6 +30,7 @@ import {
   CalendarDaysIcon,
   SearchIcon,
   Columns3Icon,
+  ShieldCheckIcon,
 } from "lucide-react"
 import { categoryColor } from "@/lib/opps"
 
@@ -70,6 +71,7 @@ export function AppSidebar({
     { id: "board", title: "Pipeline hồ sơ", icon: <Columns3Icon />, count: counts.tracking },
     { id: "calendar", title: "Lịch hạn nộp", icon: <CalendarDaysIcon />, count: counts.due30 },
     { id: "shortlist", title: "Đang theo đuổi", icon: <ListChecksIcon />, count: counts.tracking },
+    { id: "quality", title: "Kiểm tra dữ liệu", icon: <ShieldCheckIcon /> },
   ]
   const byCategory: NavItem[] = categories.map((c) => ({
     id: c,

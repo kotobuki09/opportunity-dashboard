@@ -1,6 +1,6 @@
+import * as React from "react"
 import { ArrowRightIcon, CalendarDaysIcon, CheckCircle2Icon, CircleAlertIcon, SparklesIcon } from "lucide-react"
 import { toast } from "sonner"
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { DeadlineBadge } from "@/components/opportunity-bits"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { downloadCalendar } from "@/lib/calendar"
 import { formatDate, isAccepting, TRACKING, type OpportunityRow, type Status } from "@/lib/opps"
 import { priorityFor } from "@/lib/priority"
+
+const ChartAreaInteractive = React.lazy(() => import("@/components/chart-area-interactive").then((m) => ({ default: m.ChartAreaInteractive })))
 
 export function WorkspaceHome({ rows, statusOf, project, onOpen, onNavigate, onStatusChange }: {
   rows: OpportunityRow[]
@@ -95,7 +97,9 @@ export function WorkspaceHome({ rows, statusOf, project, onOpen, onNavigate, onS
         <CircleAlertIcon className="size-4 shrink-0 text-amber-600" />
         {missingVerification} cơ hội đang nhận chưa ghi nhận ngày xác minh. Vui lòng kiểm tra trực tiếp trước khi chuẩn bị hồ sơ.
       </div>
-      <ChartAreaInteractive rows={rows} statusOf={statusOf} />
+      <React.Suspense fallback={<div className="rounded-xl border bg-muted/30 p-8 text-sm text-muted-foreground">Đang tải biểu đồ hạn nộp...</div>}>
+        <ChartAreaInteractive rows={rows} statusOf={statusOf} />
+      </React.Suspense>
     </div>
   )
 }

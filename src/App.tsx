@@ -2,24 +2,27 @@ import * as React from "react"
 import { toast } from "sonner"
 
 import { AppSidebar } from "@/components/app-sidebar"
-import { DeadlineAgenda } from "@/components/deadline-agenda"
-import { DataTable } from "@/components/data-table"
 import { OpportunityDrawer } from "@/components/opportunity-drawer"
 import { SectionCards } from "@/components/section-cards"
 import { SiteHeader } from "@/components/site-header"
-import { WorkspaceHome } from "@/components/workspace-home"
-import { WorkflowBoard } from "@/components/workflow-board"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { useLocalState } from "@/lib/local-state"
 import { CATEGORIES, DATA, deriveRow, isAccepting, isDue, PROJECTS, TRACKING, type Status } from "@/lib/opps"
 
-const MAIN_VIEWS = ["overview", "explore", "board", "calendar", "shortlist"]
+// Route-level code splitting keeps the initial dashboard responsive on mobile connections.
+const WorkspaceHome = React.lazy(() => import("@/components/workspace-home").then((m) => ({ default: m.WorkspaceHome })))
+const WorkflowBoard = React.lazy(() => import("@/components/workflow-board").then((m) => ({ default: m.WorkflowBoard })))
+const DeadlineAgenda = React.lazy(() => import("@/components/deadline-agenda").then((m) => ({ default: m.DeadlineAgenda })))
+const QualityReview = React.lazy(() => import("@/components/quality-review").then((m) => ({ default: m.QualityReview })))
+const DataTable = React.lazy(() => import("@/components/data-table").then((m) => ({ default: m.DataTable })))
+
+const MAIN_VIEWS = ["overview", "explore", "board", "calendar", "shortlist", "quality"]
 const VIEWS = [...MAIN_VIEWS, ...CATEGORIES]
 const VIEW_LABELS: Record<string, string> = {
   overview: "Tổng quan", explore: "Khám phá cơ hội", board: "Pipeline hồ sơ",
-  calendar: "Lịch hạn nộp", shortlist: "Đang theo đuổi",
+  calendar: "Lịch hạn nộp", shortlist: "Đang theo đuổi", quality: "Kiểm tra dữ liệu",
 }
 function readView() {
   try {
@@ -75,12 +78,16 @@ export function App() {
   React.useEffect(() => {
     const onHash = () => setView(readView())
     window.addEventListener("hashchange", onHash)
-    return () => window.removeEventListener("hashchange", onHash)
+    window.addEventListener("popstate", onHash)
+    return () => {
+      window.removeEventListener("hashchange", onHash)
+      window.removeEventListener("popstate", onHash)
+    }
   }, [])
   const changeView = (next: string) => {
-    if (!VIEWS.includes(next)) return
+    if (!VIEWS.includes(next) || next === view) return
     setView(next)
-    history.replaceState(null, "", next === "overview" ? window.location.pathname + window.location.search : "#" + encodeURIComponent(next))
+    history.pushState(null, "", next === "overview" ? window.location.pathname + window.location.search : "#" + encodeURIComponent(next))
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
   const builtAt = DATA.built_at.slice(11) + " " + DATA.built_at.slice(8, 10) + "/" + DATA.built_at.slice(5, 7)
@@ -124,17 +131,21 @@ export function App() {
             </div>
           </div>
           <SectionCards rows={viewRows} statusOf={local.statusOf} onNavigate={changeView} />
+          <React.Suspense fallback={<div role="status" className="mx-4 rounded-xl border bg-muted/30 p-8 text-sm text-muted-foreground lg:mx-6">Đang tải giao diện...</div>}>
           {view === "overview" ? (
             <WorkspaceHome rows={viewRows} statusOf={local.statusOf} project={project === "all" ? null : project}
               onOpen={setSelectedId} onNavigate={changeView} onStatusChange={updateStatus} />
           ) : view === "board" ? (
             <WorkflowBoard rows={viewRows} statusOf={local.statusOf} onOpen={setSelectedId} onStatusChange={updateStatus} />
           ) : view === "calendar" ? (
-            <DeadlineAgenda rows={viewRows} onOpen={setSelectedId} />
+            <DeadlineAgenda rows={viewRows} statusOf={local.statusOf} onOpen={setSelectedId} />
+          ) : view === "quality" ? (
+            <QualityReview rows={viewRows} onOpen={setSelectedId} now={now} />
           ) : (
             <DataTable key={view + ":" + project} rows={viewRows} showCategory={MAIN_VIEWS.includes(view)}
               defaultScope={view === "shortlist" ? "tracking" : "open"} local={local} />
           )}
+          </React.Suspense>
         </main>
       </SidebarInset>
       <OpportunityDrawer

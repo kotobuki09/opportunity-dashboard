@@ -28,6 +28,15 @@ import supports existing version-1 exports. Export/import is a manual backup wor
 **there is no account login, shared workspace backend, or automatic cross-device sync**.
 Each opportunity can be reset individually after confirmation.
 
+## Production readiness V3
+
+- **Data review**: Quality page flags missing/stale manual verification, eligibility and project metadata.
+- **Source monitoring**: Scheduled public-link reachability checks and curated NSF/Grants.gov feed discovery produce human-review artifacts. HTTP status is **not eligibility verification** and no unreviewed sources are automatically published.
+- **Funding values**: Optional benefit kind keeps grants, equity, credits and prizes distinct; no misleading cross-type financial total.
+- **Workflow**: All Kanban items are accessible; calendar excludes skipped/joined opportunities and offers a tracked-only view.
+- **Security and privacy**: best-effort HTML CSP on GitHub Pages, no backend or account sync, status and private notes live only in local browser storage.
+- **Operations**: see docs/PRODUCTION_READINESS_PLAN.md and docs/OPERATIONS_RUNBOOK.md for acceptance gates, scheduled checks, manual source review and rollback.
+
 ## Development
 
 The app is Vite + React + TypeScript + Tailwind CSS + shadcn/ui with TanStack Table and

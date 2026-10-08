@@ -2,6 +2,13 @@ import raw from "@/data/data.json"
 import { computeDeadline, isAcceptingState, isPastState, type DeadlineState } from "@/lib/deadlines"
 export type { DeadlineState } from "@/lib/deadlines"
 
+export const BENEFIT_LABELS = {
+  grant: "Tài trợ không hoàn lại", prize: "Giải thưởng", equity: "Đầu tư đổi cổ phần",
+  credits: "Tín dụng dịch vụ", stipend: "Học bổng/trợ cấp", contract: "Hợp đồng/thù lao",
+  in_kind: "Hỗ trợ hiện vật", unknown: "Chưa phân loại",
+} as const
+export type BenefitKind = keyof typeof BENEFIT_LABELS
+
 export type Status = "mới" | "quan tâm" | "đang làm hồ sơ" | "đã nộp" | "đã tham gia" | "bỏ qua"
 
 export type Opportunity = {
@@ -15,6 +22,7 @@ export type Opportunity = {
   deadline_type: "fixed" | "rolling" | "rolling_cutoff" | "opens_later" | "unknown" | string
   opens_iso: string | null
   value_text: string
+  benefit_kind: BenefitKind
   value_usd_estimate: number | null
   value_amount_max: number | null
   value_currency: string | null

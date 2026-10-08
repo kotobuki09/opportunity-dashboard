@@ -74,6 +74,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   CATEGORIES,
+  BENEFIT_LABELS,
   categoryColor,
   formatDate,
   formatDay,
@@ -115,7 +116,7 @@ const SCOPES: { value: Scope; label: string }[] = [
   { value: "open", label: "Đang mở" },
   { value: "tracking", label: "Đang theo đuổi" },
   { value: "upcoming", label: "Sắp mở" },
-  { value: "expired", label: "Đã hết hạn" },
+  { value: "expired", label: "Hết hạn / qua cut-off" },
   { value: "all", label: "Tất cả" },
 ]
 
@@ -202,7 +203,7 @@ export function DataTable({
         if (!statuses.size && scope === "open" && st === "bỏ qua") return false
       }
       if (query) {
-        const hay = stripVi([r.title, r.category, ...r.project, r.stage_req, r.fit_note, r.eligibility_note, r.value_text, r.deadline, noteOf(r), st].join(" "))
+        const hay = stripVi([r.title, r.category, ...r.project, BENEFIT_LABELS[r.benefit_kind], r.stage_req, r.fit_note, r.eligibility_note, r.value_text, r.deadline, noteOf(r), st].join(" "))
         if (!stripVi(query).split(/\s+/).filter(Boolean).every((w) => hay.includes(w))) return false
       }
       return true
@@ -290,12 +291,10 @@ export function DataTable({
             </div>
           ),
         }),
-        columnHelper.accessor((r) => r.value_rank_usd ?? -1, {
+        columnHelper.accessor("value_text", {
           id: "value",
-          sortDescFirst: true,
-          header: ({ column }) => (
-            <SortButton label="Giá trị" align="end" sorted={column.getIsSorted()} onClick={column.getToggleSortingHandler()} />
-          ),
+          enableSorting: false,
+          header: "Giá trị công bố",
           cell: ({ row }) => (
             <div className="ml-auto w-44 text-right whitespace-normal 2xl:w-56">
               {hasValue(row.original) ? (
@@ -308,6 +307,7 @@ export function DataTable({
               ) : (
                 <span className="text-muted-foreground">không rõ</span>
               )}
+              {row.original.benefit_kind !== "unknown" && <span className="mt-1 block text-[11px] text-muted-foreground">{BENEFIT_LABELS[row.original.benefit_kind]}</span>}
             </div>
           ),
         }),
@@ -554,7 +554,7 @@ export function DataTable({
                     data-state={row.original.id === selectedId ? "selected" : undefined}
                     onClick={() => setSelectedId(row.original.id)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") setSelectedId(row.original.id)
+                      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedId(row.original.id) }
                     }}
                   >
                     {row.getVisibleCells().map((cell) => (

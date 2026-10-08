@@ -55,6 +55,7 @@ function normalize(raw) {
   out.deadline_type = it.deadline_type || (out.deadline_iso ? d.type : d.type === "fixed" ? "unknown" : d.type)
   out.opens_iso = "opens_iso" in it ? it.opens_iso : d.opens
   out.value_text = it.value_text || "không rõ"
+  out.benefit_kind = it.benefit_kind || "unknown"
   out.value_usd_estimate = typeof it.value_usd_estimate === "number" ? it.value_usd_estimate : null
   out.value_amount_max = typeof it.value_amount_max === "number" ? it.value_amount_max : null
   out.value_currency = it.value_currency ? String(it.value_currency).toUpperCase() : null

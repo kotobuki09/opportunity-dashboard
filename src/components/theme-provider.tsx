@@ -18,6 +18,13 @@ type ThemeProviderState = {
 const COLOR_SCHEME_QUERY = "(prefers-color-scheme: dark)"
 const THEME_VALUES: Theme[] = ["dark", "light", "system"]
 
+function safeRead(key: string): string | null {
+  try { return localStorage.getItem(key) } catch { return null }
+}
+function safeWrite(key: string, value: string) {
+  try { localStorage.setItem(key, value) } catch { /* Preferences may be blocked by browser privacy settings. */ }
+}
+
 const ThemeProviderContext = React.createContext<
   ThemeProviderState | undefined
 >(undefined)
@@ -84,7 +91,7 @@ export function ThemeProvider({
   ...props
 }: ThemeProviderProps) {
   const [theme, setThemeState] = React.useState<Theme>(() => {
-    const storedTheme = localStorage.getItem(storageKey)
+    const storedTheme = safeRead(storageKey)
     if (isTheme(storedTheme)) {
       return storedTheme
     }
@@ -94,7 +101,7 @@ export function ThemeProvider({
 
   const setTheme = React.useCallback(
     (nextTheme: Theme) => {
-      localStorage.setItem(storageKey, nextTheme)
+      safeWrite(storageKey, nextTheme)
       setThemeState(nextTheme)
     },
     [storageKey]
@@ -166,7 +173,7 @@ export function ThemeProvider({
                 ? "light"
                 : "dark"
 
-        localStorage.setItem(storageKey, nextTheme)
+        safeWrite(storageKey, nextTheme)
         return nextTheme
       })
     }
