@@ -3,6 +3,14 @@ name: Official sources and discovery review
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/source-intelligence.yml"
+      - "scripts/source-*"
+      - "scripts/feed-*"
+      - "scripts/discover-feeds.mjs"
+      - "data/discovery-feeds.json"
   schedule:
     # 06:31 Vietnam time on Monday and Thursday.
     - cron: "31 23 * * 0,3"
