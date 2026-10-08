@@ -43,6 +43,7 @@ export function OpportunityDrawer({
   onAddTask,
   onToggleTask,
   onRemoveTask,
+  onClearPersonal,
 }: {
   item: OpportunityRow | null
   onOpenChange: (open: boolean) => void
@@ -55,12 +56,14 @@ export function OpportunityDrawer({
   onAddTask?: (text: string) => void
   onToggleTask?: (id: string) => void
   onRemoveTask?: (id: string) => void
+  onClearPersonal?: () => void
 }) {
   const isMobile = useIsMobile()
   const [taskText, setTaskText] = React.useState("")
+  const [confirmClear, setConfirmClear] = React.useState(false)
 
   return (
-    <Drawer direction={isMobile ? "bottom" : "right"} open={!!item} onOpenChange={onOpenChange}>
+    <Drawer direction={isMobile ? "bottom" : "right"} open={!!item} onOpenChange={(open) => { if (!open) setConfirmClear(false); onOpenChange(open) }}>
       <DrawerContent>
         {item && (
           <>
@@ -188,6 +191,25 @@ export function OpportunityDrawer({
               </FieldGroup>
             </div>
             <DrawerFooter>
+              {onClearPersonal && (entry?.status || entry?.note || entry?.nextAction || (entry?.tasks?.length || 0) > 0) && (
+                confirmClear ? (
+                  <div className="rounded-lg border border-destructive/40 p-3">
+                    <p className="mb-3 text-xs text-muted-foreground">
+                      Xóa ghi chú, checklist và trạng thái riêng của cơ hội này? Không thể hoàn tác nếu chưa sao lưu.
+                    </p>
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="destructive" onClick={() => { onClearPersonal(); setConfirmClear(false) }}>
+                        Xác nhận xóa
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setConfirmClear(false)}>Hủy</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <Button variant="ghost" onClick={() => setConfirmClear(true)} className="text-muted-foreground">
+                    <Trash2Icon /> Xóa dữ liệu riêng của mục này
+                  </Button>
+                )
+              )}
               {item.deadline_iso && (
                 <Button variant="outline" onClick={() => downloadCalendar([item], "deadline-" + item.id + ".ics")}>
                   <CalendarPlusIcon /> Thêm hạn nộp vào lịch
