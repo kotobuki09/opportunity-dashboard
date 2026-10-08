@@ -1,20 +1,13 @@
 // Advisory source reachability monitor. Does not rewrite verified_at or data/seen.json.
 import { readFileSync, writeFileSync, mkdirSync, appendFileSync } from "node:fs"
 import { resolve, dirname } from "node:path"
-import { lookup } from "node:dns/promises"
 import { fileURLToPath, pathToFileURL } from "node:url"
-import { httpHealth, isPrivateIp, mapLimit, validatePublicUrl } from "./source-utils.mjs"
+import { httpHealth, ensurePublicHost, mapLimit, validatePublicUrl } from "./source-utils.mjs"
 
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),"..")
 const DEFAULT_OUTPUT=resolve(ROOT,"artifacts/source-health.json")
 const HEADERS={ "User-Agent": "OpportunityScoutSourceMonitor/1.0 (advisory link-check, no application submission)" }
 const bounded=(value,min,max,fallback)=>Number.isFinite(+value)?Math.max(min,Math.min(max,+value)):fallback
-
-async function ensurePublicHost(url) {
-  const host=url.hostname.replace(/\.$/,"")
-  const addresses=await lookup(host,{all:true})
-  if (!addresses.length || addresses.some((a)=>isPrivateIp(a.address))) throw new Error("unsafe DNS target")
-}
 
 /** Redirects are revalidated, and the server's response body is never stored. */
 export async function reachability(url, timeoutMs=10000) {
