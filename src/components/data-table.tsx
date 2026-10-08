@@ -509,6 +509,7 @@ export function DataTable({
           <div className="space-y-3">
             {table.getRowModel().rows.length ? table.getRowModel().rows.map((row) => (
               <button type="button" key={row.id} onClick={() => setSelectedId(row.original.id)}
+                aria-label={"Xem chi tiết: " + row.original.title}
                 className="block w-full space-y-2 rounded-xl border bg-card p-4 text-left shadow-xs focus-visible:outline-2 focus-visible:outline-ring">
                 <span className="block text-sm font-semibold leading-5">{row.original.title}</span>
                 <span className="flex flex-wrap items-center gap-2">
