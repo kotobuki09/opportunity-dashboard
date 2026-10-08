@@ -7,6 +7,7 @@ The public GitHub Pages dashboard hosts non-sensitive opportunity facts and brow
 ## Daily / twice-weekly operation
 
 - Main site: https://kotobuki09.github.io/opportunity-dashboard/
+- Daily at 05:20 ICT: **Live GitHub Pages availability** checks public HTML and JS/CSS bundle URLs, with a failed GitHub Actions job on unavailability. Watch Actions failures; this does not send emails unless GitHub notifications are configured.
 - Release gate: **Validate and deploy dashboard** (data validation, tests, lint, build, browser E2E, dependency audit, Pages).
 - Twice weekly at 06:31 ICT: **Official sources and discovery review**. The workflow produces source-health and discovery-review artifacts retained 21 days. It never writes directly to the opportunity data.
 - Review candidates only against official source pages. Confirm geographical eligibility, program type, opening and exact deadline/timezone, value/benefit kind, project fit, and the real applicant entity.
