@@ -25,3 +25,6 @@ dist-ssr
 
 # Generated from data/seen.json at build time
 src/data/data.json
+
+# Local / Actions source intelligence review artifacts
+artifacts/
