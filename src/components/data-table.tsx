@@ -88,7 +88,6 @@ import {
   TRACKING,
   WINDOWS,
   type OpportunityRow,
-  type Status,
 } from "@/lib/opps"
 
 const features = tableFeatures({
