@@ -1,0 +1,26 @@
+[
+  {
+    "id": "nsf-funding",
+    "name": "U.S. NSF funding opportunities",
+    "url": "https://www.nsf.gov/rss/rss_www_funding_pgm_annc_inf.xml",
+    "official_host": "nsf.gov",
+    "category_hint": "Tài trợ/Grant",
+    "eligibility_caveat": "U.S. program; eligibility for Vietnam-based applicants must be checked."
+  },
+  {
+    "id": "nsf-upcoming",
+    "name": "U.S. NSF upcoming due dates",
+    "url": "https://www.nsf.gov/rss/rss_www_funding_upcoming.xml",
+    "official_host": "nsf.gov",
+    "category_hint": "Tài trợ/Grant",
+    "eligibility_caveat": "U.S. program; check partner/host and geographic constraints."
+  },
+  {
+    "id": "grants-gov-new",
+    "name": "Grants.gov new opportunities",
+    "url": "https://www.grants.gov/rss/GG_NewOppByAgency.xml",
+    "official_host": "grants.gov",
+    "category_hint": "Tài trợ/Grant",
+    "eligibility_caveat": "U.S. federal program; do not assume eligibility outside the United States."
+  }
+]
