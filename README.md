@@ -1,7 +1,8 @@
 # Opportunity Dashboard
 
-Static dashboard of open scholarships, fellowships, research visits, grants and prizes,
-auto-generated daily from `seen.json` by Opportunity Scout (`build_dashboard.py`).
+Dashboard of open scholarships, fellowships, research visits, grants and prizes, built on the
+official shadcn/ui `dashboard-01` block (Vite + React + TypeScript + Tailwind).
 
-- `index.html` is fully self-contained (data embedded). Personal status and notes are stored
-  only in the visitor's browser (localStorage) and are never committed here.
+This branch holds only the static build output. It is regenerated from Opportunity Scout's
+`seen.json` and published by `publish.sh`. Personal status and notes are stored only in the
+visitor's browser (localStorage) and are never committed here.
