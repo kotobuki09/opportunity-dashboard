@@ -7,6 +7,10 @@ const KEYWORDS=[
   ["communication",3],["robotics",5],["internet of things",5],["iot",5],
   ["healthcare",4],["medical",4],["biomedical",4],["startups",3],["startup",3],
   ["research fellowship",5],["energy",2],["semiconductor",5],["microelectronics",4],
+  ["trí tuệ nhân tạo",8],["đổi mới sáng tạo",5],["nghiên cứu",5],
+  ["tài trợ",3],["khoa học",4],["công nghệ",3],["doanh nghiệp",3],
+  ["học bổng",4],["khởi nghiệp",5],["chuyển đổi số",4],
+  ["an toàn thông tin",5],["robot",3],
 ]
 
 function decodeXml(text) {
