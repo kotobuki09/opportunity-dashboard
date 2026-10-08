@@ -61,7 +61,7 @@ export function App() {
       ["due30", open.filter((row) => isDue(row, 30)).length],
       ...CATEGORIES.map((category) => [category, open.filter((row) => row.category === category).length]),
     ]) as Record<string, number>
-  }, [rows, local.statusOf])
+  }, [rows, local])
   React.useEffect(() => {
     const onHash = () => setView(readView())
     window.addEventListener("hashchange", onHash)
