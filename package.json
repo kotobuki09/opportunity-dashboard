@@ -1,7 +1,7 @@
 {
   "name": "opportunity-dashboard",
   "private": true,
-  "version": "0.0.1",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "node scripts/gen-data.mjs && vite",
