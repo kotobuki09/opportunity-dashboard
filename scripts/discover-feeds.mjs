@@ -3,26 +3,42 @@ import { readFileSync, writeFileSync, mkdirSync, appendFileSync } from "node:fs"
 import { dirname,resolve } from "node:path"
 import { fileURLToPath,pathToFileURL } from "node:url"
 import { parseFeed, selectCandidates } from "./feed-utils.mjs"
-import { validatePublicUrl, mapLimit } from "./source-utils.mjs"
+import { validatePublicUrl, ensurePublicHost, mapLimit } from "./source-utils.mjs"
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),"..")
 const MAX_BYTES=2_000_000
 
-async function fetchFeed(url) {
-  const guard=validatePublicUrl(url)
-  if(!guard.safe)throw new Error("Unsafe feed URL")
-  const response=await fetch(guard.url,{redirect:"follow",
-    headers:{"Accept":"application/rss+xml, application/atom+xml, text/xml, application/xml",
-      "User-Agent":"OpportunityScoutFeedReader/1.0"},signal:AbortSignal.timeout(15000)})
-  if(!response.ok)throw new Error("HTTP "+response.status)
-  if(response.headers.get("content-length")&&Number(response.headers.get("content-length"))>MAX_BYTES)throw new Error("Feed too large")
-  const chunks=[]
-  let total=0
-  for await (const chunk of response.body){
-    total+=chunk.length
-    if(total>MAX_BYTES)throw new Error("Feed exceeds size limit")
-    chunks.push(chunk)
+async function fetchFeed(url,officialHost) {
+  let current=url
+  for(let hop=0;hop<4;hop++){
+    const guard=validatePublicUrl(current)
+    if(!guard.safe)throw new Error("Unsafe feed URL: "+guard.reason)
+    const host=guard.url.hostname.toLowerCase()
+    if(host!==officialHost && !host.endsWith("."+officialHost))throw new Error("Feed redirect left official domain")
+    await ensurePublicHost(guard.url)
+    const response=await fetch(guard.url,{redirect:"manual",
+      headers:{"Accept":"application/rss+xml, application/atom+xml, text/xml, application/xml",
+        "User-Agent":"OpportunityScoutFeedReader/1.0"},
+      signal:AbortSignal.timeout(15000)})
+    if(response.status>=300&&response.status<400){
+      const location=response.headers.get("location")
+      if(response.body)await response.body.cancel()
+      if(!location)throw new Error("Redirect without location")
+      current=new URL(location,guard.url).href
+      continue
+    }
+    if(!response.ok)throw new Error("HTTP "+response.status)
+    if(response.headers.get("content-length")&&Number(response.headers.get("content-length"))>MAX_BYTES)throw new Error("Feed too large")
+    const chunks=[]
+    let total=0
+    if(!response.body)throw new Error("Empty feed")
+    for await (const chunk of response.body){
+      total+=chunk.length
+      if(total>MAX_BYTES)throw new Error("Feed exceeds size limit")
+      chunks.push(chunk)
+    }
+    return Buffer.concat(chunks).toString("utf8")
   }
-  return Buffer.concat(chunks).toString("utf8")
+  throw new Error("Too many feed redirects")
 }
 
 export async function main(){
@@ -30,7 +46,7 @@ export async function main(){
   const existing=JSON.parse(readFileSync(resolve(ROOT,"data/seen.json"),"utf8"))
   const all=await mapLimit(feeds,3,async source=>{
     try {
-      const rows=parseFeed(await fetchFeed(source.url))
+      const rows=parseFeed(await fetchFeed(source.url,source.official_host))
       return {feed_id:source.id,state:"ok",entries:rows.length,
         candidates:selectCandidates(rows,source,existing,100)}
     } catch(error) {
