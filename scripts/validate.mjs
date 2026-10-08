@@ -35,7 +35,7 @@ if (!validate(data)) {
     const extra = e.keyword === "additionalProperties" ? `: "${e.params.additionalProperty}" (add it to SCHEMA.md + seen.schema.json first)`
       : e.keyword === "enum" ? `: ${JSON.stringify(e.params.allowedValues)}` : ""
     // anyOf branches repeat the same problem; keep the message short.
-    if (e.keyword === "anyOf") continue
+    if (e.keyword === "anyOf" || e.keyword === "if" || (e.keyword === "type" && e.params.type === "null")) continue
     errors.push(`${loc}: ${e.message}${extra}`)
   }
 }
