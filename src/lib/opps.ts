@@ -98,7 +98,8 @@ export function deriveRow(it: Opportunity, now = new Date()): OpportunityRow {
   const past = !!(dl && dl < now && it.deadline_type !== "rolling")
   const daysLeft = dl ? dayNum(dl) - dayNum(now) : null
   let state: DeadlineState, label: string, rank: number
-  if (past && it.deadline_type === "rolling_cutoff") { state = "missed_cutoff"; label = "Lỡ cut-off, chờ đợt sau"; rank = 3e15 }
+  if (notOpenYet) { state = "opens_later"; label = `Mở ${formatDay(it.opens_iso!)}`; rank = 1e15 + (opens?.getTime() ?? 0) }
+  else if (past && it.deadline_type === "rolling_cutoff") { state = "missed_cutoff"; label = "Lỡ cut-off, chờ đợt sau"; rank = 3e15 }
   else if (past) { state = "expired"; label = "Đã hết hạn"; rank = 4e15 - (dl as Date).getTime() }
   else if (dl) {
     state = "open"; rank = dl.getTime()
@@ -111,6 +112,8 @@ export function deriveRow(it: Opportunity, now = new Date()): OpportunityRow {
   return { ...it, state, daysLeft, rank, label, rolling, notOpenYet }
 }
 
+/** Exclude pre-opening, expired and missed-cutoff items from actionable open counts. */
+export const isAccepting = (r: OpportunityRow) => r.state === "open" || r.state === "rolling" || r.state === "unknown"
 export const isExpired = (r: OpportunityRow) => r.state === "expired"
 export const isDue = (r: OpportunityRow, days: number) => r.state === "open" && r.daysLeft !== null && r.daysLeft <= days
 
@@ -138,7 +141,7 @@ export const WINDOWS = [
 ] as const
 export function inWindow(r: OpportunityRow, w: string) {
   if (w === "rolling") return r.rolling
-  if (w === "opens") return r.notOpenYet
+  if (w === "opens") return r.state === "opens_later"
   return isDue(r, Number(w))
 }
 
