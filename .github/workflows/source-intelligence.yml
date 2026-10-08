@@ -1,0 +1,49 @@
+# Advisory public-source intelligence, never changes data/seen.json or verified_at.
+name: Official sources and discovery review
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 06:31 Vietnam time on Monday and Thursday.
+    - cron: "31 23 * * 0,3"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: opportunity-source-intelligence
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    name: Produce human-review artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Check official URLs for reachability (not eligibility)
+        run: node scripts/source-monitor.mjs
+        env:
+          SOURCE_MONITOR_CONCURRENCY: "5"
+          SOURCE_MONITOR_TIMEOUT_MS: "10000"
+      - name: Discover candidate opportunities from curated official feeds
+        run: node scripts/discover-feeds.mjs
+      - name: Upload reachability report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-health
+          path: artifacts/source-health.json
+          if-no-files-found: warn
+          retention-days: 21
+      - name: Upload human review queue
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: discovery-review
+          path: artifacts/discovery-review.json
+          if-no-files-found: warn
+          retention-days: 21
