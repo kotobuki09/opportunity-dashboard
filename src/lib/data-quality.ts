@@ -14,10 +14,14 @@ function vietnamDay(date: Date) {
 export function freshnessFor(verifiedAt: string, now = new Date()): { state: SourceFreshness; ageDays: number | null } {
   if (!verifiedAt) return { state: "unverified", ageDays: null }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(verifiedAt)) return { state: "invalid", ageDays: null }
+  const y = Number(verifiedAt.slice(0,4))
+  const m = Number(verifiedAt.slice(5,7))
+  const d = Number(verifiedAt.slice(8,10))
+  const check = new Date(Date.UTC(y, m - 1, d))
+  if (check.getUTCFullYear() !== y || check.getUTCMonth() + 1 !== m || check.getUTCDate() !== d) {
+    return { state: "invalid", ageDays: null }
+  }
   const parsed = new Date(verifiedAt + "T00:00:00+07:00")
-  if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== new Date(Date.UTC(
-    Number(verifiedAt.slice(0,4)), Number(verifiedAt.slice(5,7)) - 1, Number(verifiedAt.slice(8,10)),
-  )).toISOString().slice(0, 10)) return { state: "invalid", ageDays: null }
   const ageDays = Math.round((vietnamDay(now) - vietnamDay(parsed)) / 86_400_000)
   if (ageDays < 0) return { state: "invalid", ageDays }
   if (ageDays > 90) return { state: "stale", ageDays }
