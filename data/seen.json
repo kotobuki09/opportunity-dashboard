@@ -112,7 +112,8 @@
   "value_usd_min": 10000,
   "fit_note": "Cho dự án AI safety/governance, hợp ActantOS.",
   "status": "mới",
-  "project": "ActantOS"
+  "project": "ActantOS",
+  "verified_at": "2026-10-08"
  },
  {
   "title": "OpenAI Cybersecurity Grant Program",
