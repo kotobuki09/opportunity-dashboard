@@ -32,7 +32,15 @@ function readView() {
 
 export function App() {
   const [view, setView] = React.useState(readView)
-  const [project, setProject] = React.useState("all")
+  const [project, setProject] = React.useState(() => {
+    try {
+      const saved = localStorage.getItem("oppScout.project.v1")
+      return saved && PROJECTS.includes(saved) ? saved : "all"
+    } catch { return "all" }
+  })
+  React.useEffect(() => {
+    try { localStorage.setItem("oppScout.project.v1", project) } catch { /* optional browser preference */ }
+  }, [project])
   const [selectedId, setSelectedId] = React.useState<string | null>(null)
   const local = useLocalState(DATA.items)
   const fileRef = React.useRef<HTMLInputElement>(null)
@@ -54,14 +62,16 @@ export function App() {
     (project === "all" || row.project.includes(project))
   ), [rows, view, project])
   const counts = React.useMemo(() => {
-    const open = rows.filter((row) => isAccepting(row) && !["bỏ qua", "đã tham gia"].includes(local.statusOf(row)))
+    const open = rows.filter((row) =>
+      (project === "all" || row.project.includes(project)) &&
+      isAccepting(row) && !["bỏ qua", "đã tham gia"].includes(local.statusOf(row)))
     const tracking = open.filter((row) => TRACKING.includes(local.statusOf(row)))
     return Object.fromEntries([
       ["overview", open.length], ["tracking", tracking.length],
       ["due30", open.filter((row) => isDue(row, 30)).length],
       ...CATEGORIES.map((category) => [category, open.filter((row) => row.category === category).length]),
     ]) as Record<string, number>
-  }, [rows, local])
+  }, [rows, local, project])
   React.useEffect(() => {
     const onHash = () => setView(readView())
     window.addEventListener("hashchange", onHash)
@@ -139,6 +149,7 @@ export function App() {
         onAddTask={(value) => selected && local.addTask(selected.id, value)}
         onToggleTask={(value) => selected && local.toggleTask(selected.id, value)}
         onRemoveTask={(value) => selected && local.removeTask(selected.id, value)}
+        onClearPersonal={() => selected && local.clearEntry(selected.id)}
       />
       <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={async (event) => {
         const file = event.target.files?.[0]
