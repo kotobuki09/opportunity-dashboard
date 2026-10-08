@@ -41,3 +41,14 @@ test("Kanban does not hide remaining items", async ({ page }) => {
   await expand.click()
   await expect(page.getByRole("button", { name: "Thu gọn danh sách" }).first()).toBeVisible()
 })
+
+test("browser Back returns to the previous workspace view", async ({ page }) => {
+  await page.goto(ROOT)
+  await page.getByRole("button", { name: /Pipeline hồ sơ/ }).click()
+  await expect(page).toHaveURL(/#board$/)
+  await page.getByRole("button", { name: /Lịch hạn nộp/ }).click()
+  await expect(page).toHaveURL(/#calendar$/)
+  await page.goBack()
+  await expect(page).toHaveURL(/#board$/)
+  await expect(page.getByRole("heading", { name: "Tiến độ hồ sơ" })).toBeVisible()
+})
