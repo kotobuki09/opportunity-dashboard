@@ -170,7 +170,8 @@
   "fit_note": "Ưu tiên y tế và nông nghiệp nên hợp AIMed.",
   "eligibility_note": "Cần pháp nhân và vốn đối ứng.",
   "status": "mới",
-  "project": "AIMed"
+  "project": "AIMed",
+  "verified_at": "2026-10-08"
  },
  {
   "title": "Horizon Europe HORIZON-CL4-2027-04-DIGITAL-EMERGING-06 International Cooperation in AI (partner)",
@@ -214,7 +215,8 @@
   "fit_note": "Hạng mục Sản phẩm AI xuất sắc hợp AIMed và ActantOS.",
   "eligibility_note": "Dành cho doanh nghiệp.",
   "status": "mới",
-  "project": "AIMed"
+  "project": "AIMed",
+  "verified_at": "2026-10-08"
  },
  {
   "title": "Microsoft for Startups (Azure credits)",
@@ -349,7 +351,8 @@
   "project": "Agent Platform",
   "stage_req": "Đã bắt đầu build; đang ở Mỹ hoặc sẽ sang trong 6 tháng",
   "fit_note": "Hợp nếu muốn ra thị trường Mỹ.",
-  "eligibility_note": "4 tháng ở San Francisco (30/11/2026–9/4/2027). Trang có chỗ ghi hạn 2/10 và có đoạn phí $35k có vẻ là văn bản mẫu; nên hỏi lại trước khi nộp."
+  "eligibility_note": "4 tháng ở San Francisco (30/11/2026–9/4/2027). Trang có chỗ ghi hạn 2/10 và có đoạn phí $35k có vẻ là văn bản mẫu; nên hỏi lại trước khi nộp.",
+  "verified_at": "2026-10-08"
  },
  {
   "first_seen": "2026-10-08",
@@ -593,7 +596,8 @@
   "project": "AIMed",
   "stage_req": "Tổ chức/cá nhân/nhóm tại VN có dự án dựa trên công nghệ",
   "fit_note": "Ưu tiên AI, y tế; ở Hà Nội; nhận cá nhân/nhóm, không bắt buộc pháp nhân.",
-  "eligibility_note": "Hồ sơ tiếng Việt (Mẫu 01, 02), nộp trực tuyến hoặc qua email uomtao@hitc.org.vn; chung kết tháng 12/2026 tại Hòa Lạc."
+  "eligibility_note": "Hồ sơ tiếng Việt (Mẫu 01, 02), nộp trực tuyến hoặc qua email uomtao@hitc.org.vn; chung kết tháng 12/2026 tại Hòa Lạc.",
+  "verified_at": "2026-10-08"
  },
  {
   "first_seen": "2026-10-08",
@@ -844,7 +848,8 @@
   "project": "ActantOS",
   "stage_req": "Nghiên cứu mới (ưu tiên có white paper/PoC); tối đa 2 diễn giả",
   "fit_note": "Track AI security: trình bày kết quả runtime safety cho multi-agent của ActantOS.",
-  "eligibility_note": "Hội nghị 2–3/03/2027 tại Singapore, phải trình bày trực tiếp. Không nhận vendor pitch; cấm văn bản do LLM viết. Thông báo trước 05/01/2027."
+  "eligibility_note": "Hội nghị 2–3/03/2027 tại Singapore, phải trình bày trực tiếp. Không nhận vendor pitch; cấm văn bản do LLM viết. Thông báo trước 05/01/2027.",
+  "verified_at": "2026-10-08"
  },
  {
   "first_seen": "2026-10-08",
@@ -1095,6 +1100,99 @@
   "stage_req": "Nộp abstract trước 31/10; nếu được nhận, đăng ký trước 25/11 và nộp full paper trước 30/11",
   "fit_note": "Khớp chính xác AGRIFARM-AI: AI/ML, IoT, nông nghiệp thích ứng khí hậu, quản lý nước–năng lượng–lương thực và công nghệ cho nông hộ nhỏ.",
   "eligibility_note": "Hội nghị 02–04/02/2027 tại IIT Kharagpur, Ấn Độ. Thanh toán sau khi abstract được nhận; phí học thuật quốc tế ngoài SAARC chưa gồm chỗ ở và đi lại.",
+  "verified_at": "2026-10-08"
+ },
+ {
+  "first_seen": "2026-10-08",
+  "category": "Tài trợ/Grant",
+  "status": "mới",
+  "deadline": "November 4, 2026, 11:59 PM Pacific Time",
+  "deadline_type": "fixed",
+  "deadline_iso": "2026-11-05T14:59:00+07:00",
+  "value_usd_estimate": 120000,
+  "title": "Amazon Research Awards – Agentic AI (Fall 2026)",
+  "url": "https://www.amazon.science/research-awards/call-for-proposals/aws-agentic-ai-call-for-proposals-fall-2026",
+  "value_text": "trung bình tối đa $70.000 tài trợ không ràng buộc + $50.000 AWS credits",
+  "project": "ActantOS",
+  "stage_req": "PI là giảng viên toàn thời gian tại cơ sở học thuật được công nhận hoặc nhà nghiên cứu thường trực tại tổ chức phi chính phủ hợp pháp; đề xuất khuyến nghị tối đa 4 trang",
+  "fit_note": "Khớp trực tiếp ActantOS: multi-agent hoạt động an toàn, xác minh trajectory, governance và responsible AI cho hành vi agent.",
+  "eligibility_note": "Mỗi PI chỉ được nộp một đề xuất trong kỳ ARA Fall 2026; phải chọn giữa call này, AI for Information Security, Automated Reasoning và Multilingual AI. Nên ưu tiên call sát nhất với đề tài sẵn sàng.",
+  "verified_at": "2026-10-08"
+ },
+ {
+  "first_seen": "2026-10-08",
+  "category": "Tài trợ/Grant",
+  "status": "mới",
+  "deadline": "November 4, 2026, 11:59 PM Pacific Time",
+  "deadline_type": "fixed",
+  "deadline_iso": "2026-11-05T14:59:00+07:00",
+  "value_usd_estimate": 100000,
+  "title": "Amazon Research Awards – Multilingual and Contextual AI Evaluation (Fall 2026)",
+  "url": "https://www.amazon.science/research-awards/call-for-proposals/multilingual-and-contextual-ai-evaluation-call-for-proposals-fall-2026",
+  "value_text": "trung bình tối đa $50.000 tài trợ không ràng buộc + $50.000 AWS credits",
+  "project": [
+   "ActantOS",
+   "AIMed"
+  ],
+  "stage_req": "PI là giảng viên toàn thời gian hoặc nhà nghiên cứu thường trực tại NGO hợp pháp; kế hoạch một năm, đề xuất khuyến nghị tối đa 4 trang và cam kết mở dữ liệu/benchmark/công cụ",
+  "fit_note": "Rất hợp vị thế Việt Nam/Global South: benchmark an toàn và fairness tiếng Việt, đánh giá AI theo bối cảnh địa phương cho y tế, nông nghiệp hoặc agentic AI.",
+  "eligibility_note": "Mỗi PI chỉ được nộp một đề xuất trong kỳ ARA Fall 2026. Nguồn ưu tiên ngôn ngữ Đông Nam Á, Global South, human-in-the-loop và hạ tầng đánh giá mở; cần dùng công cụ AWS AI/ML.",
+  "verified_at": "2026-10-08"
+ },
+ {
+  "first_seen": "2026-10-08",
+  "category": "Tài trợ/Grant",
+  "status": "mới",
+  "deadline": "November 4, 2026, 11:59 PM Pacific Time",
+  "deadline_type": "fixed",
+  "deadline_iso": "2026-11-05T14:59:00+07:00",
+  "value_usd_estimate": 120000,
+  "title": "Amazon Research Awards – Automated Reasoning (Fall 2026)",
+  "url": "https://www.amazon.science/research-awards/call-for-proposals/automated-reasoning-call-for-proposals-fall-2026",
+  "value_text": "tối đa $80.000 tài trợ không ràng buộc + $40.000 AWS credits",
+  "project": "ActantOS",
+  "stage_req": "PI là giảng viên toàn thời gian hoặc nhà nghiên cứu thường trực tại NGO hợp pháp; đề xuất khuyến nghị tối đa 4 trang",
+  "fit_note": "Hợp nhánh bảo đảm runtime của ActantOS: formal verification, policy/configuration analysis, model checking, testing dựa trên thuộc tính và xác minh hệ phân tán.",
+  "eligibility_note": "Mỗi PI chỉ được nộp một đề xuất trong kỳ ARA Fall 2026. Nếu đề xuất chưa có formal-methods/tooling đủ trưởng thành, call Agentic AI có thể sát hồ sơ hơn.",
+  "verified_at": "2026-10-08"
+ },
+ {
+  "first_seen": "2026-10-08",
+  "category": "Tài trợ/Grant",
+  "status": "mới",
+  "deadline": "28 October 2026 at 17:00 Brussels local time",
+  "deadline_type": "fixed",
+  "deadline_iso": "2026-10-28T23:00:00+07:00",
+  "value_usd_estimate": null,
+  "value_amount_max": 4000000,
+  "value_currency": "EUR",
+  "title": "EIC Pathfinder Challenge 2026 – DeepRAP trustworthy Cognitive AI Systems",
+  "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/HORIZON-EIC-2026-PATHFINDERCHALLENGES-01-03",
+  "value_text": "tối đa €4 triệu/dự án; có thể có Booster Grant tới €50.000",
+  "project": [
+   "ActantOS",
+   "Agent Platform"
+  ],
+  "stage_req": "Đề tài công nghệ đột phá giai đoạn sớm hướng TRL 3–4; cần cấu trúc đơn vị/consortium đủ điều kiện theo EIC Pathfinder Challenges",
+  "fit_note": "Trùng mạnh với multi-agent RL và ActantOS: deep planning, formal-methods integration, safety verification, robustness, benchmark và tích hợp multi-agent.",
+  "eligibility_note": "HSB/VNU nên tham gia qua đối tác/consortium EU hoặc nước liên kết; cần kiểm tra ngay điều kiện nhận tài trợ của đối tác Việt Nam trong EIC Work Programme 2026 và phân bổ tối thiểu 10 person-months cho hoạt động portfolio.",
+  "verified_at": "2026-10-08"
+ },
+ {
+  "first_seen": "2026-10-08",
+  "category": "Bounty/Speaking/IP",
+  "status": "mới",
+  "deadline": "Full Paper Submission: 31 October 2026",
+  "deadline_type": "fixed",
+  "deadline_iso": "2026-10-31T23:59:00+07:00",
+  "value_usd_estimate": null,
+  "title": "IEEE RFCoN 2027 – Call for Papers on RF–Optical–THz and AI/IoT Networks",
+  "url": "https://events.vtools.ieee.org/m/583094",
+  "value_text": "không rõ",
+  "project": "ERA Lab (chung)",
+  "stage_req": "Bài chưa công bố, tối đa 6 trang theo mẫu IEEE; trình bày tại SASTRA, Ấn Độ ngày 26–27/02/2027 nếu được nhận",
+  "fit_note": "Track RF–Optical–THz converged access, AI/ML, IoT, 6G và mạng tiết kiệm năng lượng khớp trực tiếp hồ sơ VLC/hybrid VLC-RF và smart agriculture.",
+  "eligibility_note": "IEEE Madras Section, IEEE AP-S và MTT-S đồng bảo trợ kỹ thuật; bài được nhận và trình bày sẽ được gửi xét đăng IEEE Xplore. Trang chính thức không công bố giải thưởng hay hỗ trợ đi lại.",
   "verified_at": "2026-10-08"
  }
 ]
