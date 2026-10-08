@@ -10,6 +10,8 @@ on:
       - "src/**"
       - "public/**"
       - "scripts/**"
+      - "tests/**"
+      - "playwright.config.mjs"
       - "index.html"
       - "package.json"
       - "package-lock.json"
@@ -23,6 +25,8 @@ on:
       - "src/**"
       - "public/**"
       - "scripts/**"
+      - "tests/**"
+      - "playwright.config.mjs"
       - "index.html"
       - "package.json"
       - "package-lock.json"
@@ -42,8 +46,9 @@ concurrency:
 
 jobs:
   build:
-    name: Validate and build
+    name: Validate, test, audit and build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
         with:
@@ -59,6 +64,9 @@ jobs:
       - name: Validate data/seen.json
         run: npm run validate
 
+      - name: Production dependency vulnerability audit
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Unit tests
         run: npm test
 
@@ -67,6 +75,26 @@ jobs:
 
       - name: Build (vite base /opportunity-dashboard/)
         run: npm run build
+
+      - name: Install pinned browser QA runner
+        run: npm install --no-save --package-lock=false @playwright/test@1.56.1
+
+      - name: Install Chromium for browser tests
+        run: npx playwright install --with-deps chromium
+
+      - name: E2E production regression suite
+        run: npx playwright test
+
+      - name: Publish failing browser traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-failure-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Upload Pages artifact
         if: github.event_name != 'pull_request'
