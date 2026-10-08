@@ -71,7 +71,6 @@ export function categoryColor(c: string) {
 export const TRACKING: Status[] = ["quan tâm", "đang làm hồ sơ", "đã nộp"]
 
 const TZ = "Asia/Ho_Chi_Minh"
-const DAY = 86_400_000
 const partsFmt = new Intl.DateTimeFormat("en-CA", {
   timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23",
 })
@@ -80,7 +79,6 @@ export function vnParts(d: Date) {
   for (const x of partsFmt.formatToParts(d)) p[x.type] = x.value
   return { y: +p.year, m: +p.month, d: +p.day, hh: p.hour, mm: p.minute }
 }
-const dayNum = (d: Date) => { const p = vnParts(d); return Date.UTC(p.y, p.m - 1, p.d) / DAY }
 const pad = (n: number) => String(n).padStart(2, "0")
 
 export function formatDate(iso: string | null, withTime = true) {
