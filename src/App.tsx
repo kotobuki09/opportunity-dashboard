@@ -76,12 +76,16 @@ export function App() {
   React.useEffect(() => {
     const onHash = () => setView(readView())
     window.addEventListener("hashchange", onHash)
-    return () => window.removeEventListener("hashchange", onHash)
+    window.addEventListener("popstate", onHash)
+    return () => {
+      window.removeEventListener("hashchange", onHash)
+      window.removeEventListener("popstate", onHash)
+    }
   }, [])
   const changeView = (next: string) => {
-    if (!VIEWS.includes(next)) return
+    if (!VIEWS.includes(next) || next === view) return
     setView(next)
-    history.replaceState(null, "", next === "overview" ? window.location.pathname + window.location.search : "#" + encodeURIComponent(next))
+    history.pushState(null, "", next === "overview" ? window.location.pathname + window.location.search : "#" + encodeURIComponent(next))
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
   const builtAt = DATA.built_at.slice(11) + " " + DATA.built_at.slice(8, 10) + "/" + DATA.built_at.slice(5, 7)
