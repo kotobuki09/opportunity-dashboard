@@ -36,6 +36,7 @@ Each opportunity can be reset individually after confirmation.
 - **Workflow**: All Kanban items are accessible; calendar excludes skipped/joined opportunities and offers a tracked-only view.
 - **Security and privacy**: best-effort HTML CSP on GitHub Pages, no backend or account sync, status and private notes live only in local browser storage.
 - **Operations**: see docs/PRODUCTION_READINESS_PLAN.md and docs/OPERATIONS_RUNBOOK.md for acceptance gates, scheduled checks, manual source review and rollback.
+- **Live availability**: scheduled GitHub Action checks the public HTML and its same-origin JS/CSS bundles every morning; the browser E2E suite runs on every code/data deployment.
 
 ## Development
 
