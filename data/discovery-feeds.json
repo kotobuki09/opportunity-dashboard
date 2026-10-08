@@ -1,5 +1,13 @@
 [
   {
+    "id": "nafosted-vietnam",
+    "name": "NAFOSTED Vietnam — official updates",
+    "url": "https://nafosted.gov.vn/feed/",
+    "official_host": "nafosted.gov.vn",
+    "category_hint": "Tài trợ/Grant",
+    "eligibility_caveat": "Official RSS includes news as well as calls. Human must confirm the call is open and suitable."
+  },
+  {
     "id": "nsf-funding",
     "name": "U.S. NSF funding opportunities",
     "url": "https://www.nsf.gov/rss/rss_www_funding_pgm_annc_inf.xml",
