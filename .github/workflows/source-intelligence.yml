@@ -8,6 +8,8 @@ on:
     paths:
       - ".github/workflows/source-intelligence.yml"
       - "scripts/source-*"
+      - "scripts/publish-health.mjs"
+      - "scripts/publish-health.test.mjs"
       - "scripts/feed-*"
       - "scripts/discover-feeds.mjs"
       - "data/discovery-feeds.json"
@@ -56,3 +58,39 @@ jobs:
           path: artifacts/discovery-review.json
           if-no-files-found: warn
           retention-days: 21
+
+  publish:
+    # The monitor is advisory; this job only publishes a sanitized public HTTP
+    # snapshot after scanning. Never change data/seen.json or verified_at.
+    name: Publish public health snapshot
+    needs: scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 1
+          persist-credentials: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: source-health
+          path: artifacts
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Sanitize and validate snapshot
+        run: |
+          node --test scripts/publish-health.test.mjs
+          node scripts/publish-health.mjs
+      - name: Commit advisory JSON only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/source-health.json
+          if ! git diff --cached --quiet; then
+            git commit -m "ops: refresh public source reachability (not verification)"
+            git push origin HEAD:main
+          fi
