@@ -1,0 +1,60 @@
+# Advisory academic job discovery. Never claim candidate eligibility.
+name: NZ academic careers discovery
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/nz-academic-jobs.yml"
+      - "scripts/discover-nz-jobs.mjs"
+      - "scripts/discover-nz-jobs.test.mjs"
+      - "data/nz-academic-jobs.json"
+  schedule:
+    # Monday and Thursday mornings New Zealand daylight time (UTC 21:15).
+    - cron: "15 21 * * 0,3"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nz-academic-jobs-discovery
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    name: Screen official university academic vacancies
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 1
+          persist-credentials: true
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Test role filters and official API normalization
+        run: node --experimental-strip-types --test scripts/discover-nz-jobs.test.mjs scripts/nz-jobs.test.mjs
+      - name: Discover active New Zealand academic postings
+        run: node scripts/discover-nz-jobs.mjs
+      - name: Save machine-screened candidates
+        id: publish
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/nz-academic-jobs-auto.json
+          if ! git diff --cached --quiet; then
+            git commit -m "ops: refresh NZ academic research candidate snapshot"
+            git push origin HEAD:main
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Publish refreshed dashboard
+        if: steps.publish.outputs.changed == 'true'
+        env:
+          GH_TOKEN: \${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
