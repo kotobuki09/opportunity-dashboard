@@ -11,9 +11,9 @@ export function nzJobFitScore(job:NzAcademicJob,priority:CareerPriority="balance
  const telecom=FIELDS.telecom.test(content),ai=FIELDS.ai.test(content),secure=FIELDS.secure.test(content)
  let score=job.role==="postdoc"?18:job.role==="researcher"?17:job.role==="lecturer"?11:0
  score+=job.fit==="high"?18:job.fit==="medium"?10:0
- if(priority==="telecom")score+=telecom?48:0,score+=ai?12:0
- else if(priority==="ai")score+=ai?46:0,score+=telecom?14:0
- else score+=telecom?29:0,score+=ai?26:0
+ if(priority==="telecom"){score+=telecom?48:0;score+=ai?12:0}
+ else if(priority==="ai"){score+=ai?46:0;score+=telecom?14:0}
+ else {score+=telecom?29:0;score+=ai?26:0}
  if(secure)score+=8
  if(job.status==="official_deadline")score+=7
  return Math.min(100,score)
