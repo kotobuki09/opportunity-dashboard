@@ -39,6 +39,7 @@ file and to `data/seen.schema.json` in the same commit.
 | `stage_req`          | string          | Stage/eligibility requirement as stated by the program (e.g. "≥2 co-founder, pre-revenue", "≤Series A"). Omit if not stated. Vietnamese. |
 | `eligibility_note`   | string          | Constraints/caveats: legal entity, consortium, host submits, page quirks… Vietnamese. |
 | `verified_at`        | string          | `YYYY-MM-DD` (VN) when the official page was last checked and the item confirmed still open. Shown as "Kiểm tra lần cuối". |
+| `review_evidence` | object[] | Optional human-reviewed, field-specific citation records; each entry requires `field`, official `source_url`, manual `checked_at` (YYYY-MM-DD VN), and a brief `summary`. Does not automatically update `verified_at` or eligibility. |
 | `status`             | string          | Default `"mới"`. One of `mới`, `quan tâm`, `đang làm hồ sơ`, `đã nộp`, `đã tham gia` (already a member, e.g. NVIDIA Inception; excluded from the "open" KPI), `bỏ qua`. The dashboard's per-browser status (localStorage) overrides this. |
 
 Fields starting with `_` are computed by the builder and never stored in `seen.json`.
@@ -101,3 +102,9 @@ trailing slash), USD estimate with `value_text` "không rõ", rolling item with 
 Browser-side state (status, private notes) lives in `localStorage` key `oppScout.v1`
 and is exported/imported as `{app, version, exported_at, items: {<id>: {title, url, status, note, updated}}}`.
 It overrides the `status` stored in `data/seen.json` on that browser.
+
+## Editorial evidence and browser-generated review proposals
+
+The optional `review_evidence` entries are proof links for **specific corrected fields**, not blanket claims that the program is accepting applications. A reviewer should record the source URL, the field it supports, the VN calendar day they personally read it, and a precise summary. Do not populate `checked_at` from an automatic HTTP check. An AI-generated proposal may contain metadata suggestions but cannot assert `verified_at` unless a human independently confirms current application status.
+
+The Quality Studio inspector produces a **downloadable patch proposal** (or clipboard copy), **not a GitHub commit**. It includes stable id/title/url, changed public fields, and optional attested evidence. Reviewers must apply approved values and `review_evidence` to `data/seen.json` through a pull request. The viewer does not request OAuth credentials or export local application notes.
