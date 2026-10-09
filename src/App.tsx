@@ -17,13 +17,14 @@ const WorkspaceHome = React.lazy(() => import("@/components/workspace-home").the
 const WorkflowBoard = React.lazy(() => import("@/components/workflow-board").then((m) => ({ default: m.WorkflowBoard })))
 const DeadlineAgenda = React.lazy(() => import("@/components/deadline-agenda").then((m) => ({ default: m.DeadlineAgenda })))
 const QualityReview = React.lazy(() => import("@/components/quality-review").then((m) => ({ default: m.QualityReview })))
+const NzAcademicJobs = React.lazy(() => import("@/components/nz-academic-jobs").then((m) => ({ default: m.NzAcademicJobs })))
 const DataTable = React.lazy(() => import("@/components/data-table").then((m) => ({ default: m.DataTable })))
 
-const MAIN_VIEWS = ["overview", "explore", "board", "calendar", "shortlist", "quality"]
+const MAIN_VIEWS = ["overview", "explore", "nz-jobs", "board", "calendar", "shortlist", "quality"]
 const VIEWS = [...MAIN_VIEWS, ...CATEGORIES]
 const VIEW_LABELS: Record<string, string> = {
   overview: "Tổng quan", explore: "Khám phá cơ hội", board: "Pipeline hồ sơ",
-  calendar: "Lịch hạn nộp", shortlist: "Đang theo đuổi", quality: "Kiểm tra dữ liệu",
+  calendar: "Lịch hạn nộp", shortlist: "Đang theo đuổi", quality: "Kiểm tra dữ liệu", "nz-jobs": "Academic Jobs · New Zealand",
 }
 function readView() {
   try {
@@ -117,9 +118,9 @@ export function App() {
           <div className="flex flex-col gap-3 px-4 pt-6 sm:flex-row sm:items-center sm:justify-between lg:px-6">
             <div>
               <h2 className="text-xl font-semibold tracking-tight md:text-2xl">{VIEW_LABELS[view] || view}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">Ưu tiên những cơ hội phù hợp và chuẩn bị hồ sơ đúng hạn.</p>
+              <p className="mt-1 text-sm text-muted-foreground">{view === "nz-jobs" ? "PhD · Postdoc · Research Fellow · Lecturer — Telecommunications, AI và các hướng gần tại New Zealand." : "Ưu tiên những cơ hội phù hợp và chuẩn bị hồ sơ đúng hạn."}</p>
             </div>
-            <div className="flex items-center gap-2">
+            {view !== "nz-jobs" && <div className="flex items-center gap-2">
               <span className="hidden text-xs text-muted-foreground sm:inline">Dự án</span>
               <Select value={project} onValueChange={setProject}>
                 <SelectTrigger aria-label="Lọc toàn bộ dashboard theo dự án" className="w-full min-w-44 sm:w-56">
@@ -130,9 +131,9 @@ export function App() {
                   {PROJECTS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                 </SelectContent>
               </Select>
-            </div>
+            </div>}
           </div>
-          {view !== "quality" && <SectionCards rows={viewRows} statusOf={local.statusOf} onNavigate={changeView} now={now} />}
+          {view !== "quality" && view !== "nz-jobs" && <SectionCards rows={viewRows} statusOf={local.statusOf} onNavigate={changeView} now={now} />}
           <React.Suspense fallback={<div role="status" className="mx-4 rounded-xl border bg-muted/30 p-8 text-sm text-muted-foreground lg:mx-6">Đang tải giao diện...</div>}>
           {view === "overview" ? (
             <WorkspaceHome rows={viewRows} statusOf={local.statusOf} project={project === "all" ? null : project}
@@ -143,6 +144,8 @@ export function App() {
             <DeadlineAgenda rows={viewRows} statusOf={local.statusOf} onOpen={setSelectedId} />
           ) : view === "quality" ? (
             <QualityReview rows={viewRows} onOpen={setSelectedId} now={now} local={local} />
+          ) : view === "nz-jobs" ? (
+            <NzAcademicJobs now={now} />
           ) : (
             <DataTable key={view + ":" + project} rows={viewRows} showCategory={MAIN_VIEWS.includes(view)}
               defaultScope={view === "shortlist" ? "tracking" : "open"} local={local} />
