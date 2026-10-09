@@ -1,8 +1,37 @@
 {
-  "generated_at": null,
+  "generated_at": "2026-10-09T15:48:05.547Z",
   "source": "SmartRecruiters public company Posting API · University of Auckland",
-  "scope": "No current automated snapshot available. Use verified manual opportunities and official employer watchlist until discovery succeeds.",
-  "observed_count": 0,
-  "candidate_count": 0,
-  "listings": []
+  "scope": "Machine-selected active postings from the official job API. Verify deadline, PhD eligibility, working rights and continued availability manually before applying.",
+  "observed_count": 41,
+  "candidate_count": 12,
+  "listings": [
+    {
+      "id": "uoa-auto-744000152290238",
+      "title": "Postdoctural Research Fellow - School of Computer Science - Te Kura Mātai Rorohiko - 32 month fixed term",
+      "employer": "University of Auckland",
+      "city": "Auckland",
+      "role": "postdoc",
+      "topics": [
+        "Autonomous Systems",
+        "Computer Science"
+      ],
+      "fit": "medium",
+      "fit_note": "Máy phát hiện theo mô tả vị trí; cần đọc yêu cầu trên trang chính thức để đối chiếu chuyên ngành và visa.",
+      "salary_nzd_year": null,
+      "contract": "Thông tin tuyển dụng trên cổng SmartRecruiters",
+      "deadline_day": null,
+      "status": "auto_candidate",
+      "published_at": "2026-09-29",
+      "source_url": "https://jobs.smartrecruiters.com/TheUniversityOfAuckland/744000152290238",
+      "eligibility_note": "Chưa thẩm định tư cách ứng tuyển và quy định visa.",
+      "international_note": "Chưa xác minh quyền làm việc tại New Zealand.",
+      "requirements": [
+        "Mở tin tuyển dụng chính thức",
+        "Xác nhận hạn nộp và tư cách PhD",
+        "Chuẩn bị CV học thuật, công bố khoa học và cover letter"
+      ],
+      "reviewed_at": null,
+      "match_score": 33
+    }
+  ]
 }
