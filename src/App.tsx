@@ -142,7 +142,7 @@ export function App() {
           ) : view === "calendar" ? (
             <DeadlineAgenda rows={viewRows} statusOf={local.statusOf} onOpen={setSelectedId} />
           ) : view === "quality" ? (
-            <QualityReview rows={viewRows} onOpen={setSelectedId} now={now} />
+            <QualityReview rows={viewRows} onOpen={setSelectedId} now={now} local={local} />
           ) : (
             <DataTable key={view + ":" + project} rows={viewRows} showCategory={MAIN_VIEWS.includes(view)}
               defaultScope={view === "shortlist" ? "tracking" : "open"} local={local} />
