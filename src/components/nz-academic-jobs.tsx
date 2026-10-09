@@ -2,6 +2,7 @@ import * as React from "react"
 import { ArrowUpRightIcon, BellIcon, BookmarkIcon, BriefcaseBusinessIcon, DownloadIcon, ExternalLinkIcon, GraduationCapIcon, MapPinIcon, SearchIcon, ShieldAlertIcon, UploadIcon } from "lucide-react"
 import { toast } from "sonner"
 import curatedRaw from "../../data/nz-academic-jobs.json"
+import { nzJobFitScore, nzCalendarEvent, type CareerPriority } from "@/lib/nz-career-tools"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -25,6 +26,8 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
  const [role,setRole]=React.useState<Role>("all")
  const [field,setField]=React.useState<Field>("all")
  const [query,setQuery]=React.useState("")
+ const [priority,setPriority]=React.useState<CareerPriority>("balanced")
+ const [verifiedOnly,setVerifiedOnly]=React.useState(false)
  const [tracked,setTracked]=React.useState<Record<string,NzPersonalEntry>>(()=>loadNzTracking())
  const [snapshot,setSnapshot]=React.useState<NzAutoSnapshot|null>(null)
  const [feedStatus,setFeedStatus]=React.useState<"loading"|"ready"|"unavailable">("loading")
@@ -51,6 +54,7 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
   const active=nzDeadlineState(job,now)
   const personal=tracked[job.id]?.status||"new"
   if(scope==="actionable"&&(active==="closed"||personal==="dismissed"))return false
+  if(verifiedOnly&&job.status!=="official_deadline")return false
   if(scope==="saved"&&!["saved","preparing","applied"].includes(personal))return false
   if(role!=="all"&&job.role!==role)return false
   const disciplines=(job.title+" "+job.topics.join(" ")).toLowerCase()
@@ -61,9 +65,19 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
  }).sort((a,b)=>{
   const rank=(j:NzAcademicJob)=>nzDeadlineState(j,now)==="closed"?3:j.status==="official_deadline"?0:j.status==="needs_confirmation"?1:2
   const r=rank(a)-rank(b)
-  return r||String(a.deadline_day||"9999").localeCompare(String(b.deadline_day||"9999"))
+  return r||nzJobFitScore(b,priority)-nzJobFitScore(a,priority)||
+    String(a.deadline_day||"9999").localeCompare(String(b.deadline_day||"9999"))
  })
  const active=jobs.filter(j=>["open","closing_today"].includes(nzDeadlineState(j,now))).length
+ const downloadCalendar=(job:NzAcademicJob)=>{
+  try{
+   const blob=new Blob([nzCalendarEvent(job)],{type:"text/calendar;charset=utf-8"})
+   const url=URL.createObjectURL(blob),a=document.createElement("a")
+   a.href=url;a.download="nz-job-deadline-"+job.id+".ics";a.click()
+   window.setTimeout(()=>URL.revokeObjectURL(url),1000)
+   toast.success("Đã xuất lịch. Kiểm tra lại giờ đóng đơn theo múi giờ NZ.")
+  }catch(e){toast.error(e instanceof Error?e.message:"Không có hạn chính thức")}
+ }
  const saved=Object.values(tracked).filter(x=>["saved","preparing","applied"].includes(x.status)).length
  const importBackup=async(file:File)=>{
   if(file.size>100000)throw Error("File theo dõi quá lớn")
@@ -119,9 +133,24 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
   </>:<>
    <div className="flex flex-wrap gap-2 rounded-xl border bg-card p-4">
     <div className="relative min-w-48 flex-1"><SearchIcon className="pointer-events-none absolute left-3 top-2.5 size-4 text-muted-foreground"/><Input className="pl-9" aria-label="Tìm vị trí học thuật" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Postdoc, agentic AI, RF, university…"/></div>
+    <Select value={priority} onValueChange={v=>setPriority(v as CareerPriority)}>
+     <SelectTrigger className="w-full sm:w-44" aria-label="Ưu tiên hồ sơ tiến sĩ"><SelectValue/></SelectTrigger>
+     <SelectContent>
+      <SelectItem value="balanced">PhD Telecom + AI</SelectItem>
+      <SelectItem value="telecom">Ưu tiên Wireless / RF</SelectItem>
+      <SelectItem value="ai">Ưu tiên AI / Autonomous</SelectItem>
+     </SelectContent>
+    </Select>
     <Select value={role} onValueChange={v=>setRole(v as Role)}><SelectTrigger className="w-full sm:w-44" aria-label="Lọc cấp bậc học thuật"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="all">Mọi vị trí</SelectItem><SelectItem value="postdoc">Postdoc</SelectItem><SelectItem value="researcher">Research Fellow</SelectItem><SelectItem value="lecturer">Lecturer / Faculty</SelectItem></SelectContent></Select>
     <Select value={field} onValueChange={v=>setField(v as Field)}><SelectTrigger className="w-full sm:w-44" aria-label="Lọc chuyên ngành học thuật"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="all">Mọi chuyên ngành</SelectItem><SelectItem value="telecom">Telecom / Wireless</SelectItem><SelectItem value="ai">AI / Data Science</SelectItem><SelectItem value="autonomous">Agentic / Autonomous</SelectItem></SelectContent></Select>
     <Select value={scope} onValueChange={v=>setScope(v as Scope)}><SelectTrigger className="w-full sm:w-44" aria-label="Lọc trạng thái việc làm"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="actionable">Đang xem xét</SelectItem><SelectItem value="saved">Đã lưu / đã nộp</SelectItem><SelectItem value="all">Kể cả đã hết hạn</SelectItem></SelectContent></Select>
+   </div>
+   <div className="flex flex-wrap items-center gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
+    <label className="flex cursor-pointer items-center gap-2 text-xs font-medium">
+     <input type="checkbox" checked={verifiedOnly} onChange={e=>setVerifiedOnly(e.target.checked)} className="size-4 accent-blue-600"/>
+     Chỉ có hạn nộp chính thức
+    </label>
+    <p className="text-xs text-muted-foreground">Tin máy phát hiện chưa được kiểm chứng vẫn được xem ở chế độ đầy đủ. Điểm phù hợp chỉ để sắp xếp, không phải xác suất trúng tuyển.</p>
    </div>
    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
     <span>{filtered.length} vị trí phù hợp bộ lọc</span>
@@ -139,6 +168,7 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
          {state==="open"?<Badge className="bg-emerald-600 text-white">Hạn trên nguồn chính thức</Badge>:state==="closing_today"?<Badge className="bg-amber-600 text-white">Hôm nay hạn chót · kiểm tra giờ đóng đơn</Badge>:state==="closed"?<Badge variant="secondary">Đã hết hạn</Badge>:<Badge variant="outline" className="border-amber-500/50 text-amber-800 dark:text-amber-300"><ShieldAlertIcon className="size-3"/> Cần xác minh đang tuyển</Badge>}
          {job.status==="auto_candidate"&&<Badge variant="outline" className="border-blue-400/50 text-blue-700 dark:text-blue-300">API phát hiện · chưa duyệt</Badge>}
         </div>
+        <div className="mt-2 text-xs font-semibold text-blue-700 dark:text-blue-300">Độ phù hợp chuyên môn tham khảo: {nzJobFitScore(job,priority)}/100</div>
         <h4 className="mt-2 text-base font-semibold sm:text-lg">{job.title}</h4>
         <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
          <span><GraduationCapIcon className="mr-1 inline size-3.5"/>{job.employer}</span>
@@ -146,7 +176,11 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
          <span>{displayNzDay(job.deadline_day)}</span>
         </div>
        </div>
+       <div className="flex flex-wrap gap-2">
+        {job.status==="official_deadline"&&job.deadline_day&&state!=="closed"&&
+         <Button size="sm" variant="outline" onClick={()=>downloadCalendar(job)}><DownloadIcon className="size-4"/> Nhắc hạn (.ics)</Button>}
        <Button size="sm" asChild><a href={job.source_url} target="_blank" rel="noopener noreferrer">Xem / Apply <ArrowUpRightIcon className="size-4"/></a></Button>
+       </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-1">{job.topics.map(t=><Badge key={t} variant="secondary">{t}</Badge>)}</div>
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{job.fit_note}</p>
