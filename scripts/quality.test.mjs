@@ -75,3 +75,12 @@ test("summary keeps counts independent and never equates normalization with veri
   assert.equal(q.needsDeadlineReview,1)
   assert.equal(q.needsReview,2)
 })
+
+test("review queue puts a deadline this week ahead of a distant record with many gaps",()=>{
+  const distant=qualityFor({...row,verified_at:"",eligibility_note:"",stage_req:"",
+    project:[],fit_note:"",benefit_kind:"unknown",daysLeft:175},now)
+  const thisWeek=qualityFor({...row,verified_at:"",daysLeft:2},now)
+  const withinTwoWeeks=qualityFor({...row,verified_at:"",daysLeft:12},now)
+  assert.ok(thisWeek.priority>withinTwoWeeks.priority)
+  assert.ok(withinTwoWeeks.priority>distant.priority)
+})

@@ -128,8 +128,11 @@ export function qualityFor(row: QualityInput, now = new Date()) {
   const needsVerification = by("verification").length > 0
   const needsNormalization = by("normalization").length > 0
   const needsDeadlineReview = by("availability").length > 0
+  // Make near-deadline review tasks win over long-horizon records with many minor gaps.
+  // This ranks editorial urgency only; it never estimates award probability or eligibility.
+  const urgencyBonus = urgent && findings.length ? (days !== null && days <= 7 ? 240 : 160) : 0
   const priority = findings.reduce((total, item) => total + SEVERITY_SCORE[item.severity], 0)
-    + (urgent && findings.length ? 45 : 0)
+    + urgencyBonus
     + (row.state === "missed_cutoff" ? 40 : 0)
 
   return {
