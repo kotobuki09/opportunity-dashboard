@@ -5,15 +5,22 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs"
 import { dirname, resolve } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
+import { sourceUniverseDigest } from "./source-universe.mjs"
 
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),"..")
 const STATES=new Set(["reachable","restricted","missing","server_error","error","unsafe","uncertain"])
 const safeIso=(value)=>typeof value==="string" && !Number.isNaN(Date.parse(value)) && /^\d{4}-\d{2}-\d{2}T/.test(value)
 
-export function publicHealth(raw, canonical, now=new Date()) {
+export function publicHealth(raw, canonical, now=new Date(), previous=null) {
   if(!Array.isArray(canonical) || !raw || !Array.isArray(raw.results))throw Error("Invalid source report")
   if(!safeIso(raw.generated_at) || Date.parse(raw.generated_at)>now.getTime()+300_000)throw Error("Invalid report timestamp")
   if(raw.results.length>canonical.length)throw Error("More observations than source records")
+  if(Number.isInteger(raw.total)&&raw.total!==canonical.length)throw Error("Scan population differs from canonical dataset")
+  const source_digest=sourceUniverseDigest(canonical)
+  // Only use a previous report for comparison when it observed the exact same URL set.
+  const prior=previous?.source_digest===source_digest &&
+    Date.parse(previous.generated_at)<Date.parse(raw.generated_at) &&
+    Array.isArray(previous.results) ? new Map(previous.results.filter(x=>typeof x.url==="string").map(x=>[x.url,x])) : new Map()
   const allowed=new Set(canonical.map(item=>item.url))
   const seen=new Set()
   const records=raw.results.map(item=>{
@@ -23,13 +30,19 @@ export function publicHealth(raw, canonical, now=new Date()) {
       throw Error("Invalid HTTP status")
     }
     seen.add(item.url)
-    return {url:item.url,health:item.health,status_code:item.status_code}
+    const before=prior.get(item.url)
+    const currentUnreachable=item.health!=="reachable"
+    const previousUnreachable=before && before.health!=="reachable"
+    const previousStreak=Number.isInteger(before?.unreachable_streak)?Math.max(0,Math.min(255,before.unreachable_streak)):previousUnreachable?1:0
+    const unreachable_streak=currentUnreachable?Math.min(255,previousUnreachable?previousStreak+1:1):0
+    return {url:item.url,health:item.health,status_code:item.status_code,
+      previous_health:before?.health||null,unreachable_streak}
   })
   const counts=Object.fromEntries([...STATES].sort().map(health=>[health,records.filter(x=>x.health===health).length]).filter(([,n])=>n))
   return {
     generated_at:raw.generated_at,
     scope:"Automated HTTP transport check only; NOT human verification, open status, deadline or applicant eligibility.",
-    total:canonical.length,checked:records.length,counts,results:records,
+    source_digest,total:canonical.length,checked:records.length,counts,results:records,
   }
 }
 
@@ -38,7 +51,11 @@ export function main() {
   const output=resolve(process.env.SOURCE_PUBLISH_OUTPUT || resolve(ROOT,"public/source-health.json"))
   const report=JSON.parse(readFileSync(input,"utf8"))
   const canonical=JSON.parse(readFileSync(resolve(ROOT,"data/seen.json"),"utf8"))
-  const result=publicHealth(report,canonical)
+  let previous=null
+  try {
+    previous=JSON.parse(readFileSync(output,"utf8"))
+  } catch { /* first run: no existing public snapshot */ }
+  const result=publicHealth(report,canonical,new Date(),previous)
   mkdirSync(dirname(output),{recursive:true})
   writeFileSync(output,JSON.stringify(result,null,2)+"\n")
   console.log("Public advisory source snapshot:",result.checked,"/",result.total,JSON.stringify(result.counts))
