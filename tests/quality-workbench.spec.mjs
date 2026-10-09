@@ -5,7 +5,7 @@ const ROOT="/opportunity-dashboard/"
 
 test("quality workbench separates verification, normalization and unknown application state",async ({page})=>{
   await page.goto(ROOT+"#quality")
-  await expect(page.getByRole("heading",{name:"Trung tâm chất lượng dữ liệu"})).toBeVisible()
+  await expect(page.getByRole("heading",{name:"Chất lượng dữ liệu, trước khi hành động"})).toBeVisible()
   await expect(page.getByText("Hàng đợi chuẩn hoá & kiểm định")).toBeVisible()
   const filters=page.getByRole("group",{name:"Bộ lọc kiểm định"})
   const normalize=filters.getByRole("button",{name:/Chưa chuẩn hoá/})
@@ -45,7 +45,7 @@ test("overview makes missing normalization and verification actionable",async({p
   await expect(page.getByText("Chưa chuẩn hoá & kiểm định")).toBeVisible()
   await page.getByRole("button",{name:/Xem hàng đợi/}).click()
   await expect(page).toHaveURL(/#quality$/)
-  await expect(page.getByRole("heading",{name:"Trung tâm chất lượng dữ liệu"})).toBeVisible()
+  await expect(page.getByRole("heading",{name:"Chất lượng dữ liệu, trước khi hành động"})).toBeVisible()
 })
 
 test("review queue is keyboard-accessible and pagination never silently drops items",async({page})=>{
