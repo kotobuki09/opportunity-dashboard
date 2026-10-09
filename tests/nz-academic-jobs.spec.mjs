@@ -77,3 +77,22 @@ test("mobile academic jobs view stays within viewport and honors dark mode",asyn
  const dims=await page.evaluate(()=>({body:document.documentElement.scrollWidth,viewport:window.innerWidth}))
  expect(dims.body).toBeLessThanOrEqual(dims.viewport+1)
 })
+
+test("NZ career fit controls and confirmed all-day deadline reminder",async({page})=>{
+ await mockEmpty(page)
+ await page.goto(ROOT+"#nz-jobs")
+ const ranking=page.getByRole("combobox",{name:"Ưu tiên hồ sơ tiến sĩ"})
+ await ranking.click()
+ await page.getByRole("option",{name:"Ưu tiên AI / Autonomous"}).click()
+ await expect(ranking).toContainText("Ưu tiên AI / Autonomous")
+ const verifyOnly=page.getByRole("checkbox",{name:"Chỉ có hạn nộp chính thức"})
+ await verifyOnly.check()
+ await expect(page.getByText("Postdoctoral Research Fellow — Autonomous Agency")).toBeVisible()
+ await expect(page.getByText("Lecturer — Data Science / Artificial Intelligence")).toHaveCount(0)
+ const wait=page.waitForEvent("download")
+ await page.getByRole("button",{name:/Nhắc hạn/}).click()
+ const file=await wait
+ const ics=await readFile(await file.path(),"utf8")
+ expect(ics).toContain("DTSTART;VALUE=DATE:20261013")
+ expect(ics).toContain("Check exact NZ local closing time")
+})
