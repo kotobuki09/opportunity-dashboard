@@ -95,3 +95,26 @@ export function selectCandidates(entries,config,existing=[],max=60) {
   }
   return out.sort((a,b)=>b.keyword_score-a.keyword_score||a.title.localeCompare(b.title)).slice(0,max)
 }
+
+/**
+ * Advisory review ledger. These decisions suppress previously screened leads
+ * from recurring alerts, not URLs from the public published dataset.
+ * A new call with a different NSF solicitation code or official URL remains visible.
+ */
+export function priorReviewDecision(candidate, ledger) {
+  const source = candidate.source_id || ""
+  const url = String(candidate.official_url || "")
+  if (source.startsWith("nsf-")) {
+    let pathname = ""
+    try { pathname = new URL(url).pathname.toLowerCase() } catch { return null }
+    const code = pathname.match(/(?:nsf\d{2}-\d{3}|pd\d{2}-\d{4})(?=\/|$)/i)?.[0]
+    return code ? ledger.reviewed_nsf_codes?.find((entry) => entry.code.toLowerCase() === code)?.decision || null : null
+  }
+  if (source === "nafosted-vietnam") {
+    const normalize = (s) => String(s || "").normalize("NFC").trim().replace(/\s+/g, " ").toLocaleLowerCase("vi")
+    const title = normalize(candidate.title)
+    // Match exact titles only: another NAFOSTED call with a different title is new.
+    return ledger.reviewed_nafosted_titles?.find((entry) => normalize(entry.title) === title)?.decision || null
+  }
+  return null
+}

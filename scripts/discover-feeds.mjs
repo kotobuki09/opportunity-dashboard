@@ -2,7 +2,7 @@
 import { readFileSync, writeFileSync, mkdirSync, appendFileSync } from "node:fs"
 import { dirname,resolve } from "node:path"
 import { fileURLToPath,pathToFileURL } from "node:url"
-import { parseFeed, selectCandidates } from "./feed-utils.mjs"
+import { parseFeed, selectCandidates, priorReviewDecision } from "./feed-utils.mjs"
 import { validatePublicUrl, ensurePublicHost, mapLimit } from "./source-utils.mjs"
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),"..")
 const MAX_BYTES=2_000_000
@@ -44,6 +44,7 @@ async function fetchFeed(url,officialHost) {
 export async function main(){
   const feeds=JSON.parse(readFileSync(resolve(ROOT,"data/discovery-feeds.json"),"utf8"))
   const existing=JSON.parse(readFileSync(resolve(ROOT,"data/seen.json"),"utf8"))
+  const reviewed=JSON.parse(readFileSync(resolve(ROOT,"data/discovery-reviewed.json"),"utf8"))
   const all=await mapLimit(feeds,3,async source=>{
     try {
       const rows=parseFeed(await fetchFeed(source.url,source.official_host))
@@ -55,20 +56,27 @@ export async function main(){
     }
   })
   const seen=new Set()
-  const candidates=all.flatMap(x=>x.candidates).sort((a,b)=>b.keyword_score-a.keyword_score)
-    .filter(x=>{if(seen.has(x.official_url))return false;seen.add(x.official_url);return true}).slice(0,100)
+  const unique=all.flatMap(x=>x.candidates).sort((a,b)=>b.keyword_score-a.keyword_score)
+    .filter(x=>{if(seen.has(x.official_url))return false;seen.add(x.official_url);return true})
+  const screened=unique.map((item)=>({item,decision:priorReviewDecision(item,reviewed)}))
+  const suppressedReview=screened.filter(({decision})=>!!decision)
+  const candidates=screened.filter(({decision})=>!decision).map(({item})=>item).slice(0,100)
   const report={generated_at:new Date().toISOString(),
     scope:"Official-feed discovery candidates only; NOT verified opportunities, deadlines, values, or applicant eligibility.",
+    reviewed_ledger_date:reviewed.reviewed_at,
+    reviewed_suppressed_count:suppressedReview.length,
+    reviewed_suppressed_by_type:Object.fromEntries([...new Set(suppressedReview.map(x=>x.decision))].sort().map(
+      state=>[state,suppressedReview.filter(x=>x.decision===state).length])),
     feeds:all.map(({candidates,...x})=>({...x,candidates:candidates.length})),
     count:candidates.length,candidates}
   const destination=resolve(process.env.DISCOVERY_OUTPUT||resolve(ROOT,"artifacts/discovery-review.json"))
   mkdirSync(dirname(destination),{recursive:true})
   writeFileSync(destination,JSON.stringify(report,null,2)+"\n")
-  console.log("Discovery review queue: "+report.count+" candidates; feeds "+JSON.stringify(report.feeds))
+  console.log("Discovery review queue: "+report.count+" new candidates, "+report.reviewed_suppressed_count+" previously screened; feeds "+JSON.stringify(report.feeds))
   if(process.env.GITHUB_STEP_SUMMARY){
     appendFileSync(process.env.GITHUB_STEP_SUMMARY,
       "### Official-feed candidate review (advisory)\n"+
-      "Candidates: "+report.count+"; feeds: "+feeds.length+". Download discovery-review artifact.\n"+
+      "New candidates: "+report.count+"; previously screened: "+report.reviewed_suppressed_count+"; feeds: "+feeds.length+". Download discovery-review artifact.\n"+
       "**Do not import without reviewing the official link, country eligibility, open state, and exact deadline.**\n")
   }
 }

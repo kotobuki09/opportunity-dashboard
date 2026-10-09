@@ -1,0 +1,133 @@
+{
+  "reviewed_at": "2026-10-09",
+  "artifact_url": "https://github.com/kotobuki09/opportunity-dashboard/actions/runs/37814154825",
+  "policy": "AI-assisted review suppression. Only reviewed exact NAFOSTED announcement titles and stable NSF solicitation IDs are suppressed. Reopen a decision explicitly to re-review an unchanged source.",
+  "reviewed_nafosted_titles": [
+    {
+      "title": "Thông báo kế hoạch tài trợ nhiệm vụ phát triển công nghệ thuộc “Chương trình hợp tác nghiên cứu Việt Nam – Ô-xtrây-li-a về công nghệ chiến lược giai đoạn 2026-2028”",
+      "decision": "approved_to_dataset"
+    },
+    {
+      "title": "NAFOSTED tăng cường hợp tác quốc tế trong tài trợ nghiên cứu tại STS Forum 2026",
+      "decision": "news"
+    },
+    {
+      "title": "Thông báo kế hoạch đặt hàng nhiệm vụ nghiên cứu và phát triển công nghệ chiến lược thuộc Chương trình khoa học, công nghệ và đổi mới sáng tạo quốc gia đặc biệt về công nghệ chiến lược “Nghiên cứu, thiết kế và chế tạo chip thu phát vô tuyến cho UAV” đ",
+      "decision": "expired"
+    },
+    {
+      "title": "Đặt hàng Cụm nhiệm vụ khoa học và công nghệ theo đề xuất đặt hàng của Bộ Khoa học và Công nghệ về việc đề xuất đặt hàng cụm nhiệm vụ thực hiện chỉ tiêu về HDI tại Nghị quyết số 57-NQ/TW",
+      "decision": "out_of_scope"
+    },
+    {
+      "title": "NAFOSTED thúc đẩy hợp tác nghiên cứu Việt Nam – Liên bang Nga trong khuôn khổ chuyến thăm cấp Nhà nước của Tổng Bí thư, Chủ tịch nước Tô Lâm",
+      "decision": "news"
+    },
+    {
+      "title": "NAFOSTED thúc đẩy hợp tác quốc tế, kiến tạo các nhiệm vụ nghiên cứu từ nhu cầu thực tiễn",
+      "decision": "news"
+    },
+    {
+      "title": "Thông báo về việc tổ chức Hội thảo khoa học “Hợp tác quốc tế trong tài trợ nghiên cứu khoa học và phát triển công nghệ: Thực trạng, thách thức và định hướng phát triển”",
+      "decision": "news"
+    },
+    {
+      "title": "Thông báo về việc tổ chức Hội thảo “Phương pháp lập dự toán đối với các nhiệm vụ khoa học và công nghệ do Quỹ tài trợ, đặt hàng năm 2026″",
+      "decision": "news"
+    },
+    {
+      "title": "Tổng kết Chương trình 562: Tạo nền tảng phát triển khoa học cơ bản và nâng cao năng lực nghiên cứu của Việt Nam",
+      "decision": "news"
+    },
+    {
+      "title": "Quỹ NAFOSTED tri ân Chánh Văn phòng Hà Thị Phương Thảo – một chặng đường tận tâm và gắn bó",
+      "decision": "news"
+    }
+  ],
+  "reviewed_nsf_codes": [
+    {
+      "code": "nsf26-513",
+      "decision": "partner_only"
+    },
+    {
+      "code": "nsf26-512",
+      "decision": "partner_only"
+    },
+    {
+      "code": "nsf26-526",
+      "decision": "us_only"
+    },
+    {
+      "code": "nsf26-511",
+      "decision": "us_only"
+    },
+    {
+      "code": "nsf26-510",
+      "decision": "us_only"
+    },
+    {
+      "code": "nsf23-603",
+      "decision": "us_only"
+    },
+    {
+      "code": "nsf26-524",
+      "decision": "partner_only"
+    },
+    {
+      "code": "nsf23-598",
+      "decision": "us_only"
+    },
+    {
+      "code": "nsf24-503",
+      "decision": "us_only"
+    },
+    {
+      "code": "nsf26-517",
+      "decision": "us_only"
+    },
+    {
+      "code": "nsf26-515",
+      "decision": "us_only"
+    },
+    {
+      "code": "nsf26-516",
+      "decision": "us_only"
+    },
+    {
+      "code": "nsf26-522",
+      "decision": "us_only"
+    },
+    {
+      "code": "nsf26-519",
+      "decision": "us_only"
+    },
+    {
+      "code": "nsf26-521",
+      "decision": "us_only"
+    },
+    {
+      "code": "nsf26-520",
+      "decision": "us_only"
+    },
+    {
+      "code": "nsf26-523",
+      "decision": "us_only"
+    },
+    {
+      "code": "pd24-8084",
+      "decision": "partner_only"
+    },
+    {
+      "code": "nsf24-590",
+      "decision": "us_only"
+    },
+    {
+      "code": "nsf22-621",
+      "decision": "us_only"
+    },
+    {
+      "code": "nsf26-518",
+      "decision": "us_only"
+    }
+  ]
+}

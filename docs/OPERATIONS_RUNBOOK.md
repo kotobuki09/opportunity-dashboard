@@ -30,6 +30,7 @@ The public GitHub Pages dashboard hosts non-sensitive opportunity facts and brow
 - Download discovery-review.json: these are **unverified leads**, not application-ready grants. Do not copy the URL or amount into seen.json without direct official confirmation.
 - Download source-health.json: response codes and errors only; no HTML scraping, extracted claims or credential handling.
 - RSS providers may be unavailable or block requests. Review the error counts; failures do **not** change deadline states in production.
+- After manual/AI-assisted review, record a stable NSF solicitation code or exact official NAFOSTED announcement title in `data/discovery-reviewed.json`. The scanner will then suppress repeats but not prevent new programs from appearing. To re-open a rejected call or revisit changed circumstances, remove or update the exact ledger entry in a reviewed pull request. Every suppression appears as a count in the workflow artifact; do not silently discard new calls.
 - To add a provider, use an official government/funder RSS/Atom endpoint, set official_host, and submit it in a PR. The candidate parser only accepts links on that official domain or subdomains.
 
 ## Browser-local privacy and security

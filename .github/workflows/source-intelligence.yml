@@ -11,6 +11,7 @@ on:
       - "scripts/feed-*"
       - "scripts/discover-feeds.mjs"
       - "data/discovery-feeds.json"
+      - "data/discovery-reviewed.json"
   schedule:
     # 06:31 Vietnam time on Monday and Thursday.
     - cron: "31 23 * * 0,3"
