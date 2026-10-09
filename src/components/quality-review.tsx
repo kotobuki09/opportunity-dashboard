@@ -74,31 +74,26 @@ export function QualityReview({rows,onOpen,now=new Date(),local}:{
  })),[rows,now,byUrl,local])
  const activeProgress=records.filter(x=>phaseIsActive(x.progress)).length
  const staleProgress=records.filter(x=>x.progress==="needs_recheck").length
- const linkIssueCount=records.filter(x=>x.health&&unhealthy.has(x.health.health)).length
  const choose=(next:Filter)=>{setFilter(next);setVisibleCount(PAGE_SIZE)}
  const onProgressChange=(row:OpportunityRow,value:ReviewPhase)=>
   local.patch(row.id,{reviewPhase:value,reviewStamp:reviewRecordStamp(row)})
- const countFor=(value:Filter)=>
-  value==="verification"?quality.needsVerification:
-  value==="normalization"?quality.needsNormalization:
-  value==="availability"?quality.needsDeadlineReview:
-  value==="links"?linkIssueCount:
-  value==="normalized"?quality.normalized:
-  value==="review"?quality.needsReview:quality.total
-
- const reports=React.useMemo(()=>records.filter(({row,q,health})=>{
-  if(filter==="review"&&!q.findings.length)return false
-  if(filter==="verification"&&!q.needsVerification)return false
-  if(filter==="normalization"&&!q.needsNormalization)return false
-  if(filter==="availability"&&!q.needsDeadlineReview)return false
-  if(filter==="normalized"&&!q.normalized)return false
-  if(filter==="links"&&(!health||!unhealthy.has(health.health)))return false
-  return !query.trim()||stripVi([row.title,row.category,row.project.join(" "),row.url,...q.issues].join(" ")).includes(stripVi(query.trim()))
- }).sort((a,b)=>
+ const scoped=React.useMemo(()=>records.filter(({row,q,progress})=>
+   (progressFilter==="all"||progress===progressFilter) &&
+   (!query.trim()||stripVi([row.title,row.category,row.project.join(" "),row.url,...q.issues].join(" ")).includes(stripVi(query.trim())))
+ ),[records,progressFilter,query])
+ const matching=(value:Filter,q:(typeof records)[number])=>
+  value==="verification"?q.q.needsVerification:
+  value==="normalization"?q.q.needsNormalization:
+  value==="availability"?q.q.needsDeadlineReview:
+  value==="links"?!!q.health&&unhealthy.has(q.health.health):
+  value==="normalized"?q.q.normalized:
+  value==="review"?q.q.findings.length>0:true
+ const countFor=(value:Filter)=>scoped.filter(item=>matching(value,item)).length
+ const reports=React.useMemo(()=>scoped.filter(item=>matching(filter,item)).sort((a,b)=>
   sort==="title"?a.row.title.localeCompare(b.row.title,"vi"):
   sort==="deadline"?a.row.rank-b.row.rank:
   b.q.priority-a.q.priority||a.row.rank-b.row.rank
- ),[records,filter,query,sort])
+ ),[scoped,filter,sort])
 
  const onChoose=(id:string)=>{
   setSelectedId(id)
@@ -106,7 +101,7 @@ export function QualityReview({rows,onOpen,now=new Date(),local}:{
    window.setTimeout(()=>inspectorRef.current?.scrollIntoView({block:"start",behavior:"smooth"}),50)
   }
  }
- const selected=reports.find(x=>x.row.id===selectedId)??null
+ const selected=records.find(x=>x.row.id===selectedId)??null
  const exportReport=()=>{
   const csv=buildQualityCsv(reports.map(x=>x.row),now)
   const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}))
@@ -114,10 +109,11 @@ export function QualityReview({rows,onOpen,now=new Date(),local}:{
   anchor.href=url;anchor.download="opportunity-quality-review.csv";anchor.click()
   window.setTimeout(()=>URL.revokeObjectURL(url),1000)
  }
- const age=sourceSnapshotAge(snapshot,now)
- const reachable=snapshot?.counts.reachable??0
- const restricted=snapshot?.counts.restricted??0
- const broken=(snapshot?.counts.missing??0)+(snapshot?.counts.server_error??0)+(snapshot?.counts.error??0)+(snapshot?.counts.unsafe??0)
+ const reachable=displayedScan?.counts.reachable??0
+ const restricted=displayedScan?.counts.restricted??0
+ const broken=(displayedScan?.counts.missing??0)+(displayedScan?.counts.server_error??0)+(displayedScan?.counts.error??0)+(displayedScan?.counts.unsafe??0)
+ const newlyUnreachable=displayedScan?.results.filter(x=>x.health!=="reachable"&&x.previous_health==="reachable").length??0
+ const recurringUnreachable=displayedScan?.results.filter(x=>x.unreachable_streak>=2).length??0
  const metrics=[
   {filter:"review" as const,title:"Cần xử lý",amount:quality.needsReview,help:"Có ít nhất một yêu cầu rà soát",icon:SlidersHorizontalIcon},
   {filter:"verification" as const,title:"Chưa kiểm định nguồn",amount:quality.needsVerification,help:"Nguồn chưa hoặc quá hạn xác minh",icon:ShieldCheckIcon},
