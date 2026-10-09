@@ -3,7 +3,7 @@ import type { OpportunityRow, ReviewEvidence, BenefitKind } from "./opps"
 export type ReviewField="eligibility_note"|"stage_req"|"fit_note"|"benefit_kind"|"project"
 export type ReviewDraft={
  eligibility_note:string;stage_req:string;fit_note:string;benefit_kind:BenefitKind;project:string
- source_url:string;summary:string;humanChecked:boolean
+ source_url:string;summary:string;humanChecked:boolean;evidenceField:ReviewField|""
 }
 export const REVIEW_FIELDS:readonly ReviewField[]=["eligibility_note","stage_req","fit_note","benefit_kind","project"]
 const BENEFITS=new Set(["grant","prize","equity","credits","stipend","contract","in_kind","unknown"])
@@ -15,7 +15,7 @@ export function dateInVietnam(date:Date):string{
 }
 export function draftFor(row:OpportunityRow):ReviewDraft{
  return {eligibility_note:row.eligibility_note,stage_req:row.stage_req,fit_note:row.fit_note,
-  benefit_kind:row.benefit_kind,project:row.project.join(", "),source_url:row.url,summary:"",humanChecked:false}
+  benefit_kind:row.benefit_kind,project:row.project.join(", "),source_url:row.url,summary:"",humanChecked:false,evidenceField:""}
 }
 export function validateSourceUrl(value:string):boolean{
  try{const u=new URL(value);return ["http:","https:"].includes(u.protocol)&&u.hostname.includes(".")&&
@@ -44,9 +44,13 @@ export function buildReviewProposal(row:OpportunityRow,draft:ReviewDraft,validPr
  const summary=clean(draft.summary)
  if(summary.length>1200)throw Error("Ghi chú bằng chứng tối đa 1.200 ký tự.")
  if(draft.humanChecked&&summary.length<8)throw Error("Cần ghi chú chứng cứ tối thiểu 8 ký tự khi xác nhận đã đối chiếu.")
- const review_evidence:ReviewEvidence[]=draft.humanChecked?
-  (Object.keys(changes) as ReviewField[]).map(field=>({field,source_url:draft.source_url,
-   checked_at:dateInVietnam(now),summary})): []
+ const changedFields=Object.keys(changes) as ReviewField[]
+ const provenField=draft.evidenceField || (changedFields.length===1?changedFields[0]:null)
+ if(draft.humanChecked&&(!provenField||!changedFields.includes(provenField))){
+  throw Error("Hãy chọn đúng một trường được chứng minh bởi URL và ghi chú này. Các trường khác chỉ là đề xuất chưa kiểm định.")
+ }
+ const review_evidence:ReviewEvidence[]=draft.humanChecked&&provenField?
+  [{field:provenField,source_url:draft.source_url,checked_at:dateInVietnam(now),summary}]:[]
  return {
   kind:"opportunity-scout.editorial-proposal",version:1,created_at:now.toISOString(),
   record:{id:row.id,title:row.title,url:row.url},
