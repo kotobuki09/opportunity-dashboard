@@ -24,8 +24,11 @@ export function nzDay(now=new Date()){
  const p=Object.fromEntries(new Intl.DateTimeFormat("en-CA",{year:"numeric",month:"2-digit",day:"2-digit",timeZone:"Pacific/Auckland"}).formatToParts(now).map(x=>[x.type,x.value]))
  return p.year+"-"+p.month+"-"+p.day
 }
-export function nzDeadlineState(job:NzAcademicJob,now=new Date()):"open"|"closed"|"verify"{
- if(job.deadline_day && job.deadline_day<nzDay(now))return "closed"
+export function nzDeadlineState(job:NzAcademicJob,now=new Date()):"open"|"closing_today"|"closed"|"verify"{
+ const today=nzDay(now)
+ if(job.deadline_day && job.deadline_day<today)return "closed"
+ // A stated calendar day is not an exact closing time. Never claim open all day.
+ if(job.deadline_day===today && job.status==="official_deadline")return "closing_today"
  return job.status==="official_deadline" ? "open" : "verify"
 }
 export function displayNzDay(day:string|null):string{
