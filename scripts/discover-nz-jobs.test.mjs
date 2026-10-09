@@ -10,6 +10,7 @@ test("screens for actual PhD-level academic roles and relevant research, not gen
  assert.equal(jobScore("Media and Communications Partner","AI for Science"),null)
  assert.equal(jobScore("Postdoctoral Fellow","soil samples and farming"),null)
  assert.ok(jobScore("Postdoctoral Research Fellow - Wireless Networking","6G RF system design"))
+ assert.ok(jobScore("Postdoctural Research Fellow - School of Computer Science","Computational models of autonomous agency, network dynamical systems"))
 })
 test("normalization uses employer-controlled URL and unknown deadline, never invents eligibility",()=>{
  const a=normalizePosting({...job,postingUrl:"https://evil.example/"},details)
