@@ -132,7 +132,7 @@ export function App() {
               </Select>
             </div>
           </div>
-          <SectionCards rows={viewRows} statusOf={local.statusOf} onNavigate={changeView} now={now} />
+          {view !== "quality" && <SectionCards rows={viewRows} statusOf={local.statusOf} onNavigate={changeView} now={now} />}
           <React.Suspense fallback={<div role="status" className="mx-4 rounded-xl border bg-muted/30 p-8 text-sm text-muted-foreground lg:mx-6">Đang tải giao diện...</div>}>
           {view === "overview" ? (
             <WorkspaceHome rows={viewRows} statusOf={local.statusOf} project={project === "all" ? null : project}
