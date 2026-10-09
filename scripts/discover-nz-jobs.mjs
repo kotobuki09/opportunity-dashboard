@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),"..")
 const API="https://api.smartrecruiters.com/v1/companies/TheUniversityOfAuckland/postings"
-const JOB_ROLE=/\b(post[\s-]?doc(?:toral)?|research fellow|research scientist|research associate|lecturer|senior lecturer|assistant professor|researcher)\b/i
+const JOB_ROLE=/\b(post[\s-]?doc(?:toral|tural)?|research fellow|research scientist|research associate|lecturer|senior lecturer|assistant professor|researcher)\b/i
 const ACADEMIC_EXCLUDE=/product manager|administrator|recruitment|marketing|communication partner|finance|hr business partner/i
 const SUBJECTS=[
  {pattern:/telecom|wireless|5g\b|6g\b|radio.frequency|antenna|rf\b|visible.light|optical.wireless|signal.processing|communication.network/i,tag:"Telecommunications",score:8},
