@@ -53,8 +53,10 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
   if(scope==="actionable"&&(active==="closed"||personal==="dismissed"))return false
   if(scope==="saved"&&!["saved","preparing","applied"].includes(personal))return false
   if(role!=="all"&&job.role!==role)return false
+  const disciplines=(job.title+" "+job.topics.join(" ")).toLowerCase()
   const content=(job.title+" "+job.employer+" "+job.city+" "+job.topics.join(" ")+" "+job.fit_note).toLowerCase()
-  if(field!=="all"&&!MATCH[field].some(t=>content.includes(t)))return false
+  // Scope specialty matches to positive role keywords, not negative wording in reviewer caveats.
+  if(field!=="all"&&!MATCH[field].some(t=>disciplines.includes(t)))return false
   return content.includes(query.trim().toLowerCase())
  }).sort((a,b)=>{
   const rank=(j:NzAcademicJob)=>nzDeadlineState(j,now)==="closed"?3:j.status==="official_deadline"?0:j.status==="needs_confirmation"?1:2
