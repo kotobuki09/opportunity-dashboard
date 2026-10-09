@@ -35,3 +35,17 @@ test("invalid source, project, missing changes, insufficient evidence are reject
  draft.project="AIMed";draft.source_url="javascript:alert(1)";assert.throws(()=>buildReviewProposal(row,draft,projects))
  draft.source_url=row.url;draft.humanChecked=true;draft.summary="none";assert.throws(()=>buildReviewProposal(row,draft,projects))
 })
+
+test("one official citation cannot silently attest unrelated metadata fields",()=>{
+ const draft=draftFor(row)
+ draft.stage_req="Early-stage only";draft.project="AIMed"
+ draft.humanChecked=true;draft.summary="Exact official eligibility clause"
+ assert.throws(()=>buildReviewProposal(row,draft,projects,now),/một trường/)
+ draft.evidenceField="stage_req"
+ const patch=buildReviewProposal(row,draft,projects,now)
+ assert.deepEqual(Object.keys(patch.changes).sort(),["project","stage_req"])
+ assert.equal(patch.review_evidence.length,1)
+ assert.equal(patch.review_evidence[0].field,"stage_req")
+ draft.evidenceField="fit_note"
+ assert.throws(()=>buildReviewProposal(row,draft,projects,now),/một trường/)
+})
