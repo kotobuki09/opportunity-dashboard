@@ -10,9 +10,11 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ReviewInspector } from "@/components/review-inspector"
 import { qualityFor, qualitySummary } from "@/lib/data-quality"
+import { effectiveReviewPhase, phaseIsActive, reviewRecordStamp, REVIEW_PHASE_LABELS, type EffectiveReviewPhase, type ReviewPhase } from "@/lib/editorial-progress"
+import type { LocalApi } from "@/lib/local-state"
 import { buildQualityCsv } from "@/lib/quality-export"
-import { formatDate, stripVi, type OpportunityRow } from "@/lib/opps"
-import { HEALTH_LABEL, healthByUrl, parseSourceHealth, sourceSnapshotAge, type PublicHealth } from "@/lib/source-health"
+import { DATA, formatDate, stripVi, type OpportunityRow } from "@/lib/opps"
+import { HEALTH_LABEL, healthByUrl, parseSourceHealth, sourceSnapshotAge, snapshotCompatible, type PublicHealth } from "@/lib/source-health"
 
 type Filter="review"|"verification"|"normalization"|"availability"|"links"|"normalized"|"all"
 type Sort="priority"|"deadline"|"title"
@@ -38,12 +40,13 @@ const transportTone:Record<string,string>={
 }
 const percent=(a:number,b:number)=>b?Math.round(100*a/b):0
 
-export function QualityReview({rows,onOpen,now=new Date()}:{
- rows:OpportunityRow[];onOpen:(id:string)=>void;now?:Date
+export function QualityReview({rows,onOpen,now=new Date(),local}:{
+ rows:OpportunityRow[];onOpen:(id:string)=>void;now?:Date;local:LocalApi
 }){
  const [filter,setFilter]=React.useState<Filter>("review")
  const [query,setQuery]=React.useState("")
  const [sort,setSort]=React.useState<Sort>("priority")
+ const [progressFilter,setProgressFilter]=React.useState<EffectiveReviewPhase|"all">("all")
  const [visibleCount,setVisibleCount]=React.useState(PAGE_SIZE)
  const [selectedId,setSelectedId]=React.useState<string|null>(null)
  const [snapshot,setSnapshot]=React.useState<PublicHealth|null>(null)
@@ -61,10 +64,20 @@ export function QualityReview({rows,onOpen,now=new Date()}:{
  },[])
 
  const quality=React.useMemo(()=>qualitySummary(rows,now),[rows,now])
- const byUrl=React.useMemo(()=>healthByUrl(snapshot),[snapshot])
- const records=React.useMemo(()=>rows.map(row=>({row,q:qualityFor(row,now),health:byUrl.get(row.url)})),[rows,now,byUrl])
+ const age=sourceSnapshotAge(snapshot,now)
+ const compatible=!!snapshot && snapshot.source_digest===DATA.source_digest
+ const displayedScan=snapshotCompatible(snapshot,DATA.source_digest,now)?snapshot:null
+ const byUrl=React.useMemo(()=>healthByUrl(displayedScan),[displayedScan])
+ const records=React.useMemo(()=>rows.map(row=>({
+  row,q:qualityFor(row,now),health:byUrl.get(row.url),
+  progress:effectiveReviewPhase(row,local.entryOf(row)),
+ })),[rows,now,byUrl,local])
+ const activeProgress=records.filter(x=>phaseIsActive(x.progress)).length
+ const staleProgress=records.filter(x=>x.progress==="needs_recheck").length
  const linkIssueCount=records.filter(x=>x.health&&unhealthy.has(x.health.health)).length
  const choose=(next:Filter)=>{setFilter(next);setVisibleCount(PAGE_SIZE)}
+ const onProgressChange=(row:OpportunityRow,value:ReviewPhase)=>
+  local.patch(row.id,{reviewPhase:value,reviewStamp:reviewRecordStamp(row)})
  const countFor=(value:Filter)=>
   value==="verification"?quality.needsVerification:
   value==="normalization"?quality.needsNormalization:
