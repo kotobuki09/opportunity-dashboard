@@ -138,6 +138,34 @@
       "url": "https://otago.taleo.net/careersection/2/joblist.ftl?lang=en",
       "note": "Official current-vacancy portal; offers search and saved job alerts.",
       "type": "university"
+    },
+    {
+      "id": "victoria-wellington",
+      "name": "Victoria University of Wellington — Academic Vacancies",
+      "city": "Wellington",
+      "topics": [
+        "AI",
+        "Computer Science",
+        "Network Security",
+        "Engineering"
+      ],
+      "url": "https://www.wgtn.ac.nz/about/working-here/current-vacancies-broadbean",
+      "note": "Official academic/professional vacancies. The university requests academic applicants apply through its recruitment system; check each role's PhD and research criteria.",
+      "type": "university"
+    },
+    {
+      "id": "massey-university",
+      "name": "Massey University — Research & Academic Careers",
+      "city": "Palmerston North / Auckland",
+      "topics": [
+        "AI",
+        "Data Science",
+        "Engineering",
+        "Research"
+      ],
+      "url": "https://www.massey.ac.nz/about/jobs-at-massey/applying-to-work-at-massey/",
+      "note": "Official international-applicant guidance: overseas applications are welcomed, but NZ work authorization and advertised local deadlines still apply. Watch for research fellow, postdoc and lecturer vacancies.",
+      "type": "university"
     }
   ],
   "excluded_sources": [
