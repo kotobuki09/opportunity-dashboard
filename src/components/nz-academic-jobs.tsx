@@ -37,13 +37,13 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
    .then(raw=>{
     if(controller.signal.aborted)return
     const parsed=normalizeAutoSnapshot(raw)
-    const age=parsed?.generated_at?(now.getTime()-Date.parse(parsed.generated_at))/86400000:Infinity
+    const age=parsed?.generated_at?(Date.now()-Date.parse(parsed.generated_at))/86400000:Infinity
     if(parsed&&age>=-1&&age<=14){setSnapshot(parsed);setFeedStatus("ready")}
     else setFeedStatus("unavailable")
    })
    .catch(()=>{if(!controller.signal.aborted)setFeedStatus("unavailable")})
   return ()=>controller.abort()
- },[now])
+ },[])
  const jobs=React.useMemo(()=>mergedNzJobs(DATA.listings,snapshot?.listings||[]),[snapshot])
  const changeStatus=(id:string,status:NzPersonalStatus)=>setTracked(prev=>({...prev,[id]:{...prev[id],status,updated_at:new Date().toISOString()}}))
  const changeNote=(id:string,note:string)=>setTracked(prev=>({...prev,[id]:{status:prev[id]?.status||"new",note:note.slice(0,2000),updated_at:new Date().toISOString()}}))
