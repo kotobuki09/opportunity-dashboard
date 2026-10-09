@@ -21,7 +21,6 @@ import {
   TagIcon,
   DownloadIcon,
   UploadIcon,
-  RadarIcon,
   RocketIcon,
   BotIcon,
   LandmarkIcon,
@@ -90,7 +89,7 @@ export function AppSidebar({
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
               <a href="#" onClick={(e) => { e.preventDefault(); onViewChange("overview") }}>
-                <RadarIcon className="size-5!" />
+                <img src={`${import.meta.env.BASE_URL}favicon.svg?v=2`} alt="" aria-hidden="true" width="24" height="24" className="size-6 shrink-0 rounded-md" />
                 <span className="text-base font-semibold">Opportunity Scout</span>
               </a>
             </SidebarMenuButton>
