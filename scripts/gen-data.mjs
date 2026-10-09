@@ -67,6 +67,7 @@ function normalize(raw) {
   out.project = proj.map((p) => String(p).trim()).filter(Boolean)
   out.stage_req = it.stage_req ? String(it.stage_req) : ""
   out.verified_at = it.verified_at ? String(it.verified_at) : ""
+  out.review_evidence = Array.isArray(it.review_evidence) ? it.review_evidence.map((entry) => ({...entry})) : []
   if (out.value_usd_estimate != null) { out.value_rank_usd = out.value_usd_estimate; out.value_rank_approx = false }
   else if (out.value_amount_max != null && FX_TO_USD[out.value_currency]) {
     out.value_rank_usd = Math.round(out.value_amount_max * FX_TO_USD[out.value_currency]); out.value_rank_approx = out.value_currency !== "USD"

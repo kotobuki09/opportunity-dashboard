@@ -10,7 +10,7 @@ test("overview, priority recommendations and quality review are visible", async 
   await expect(page.getByRole("heading", { name: "Tập trung vào cơ hội đáng hành động" })).toBeVisible()
   await expect(page.getByText("Ưu tiên gợi ý")).toBeVisible()
   await page.goto(ROOT + "#quality")
-  await expect(page.getByRole("heading", { name: "Trung tâm chất lượng dữ liệu" })).toBeVisible()
+  await expect(page.getByRole("heading", { name: "Chất lượng dữ liệu, trước khi hành động" })).toBeVisible()
   expect(errors).toEqual([])
 })
 

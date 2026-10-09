@@ -64,3 +64,9 @@ Commits to main deploy to GitHub Pages only when all checks pass.
 - **Availability** answers: is an intake currently open, unknown or past a rolling cut-off? True rolling programs do not need a fake closing date.
 - The quality queue has independent tabs, suggested remediation and a **CSV export of public metadata only**. Per-user notes and private application checklists are never exported through this CSV.
 - To update public facts, submit a reviewed change to `data/seen.json`; the browser is intentionally read-only with respect to public source records. See `SCHEMA.md` and `docs/OPERATIONS_RUNBOOK.md`.
+
+## Quality Studio and evidence (V3.2)
+
+The redesigned **Kiểm tra dữ liệu** workspace combines an editorial queue, filterable field-level issues, a mobile-responsive record inspector, and a non-destructive metadata proposal editor. Review status, completeness, and HTTP reachability are **three independent signals**; a green source link is not an eligibility approval. The proposal editor exports a JSON patch (or copies it) for a human to apply via a GitHub PR. Browser-local statuses, notes and checklists never leave the browser with these exports.
+
+A scheduled official-source job refreshes the public `source-health.json` snapshot after sanitizing the monitor artifact to URL, HTTP health and status only. The bot writes **only `public/source-health.json`** and explicitly dispatches the standard Pages pipeline; it never changes `data/seen.json` or `verified_at`. On missing or stale scans, the dashboard clearly labels reachability information unavailable/outdated rather than faking healthy URLs. See `docs/OPERATIONS_RUNBOOK.md` for checks and rollback.
