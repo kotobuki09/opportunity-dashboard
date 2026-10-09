@@ -155,6 +155,14 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
        {job.salary_note&&<p><strong>Lương tham khảo:</strong> {job.salary_note}</p>}
        <p><strong>Hợp đồng:</strong> {job.contract}</p>
       </div>
+      {job.requirements.length>0&&<details className="mt-3 rounded-lg border bg-card">
+       <summary className="cursor-pointer px-3 py-2.5 text-xs font-semibold text-foreground focus-visible:outline-2 focus-visible:outline-ring">
+        Hồ sơ cần chuẩn bị / Đối chiếu yêu cầu
+       </summary>
+       <ul className="list-disc space-y-1 px-7 pb-3 text-xs leading-relaxed text-muted-foreground">
+        {job.requirements.map((item,i)=><li key={i}>{item}</li>)}
+       </ul>
+      </details>}
       <div className="mt-3 flex flex-wrap items-center gap-3">
        <label className="text-xs font-medium">Theo dõi ứng tuyển</label>
        <Select value={progress} onValueChange={v=>changeStatus(job.id,v as NzPersonalStatus)}>
