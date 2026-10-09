@@ -46,7 +46,7 @@ test("academic application tracking is browser-private and survives reload and J
  await expect(page.getByRole("combobox",{name:/Trạng thái ứng tuyển: Postdoctoral Research Fellow/})).toContainText("Chuẩn bị hồ sơ")
  await expect(page.getByLabel("Ghi chú cá nhân")).toHaveValue("Draft an academic CV for this position")
  const downloading=page.waitForEvent("download")
- await page.getByRole("button",{name:/Xuất/}).click()
+ await page.getByRole("button",{name:"Xuất",exact:true}).click()
  const download=await downloading
  const exported=JSON.parse(await readFile(await download.path(),"utf8"))
  expect(exported.app).toBe("nz-academic-jobs")
