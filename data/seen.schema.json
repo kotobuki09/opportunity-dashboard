@@ -185,6 +185,49 @@
             "in_kind",
             "unknown"
           ]
+        },
+        "review_evidence": {
+          "description": "Optional field-level source provenance entered after a human has read the official source. Never infer verified_at from these entries.",
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "field",
+              "source_url",
+              "checked_at",
+              "summary"
+            ],
+            "properties": {
+              "field": {
+                "enum": [
+                  "deadline",
+                  "deadline_iso",
+                  "deadline_type",
+                  "benefit_kind",
+                  "value_text",
+                  "eligibility_note",
+                  "stage_req",
+                  "project",
+                  "fit_note"
+                ]
+              },
+              "source_url": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https?://[^\\s]+$"
+              },
+              "checked_at": {
+                "$ref": "#/$defs/date"
+              },
+              "summary": {
+                "type": "string",
+                "minLength": 8,
+                "maxLength": 1200
+              }
+            }
+          }
         }
       },
       "dependentSchemas": {
