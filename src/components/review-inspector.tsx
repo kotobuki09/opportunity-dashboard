@@ -8,10 +8,14 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BENEFIT_LABELS, PROJECTS, formatDay, type OpportunityRow } from "@/lib/opps"
 import { qualityFor } from "@/lib/data-quality"
+import { REVIEW_PHASE_LABELS, type EffectiveReviewPhase, type ReviewPhase } from "@/lib/editorial-progress"
 import { draftFor, buildReviewProposal } from "@/lib/review-proposal"
 import { HEALTH_LABEL, type PublicHealthRow } from "@/lib/source-health"
 
-export function ReviewInspector({row,health,onOpen}:{row:OpportunityRow;health?:PublicHealthRow;onOpen:(id:string)=>void}){
+export function ReviewInspector({row,health,phase,onOpen,onPhaseChange}:{
+ row:OpportunityRow;health?:PublicHealthRow;phase:EffectiveReviewPhase
+ onOpen:(id:string)=>void;onPhaseChange:(value:ReviewPhase)=>void
+}){
  const [draft,setDraft]=React.useState(()=>draftFor(row))
  const [editing,setEditing]=React.useState(false)
  const q=qualityFor(row)
@@ -44,12 +48,30 @@ export function ReviewInspector({row,health,onOpen}:{row:OpportunityRow;health?:
    </div>
   </div>
   <div className="space-y-5 px-5 py-5 sm:px-6 xl:max-h-[65vh] xl:overflow-y-auto">
+   <section className="space-y-3 rounded-xl border border-blue-500/20 bg-blue-50/35 p-3 dark:bg-blue-950/20" aria-label="Tiến độ biên tập của tôi">
+    <div>
+     <h5 className="text-xs font-semibold text-foreground">Tiến độ xử lý cá nhân</h5>
+     <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">Lưu trong trình duyệt và bản sao lưu JSON cá nhân; không đánh dấu cơ hội đã xác minh.</p>
+    </div>
+    {phase==="needs_recheck"&&<p className="rounded-md bg-amber-500/10 p-2 text-xs text-amber-800 dark:text-amber-300">
+     Nội dung cơ hội đã thay đổi từ lần xử lý trước. Hãy đối chiếu lại trước khi đặt trạng thái mới.
+    </p>}
+    <Select value={phase==="needs_recheck"?"not_started":phase} onValueChange={x=>onPhaseChange(x as ReviewPhase)}>
+     <SelectTrigger aria-label="Tiến độ rà soát riêng" className="w-full"><SelectValue/></SelectTrigger>
+     <SelectContent>
+      {(["not_started","checking","waiting_source","proposal_ready"] as ReviewPhase[]).map(key=>
+       <SelectItem key={key} value={key}>{REVIEW_PHASE_LABELS[key]}</SelectItem>)}
+     </SelectContent>
+    </Select>
+   </section>
    <section className="space-y-2">
     <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Bằng chứng & tình trạng nguồn</h5>
     <div className="space-y-2 rounded-xl border bg-muted/25 p-3 text-xs">
      <p className="flex items-center gap-2 font-medium"><ShieldAlertIcon className="size-4 text-amber-600"/>
       {row.verified_at?"Ngày kiểm tra được ghi: "+formatDay(row.verified_at):"Chưa có xác minh thủ công"}</p>
      <p className="text-muted-foreground">HTTP: {health?HEALTH_LABEL[health.health]+(health.status_code?" ("+health.status_code+")":""):"Chưa có kết quả quét"}. HTTP 200 không chứng minh đang nhận hồ sơ.</p>
+     {health&&health.unreachable_streak>=2&&
+      <p className="text-amber-800 dark:text-amber-300">{health.unreachable_streak} lượt quét liên tiếp chưa truy cập được. Đây không phải kết luận chương trình đã đóng.</p>}
      <p className="text-muted-foreground">Bằng chứng theo trường: {row.review_evidence.length}. Từ trang chương trình không tự suy ra điều kiện phù hợp cá nhân.</p>
     </div>
     {row.review_evidence.slice(-3).map((e,i)=>
