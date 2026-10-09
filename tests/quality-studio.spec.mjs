@@ -1,13 +1,15 @@
 import {test,expect} from "@playwright/test"
 import {readFileSync} from "node:fs"
 import {promises as fs} from "node:fs"
+import {createHash} from "node:crypto"
 
 const ROOT="/opportunity-dashboard/"
 const items=JSON.parse(readFileSync(new URL("../data/seen.json",import.meta.url),"utf8"))
 const entry=items.find(x=>!x.verified_at&&(!x.stage_req||!x.eligibility_note))||items[0]
+const sourceDigest=createHash("sha256").update(JSON.stringify(items.map(x=>x.url).sort())).digest("hex")
 
 test("Quality Studio shows actions and truthful source-health reachability",async({page})=>{
- const report={generated_at:new Date().toISOString(),total:items.length,checked:2,counts:{reachable:1,restricted:1},
+ const report={generated_at:new Date().toISOString(),source_digest:sourceDigest,total:items.length,checked:2,counts:{reachable:1,restricted:1},
   results:[{url:entry.url,health:"restricted",status_code:403},
    {url:items.find(x=>x.url!==entry.url).url,health:"reachable",status_code:200}]}
  await page.route("**/source-health.json",route=>route.fulfill({status:200,contentType:"application/json",body:JSON.stringify(report)}))
@@ -60,4 +62,33 @@ test("missing source data is disclosed instead of displaying fictitious HTTP suc
  await page.goto(ROOT+"#quality")
  await expect(page.getByText("Chưa có snapshot công khai",{exact:false})).toBeVisible()
  await expect(page.getByText("Đang chờ bản quét nguồn")).toBeVisible()
+})
+
+test("review progress persists in the existing private backup without faking verification",async({page})=>{
+ await page.goto(ROOT+"#quality")
+ await page.getByRole("button",{name:/^Kiểm định:/}).first().click()
+ const progress=page.getByRole("combobox",{name:"Tiến độ rà soát riêng"})
+ await progress.click()
+ await page.getByRole("option",{name:"Đang đối chiếu"}).click()
+ await expect(progress).toContainText("Đang đối chiếu")
+ const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem("oppScout.v1")||"{}"))
+ const all=Object.values(saved.items||{})
+ expect(all.some(x=>x.reviewPhase==="checking"&&/^[a-f0-9]{8}$/.test(x.reviewStamp))).toBe(true)
+ await page.reload()
+ await page.getByRole("button",{name:/^Kiểm định:/}).first().click()
+ await expect(page.getByRole("combobox",{name:"Tiến độ rà soát riêng"})).toContainText("Đang đối chiếu")
+ await page.getByRole("combobox",{name:"Lọc tiến độ rà soát cá nhân"}).click()
+ await page.getByRole("option",{name:"Đang đối chiếu"}).click()
+ await expect(page.getByRole("button",{name:/^Kiểm định:/})).toHaveCount(1)
+})
+test("mismatched scanner population hides stale HTTP badges and totals",async({page})=>{
+ const report={generated_at:new Date().toISOString(),source_digest:"a".repeat(64),total:items.length,checked:1,
+  results:[{url:entry.url,health:"missing",status_code:404}]}
+ await page.route("**/source-health.json",route=>route.fulfill({status:200,contentType:"application/json",body:JSON.stringify(report)}))
+ await page.goto(ROOT+"#quality")
+ await expect(page.getByText("Bản quét không khớp dữ liệu")).toBeVisible()
+ await expect(page.getByText("Bản quét khác tập URL hiện tại",{exact:false})).toBeVisible()
+ await expect(page.getByText("—",{exact:true})).toHaveCount(3)
+ const link=page.getByRole("group",{name:"Bộ lọc kiểm định"}).getByRole("button",{name:/Lỗi \/ chặn truy cập/})
+ await expect(link).toContainText("0")
 })
