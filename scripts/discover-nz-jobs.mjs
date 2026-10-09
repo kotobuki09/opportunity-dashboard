@@ -69,12 +69,24 @@ export async function discoverJobs(fetcher=fetch,now=new Date()){
   if(offset+100>=Math.min(Number(page.totalFound)||0,300)||page.content.length<100)break
  }
  const likely=summaries.filter(x=>JOB_ROLE.test(String(x.name||""))&&!ACADEMIC_EXCLUDE.test(String(x.name||""))).slice(0,65)
- const details=await Promise.all(likely.map(async row=>{
-  const id=candidateId(row.id)
-  if(!id)return null
-  try{return normalizePosting(row,await timeout(API+"/"+id))}
-  catch{return null}
- }))
+ const details=[]
+ let detailsRetrieved=0
+ // Limit concurrency to avoid a provider rate limit and fail closed on an API outage.
+ for(let i=0;i<likely.length;i+=5){
+  const batch=await Promise.all(likely.slice(i,i+5).map(async row=>{
+   const id=candidateId(row.id)
+   if(!id)return null
+   try{
+    const detail=await timeout(API+"/"+id)
+    detailsRetrieved++
+    return normalizePosting(row,detail)
+   }catch{return null}
+  }))
+  details.push(...batch)
+ }
+ if(likely.length>0&&detailsRetrieved===0){
+  throw Error("Official job API detailed-posting fetch failed; preserving previously published snapshot")
+ }
  const unique=new Map()
  for(const job of details.filter(Boolean)){if(!unique.has(job.id))unique.set(job.id,job)}
  const listings=[...unique.values()].sort((a,b)=>b.match_score-a.match_score || a.title.localeCompare(b.title)).slice(0,MAX_PUBLIC_JOBS)
