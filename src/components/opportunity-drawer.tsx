@@ -62,6 +62,7 @@ export function OpportunityDrawer({
   const isMobile = useIsMobile()
   const [taskText, setTaskText] = React.useState("")
   const [confirmClear, setConfirmClear] = React.useState(false)
+  const quality = item ? qualityFor(item) : null
 
   return (
     <Drawer direction={isMobile ? "bottom" : "right"} open={!!item} onOpenChange={(open) => { if (!open) setConfirmClear(false); onOpenChange(open) }}>
@@ -129,11 +130,24 @@ export function OpportunityDrawer({
                 <div className="font-medium">Điều kiện và lưu ý</div>
                 <p className="text-muted-foreground">{item.eligibility_note || "Chưa có ghi chú."}</p>
               </div>
-              <div className="rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
-                {qualityFor(item).issues.length > 0 && <p className="mb-2 font-medium">Cần rà soát: {qualityFor(item).issues.join(" · ")}</p>}
-                {item.verified_at
-                  ? `Nguồn được kiểm tra lần cuối: ${formatDay(item.verified_at)}. Vui lòng xác nhận điều kiện trên trang chính thức trước khi nộp.`
-                  : "Chưa có ngày xác minh nguồn. Vui lòng xác nhận hạn chót và điều kiện trên trang chính thức trước khi nộp."}
+              <div className="space-y-2 rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
+                <p className="font-semibold text-foreground">Tình trạng chuẩn hoá & kiểm định</p>
+                <div className="flex flex-wrap gap-1.5">
+                  <Badge variant="outline">{quality?.needsVerification ? "Nguồn cần đối chiếu" : "Có ngày xác minh gần đây"}</Badge>
+                  <Badge variant="outline">{quality?.needsNormalization ? "Metadata cần hoàn thiện" : "Metadata đã đủ"}</Badge>
+                  {quality?.needsDeadlineReview && <Badge variant="outline">Trạng thái nộp chưa rõ</Badge>}
+                </div>
+                {quality?.findings.length ? (
+                  <ul className="space-y-1.5">
+                    {quality.findings.slice(0, 5).map((finding) => (
+                      <li key={finding.code}><span className="font-medium text-foreground">{finding.label}:</span> {finding.action}</li>
+                    ))}
+                    {quality.findings.length > 5 && <li>… và {quality.findings.length - 5} vấn đề khác trong trung tâm chất lượng dữ liệu.</li>}
+                  </ul>
+                ) : <p>Không phát hiện thiếu metadata theo quy tắc; vẫn cần tự xác nhận tư cách ứng tuyển.</p>}
+                <p>{item.verified_at
+                  ? `Ngày kiểm tra được ghi: ${formatDay(item.verified_at)}. Không đồng nghĩa bạn đủ điều kiện.`
+                  : "Chưa ghi nhận ngày kiểm tra thủ công. HTTP 200 hoặc AI rà soát không được coi là đã xác minh."}</p>
               </div>
               <Separator />
               <FieldGroup>

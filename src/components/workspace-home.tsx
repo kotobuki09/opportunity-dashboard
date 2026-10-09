@@ -5,19 +5,21 @@ import { DeadlineBadge } from "@/components/opportunity-bits"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { qualityFor, qualitySummary } from "@/lib/data-quality"
 import { downloadCalendar } from "@/lib/calendar"
 import { formatDate, isAccepting, TRACKING, type OpportunityRow, type Status } from "@/lib/opps"
 import { priorityFor } from "@/lib/priority"
 
 const ChartAreaInteractive = React.lazy(() => import("@/components/chart-area-interactive").then((m) => ({ default: m.ChartAreaInteractive })))
 
-export function WorkspaceHome({ rows, statusOf, project, onOpen, onNavigate, onStatusChange }: {
+export function WorkspaceHome({ rows, statusOf, project, onOpen, onNavigate, onStatusChange, now = new Date() }: {
   rows: OpportunityRow[]
   statusOf: (row: OpportunityRow) => Status
   project: string | null
   onOpen: (id: string) => void
   onNavigate: (view: string) => void
   onStatusChange: (id: string, status: Status) => void
+  now?: Date
 }) {
   const active = rows.filter((row) => isAccepting(row) && !["bỏ qua", "đã tham gia"].includes(statusOf(row)))
   const urgent = active.filter((row) => row.state === "open" && row.daysLeft !== null && row.daysLeft <= 30)
@@ -26,7 +28,11 @@ export function WorkspaceHome({ rows, statusOf, project, onOpen, onNavigate, onS
     .sort((a, b) => b.score - a.score || a.row.rank - b.row.rank).slice(0, 5)
   const upcoming = rows.filter((row) => row.state === "opens_later").length
   const pursuing = active.filter((row) => TRACKING.includes(statusOf(row))).length
-  const missingVerification = active.filter((row) => !row.verified_at).length
+  const quality = qualitySummary(rows, now)
+  const reviewTop = rows.map((row) => ({ row, q: qualityFor(row, now) }))
+    .filter(({ row, q }) => q.findings.length > 0 && !["bỏ qua", "đã tham gia"].includes(statusOf(row)))
+    .sort((a, b) => b.q.priority - a.q.priority || a.row.rank - b.row.rank)
+    .slice(0, 3)
   return (
     <div className="flex flex-col gap-5 px-4 lg:px-6">
       <div className="flex flex-col gap-4 rounded-xl border bg-gradient-to-br from-card to-muted/60 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
@@ -93,10 +99,33 @@ export function WorkspaceHome({ rows, statusOf, project, onOpen, onNavigate, onS
           </CardContent>
         </Card>
       </div>
-      <div className="flex items-center gap-2 rounded-lg border px-4 py-3 text-xs text-muted-foreground">
-        <CircleAlertIcon className="size-4 shrink-0 text-amber-600" />
-        {missingVerification} cơ hội đang nhận chưa ghi nhận ngày xác minh. Vui lòng kiểm tra trực tiếp trước khi chuẩn bị hồ sơ.
-      </div>
+      <Card className="gap-3">
+        <CardHeader className="flex flex-row items-start justify-between gap-3">
+          <div className="space-y-1">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <CircleAlertIcon className="size-4 text-amber-600 dark:text-amber-400" />
+              Chưa chuẩn hoá & kiểm định
+            </CardTitle>
+            <CardDescription>
+              {quality.needsVerification} mục cần xác minh nguồn · {quality.needsNormalization} mục cần chuẩn hoá metadata.
+              Hai bước riêng biệt, không suy luận đủ điều kiện nộp.
+            </CardDescription>
+          </div>
+          <Button size="sm" variant="outline" onClick={() => onNavigate("quality")}>
+            Xem hàng đợi <ArrowRightIcon />
+          </Button>
+        </CardHeader>
+        <CardContent className="grid gap-2 sm:grid-cols-3">
+          {reviewTop.map(({ row, q }) => (
+            <button type="button" key={row.id} onClick={() => onOpen(row.id)}
+              className="min-w-0 space-y-2 rounded-lg border bg-muted/20 p-3 text-left transition-colors hover:border-primary/30 hover:bg-muted/40 focus-visible:outline-2 focus-visible:outline-ring">
+              <span className="block truncate text-sm font-medium">{row.title}</span>
+              <span className="block text-xs text-muted-foreground">{q.findings[0]?.label} · {row.project[0] || row.category}</span>
+            </button>
+          ))}
+          {!reviewTop.length && <p className="py-6 text-sm text-muted-foreground">Không có bản ghi cần rà soát trong bộ lọc.</p>}
+        </CardContent>
+      </Card>
       <React.Suspense fallback={<div className="rounded-xl border bg-muted/30 p-8 text-sm text-muted-foreground">Đang tải biểu đồ hạn nộp...</div>}>
         <ChartAreaInteractive rows={rows} statusOf={statusOf} />
       </React.Suspense>

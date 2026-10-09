@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/site-header"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
+import { qualityFor } from "@/lib/data-quality"
 import { useLocalState } from "@/lib/local-state"
 import { CATEGORIES, DATA, deriveRow, isAccepting, isDue, PROJECTS, TRACKING, type Status } from "@/lib/opps"
 
@@ -71,10 +72,11 @@ export function App() {
     const tracking = open.filter((row) => TRACKING.includes(local.statusOf(row)))
     return Object.fromEntries([
       ["overview", open.length], ["tracking", tracking.length],
+      ["quality", rows.filter((row) => (project === "all" || row.project.includes(project)) && qualityFor(row, now).findings.length > 0).length],
       ["due30", open.filter((row) => isDue(row, 30)).length],
       ...CATEGORIES.map((category) => [category, open.filter((row) => row.category === category).length]),
     ]) as Record<string, number>
-  }, [rows, local, project])
+  }, [rows, local, project, now])
   React.useEffect(() => {
     const onHash = () => setView(readView())
     window.addEventListener("hashchange", onHash)
@@ -130,11 +132,11 @@ export function App() {
               </Select>
             </div>
           </div>
-          <SectionCards rows={viewRows} statusOf={local.statusOf} onNavigate={changeView} />
+          <SectionCards rows={viewRows} statusOf={local.statusOf} onNavigate={changeView} now={now} />
           <React.Suspense fallback={<div role="status" className="mx-4 rounded-xl border bg-muted/30 p-8 text-sm text-muted-foreground lg:mx-6">Đang tải giao diện...</div>}>
           {view === "overview" ? (
             <WorkspaceHome rows={viewRows} statusOf={local.statusOf} project={project === "all" ? null : project}
-              onOpen={setSelectedId} onNavigate={changeView} onStatusChange={updateStatus} />
+              onOpen={setSelectedId} onNavigate={changeView} onStatusChange={updateStatus} now={now} />
           ) : view === "board" ? (
             <WorkflowBoard rows={viewRows} statusOf={local.statusOf} onOpen={setSelectedId} onStatusChange={updateStatus} />
           ) : view === "calendar" ? (
