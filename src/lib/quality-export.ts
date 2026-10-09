@@ -1,4 +1,4 @@
-import { qualityFor } from "./data-quality"
+import { qualityFor } from "./data-quality.ts"
 import type { OpportunityRow } from "./opps"
 
 const FIELDS = [
