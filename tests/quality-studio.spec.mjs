@@ -1,5 +1,5 @@
 import {test,expect} from "@playwright/test"
-import {readFile,readFileSync} from "node:fs"
+import {readFileSync} from "node:fs"
 import {promises as fs} from "node:fs"
 
 const ROOT="/opportunity-dashboard/"
