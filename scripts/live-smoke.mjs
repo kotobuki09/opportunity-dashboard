@@ -36,6 +36,29 @@ export function extractAssets(html, base = LIVE) {
   return [...paths.entries()].map(([url,kind])=>({url,kind}))
 }
 
+/** Verify browser-tab, PNG fallback and iOS home-screen icons are served under the configured subpath. */
+export function extractBrandAssets(html, base = LIVE) {
+  if (typeof html !== "string" || html.length > 2_000_000) throw Error("Unexpected HTML response size")
+  const baseUrl = new URL(base)
+  const prefix = baseUrl.pathname.replace(/\/?$/, "/")
+  const linkTags = [...html.matchAll(/<link\b[^>]*>/gi)].map((match) => match[0])
+  const attr = (tag, name) => tag.match(new RegExp("\\b" + name + "\\s*=\\s*[\"']([^\"']+)[\"']", "i"))?.[1] || ""
+  const required = [
+    { rel: "icon", type: "image/svg+xml", file: "favicon.svg", mime: "image/svg+xml" },
+    { rel: "icon", type: "image/png", file: "favicon-32.png", mime: "image/png" },
+    { rel: "apple-touch-icon", type: null, file: "apple-touch-icon.png", mime: "image/png" },
+  ]
+  return required.map(({ rel, type, file, mime }) => {
+    const tag = linkTags.find((link) => attr(link, "rel") === rel && (type === null || attr(link, "type") === type))
+    if (!tag) throw Error("Missing favicon/touch icon declaration: " + file)
+    const url = new URL(attr(tag, "href"), baseUrl)
+    if (url.origin !== baseUrl.origin || url.pathname !== prefix + file) {
+      throw Error("Brand icon outside expected deployment path: " + file)
+    }
+    return { url: url.href, mime }
+  })
+}
+
 async function fetchOk(url, method="GET") {
   const response = await fetch(url,{method,signal:AbortSignal.timeout(12000),
     redirect:"error",headers:{"User-Agent":"OpportunityScoutLiveMonitor/1.0","Cache-Control":"no-cache"}})
@@ -48,14 +71,22 @@ export async function runLiveCheck(url = LIVE) {
   const page=await fetchOk(url)
   const html=await page.text()
   const assets=extractAssets(html,url)
+  const brandAssets=extractBrandAssets(html,url)
   for (const asset of assets){
     const response = await fetchOk(asset.url,"HEAD")
     const contentType = response.headers.get("content-type") || ""
     if(asset.kind==="js" && !/javascript/i.test(contentType)) throw Error("JS MIME mismatch: " + contentType)
     if(asset.kind==="css" && !/text\/css/i.test(contentType)) throw Error("CSS MIME mismatch: " + contentType)
   }
-  const result={checked_at:checkedAt,site:url,status:"healthy",asset_count:assets.length,
-    notes:"Public HTML and bundled static assets only; browser features are tested in PR/main CI."}
+  for (const icon of brandAssets) {
+    const response = await fetchOk(icon.url,"HEAD")
+    const contentType = response.headers.get("content-type") || ""
+    if (!contentType.toLowerCase().includes(icon.mime)) {
+      throw Error("Favicon/touch icon MIME mismatch: " + icon.url + " " + contentType)
+    }
+  }
+  const result={checked_at:checkedAt,site:url,status:"healthy",asset_count:assets.length,icon_count:brandAssets.length,
+    notes:"Public HTML, JS/CSS, and favicon/touch icons only; browser features are tested in PR/main CI."}
   console.log("Production static smoke: "+JSON.stringify(result))
   if(process.env.GITHUB_STEP_SUMMARY)appendFileSync(process.env.GITHUB_STEP_SUMMARY,
     "### Live Opportunity Scout site check\n"+
