@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { BENEFIT_LABELS, PROJECTS, formatDay, type OpportunityRow } from "@/lib/opps"
 import { qualityFor } from "@/lib/data-quality"
 import { REVIEW_PHASE_LABELS, type EffectiveReviewPhase, type ReviewPhase } from "@/lib/editorial-progress"
-import { draftFor, buildReviewProposal } from "@/lib/review-proposal"
+import { draftFor, buildReviewProposal, REVIEW_FIELDS, type ReviewField } from "@/lib/review-proposal"
 import { HEALTH_LABEL, type PublicHealthRow } from "@/lib/source-health"
 
 export function ReviewInspector({row,health,phase,onOpen,onPhaseChange}:{
@@ -116,6 +116,20 @@ export function ReviewInspector({row,health,phase,onOpen,onPhaseChange}:{
       <input type="checkbox" className="mt-0.5 size-4 accent-blue-600" checked={draft.humanChecked} onChange={e=>set("humanChecked",e.target.checked)}/>
       <span>Tôi đã tự đọc nguồn và xác nhận bằng chứng theo từng trường. Không tự thay đổi <code>verified_at</code> hoặc trạng thái hồ sơ.</span>
      </label>
+     {draft.humanChecked&&<div className="space-y-1">
+      <label className="text-xs font-medium">Trường được chứng minh bởi nguồn này</label>
+      <Select value={draft.evidenceField||"auto"} onValueChange={value=>set("evidenceField",value==="auto"?"":value as ReviewField)}>
+       <SelectTrigger aria-label="Trường có bằng chứng"><SelectValue/></SelectTrigger>
+       <SelectContent>
+        <SelectItem value="auto">Tự động nếu chỉ sửa một trường</SelectItem>
+        {REVIEW_FIELDS.map(field=><SelectItem key={field} value={field}>{({
+         eligibility_note:"Điều kiện ứng tuyển",stage_req:"Giai đoạn",fit_note:"Lý do phù hợp",
+         benefit_kind:"Loại quyền lợi",project:"Dự án",
+        } as Record<ReviewField,string>)[field]}</SelectItem>)}
+       </SelectContent>
+      </Select>
+      <p className="text-[11px] text-muted-foreground">Một bằng chứng chỉ chứng minh một trường. Các trường khác vẫn là đề xuất chưa kiểm định.</p>
+     </div>}
      <div className="grid grid-cols-2 gap-2">
       <Button size="sm" onClick={exportFile}><FileJsonIcon className="size-4"/> Xuất đề xuất</Button>
       <Button size="sm" variant="outline" onClick={copy}><ClipboardCopyIcon className="size-4"/> Sao chép</Button>
