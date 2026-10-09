@@ -2,11 +2,12 @@ name: Live GitHub Pages availability
 
 on:
   workflow_dispatch:
-  push:
+  # Run only after the production build *and* Pages deployment are complete.
+  # A parallel push-triggered check would see stale HTML before new favicon assets exist.
+  workflow_run:
+    workflows: ["Validate and deploy dashboard"]
+    types: [completed]
     branches: [main]
-    paths:
-      - ".github/workflows/live-availability.yml"
-      - "scripts/live-smoke.mjs"
   schedule:
     # 05:20 Asia/Ho_Chi_Minh each day.
     - cron: "20 22 * * *"
@@ -17,6 +18,7 @@ permissions:
 jobs:
   smoke:
     name: Verify public site and static assets
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:

@@ -7,7 +7,7 @@ The public GitHub Pages dashboard hosts non-sensitive opportunity facts and brow
 ## Daily / twice-weekly operation
 
 - Main site: https://kotobuki09.github.io/opportunity-dashboard/
-- Daily at 05:20 ICT: **Live GitHub Pages availability** checks public HTML and JS/CSS bundle URLs, with a failed GitHub Actions job on unavailability. Watch Actions failures; this does not send emails unless GitHub notifications are configured.
+- Daily at 05:20 ICT and **after a successful Pages deployment**: **Live GitHub Pages availability** checks public HTML, JS/CSS bundle URLs and favicon/touch-icon assets, with a failed GitHub Actions job on unavailability. Watch Actions failures; this does not send emails unless GitHub notifications are configured.
 - Release gate: **Validate and deploy dashboard** (data validation, tests, lint, build, browser E2E, dependency audit, Pages).
 - Twice weekly at 06:31 ICT: **Official sources and discovery review**. The workflow produces source-health and discovery-review artifacts retained 21 days. It never writes directly to the opportunity data.
 - Review candidates only against official source pages. Confirm geographical eligibility, program type, opening and exact deadline/timezone, value/benefit kind, project fit, and the real applicant entity.
@@ -54,3 +54,12 @@ The public GitHub Pages dashboard hosts non-sensitive opportunity facts and brow
 - The initially configured Grants.gov RSS endpoint returned an unsupported XML format/size. It was retired from the active feed catalog rather than weakening the DTD/size protections. The general Grants.gov site may still be used for manual research.
 - New feeds should only be added after one successful check in the scheduled runner and with a documented expected format/host.
 
+
+## Browser icon and theme regression checks (2026-10-09)
+
+- The Opportunity Scout mark is a solid cobalt radar tile with thick white rings and an amber radar point. It is distinguishable on both light and dark browser tab bars and legible at 16px, unlike the former thin black transparent outline.
+- Browser-tab SVG: `public/favicon.svg`; PNG fallback: `public/favicon-32.png`; Apple touch icon: `public/apple-touch-icon.png`. The sidebar uses the same brand mark, resolved under the Vite `/opportunity-dashboard/` base path.
+- Browser favicon links carry `?v=2` to refresh aggressive tab-icon caches. For future redesigns, bump the version in `index.html`, `app-sidebar.tsx`, and E2E checks together. Updating icon assets does not touch personal localStorage.
+- The theme provider synchronizes the resolved system/manual appearance, HTML class, native `color-scheme`, and mobile browser `theme-color`. Verify keyboard theme shortcut and the moon/sun toggle.
+- The nightly Pages check verifies SVG favicon, PNG fallback and Apple touch icon URLs with MIME types. CI tests light/dark behavior and browser asset paths.
+- If an older tab icon persists after deploy, reload and fully close/reopen the tab. Do not advise clearing browser storage: doing so can delete personal statuses and notes.
