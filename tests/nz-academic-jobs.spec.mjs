@@ -2,7 +2,9 @@ import { test, expect } from "@playwright/test"
 import { readFile } from "node:fs/promises"
 
 const ROOT="/opportunity-dashboard/"
+const mockEmpty=page=>page.route("**/nz-academic-jobs-auto.json",route=>route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({generated_at:null,listings:[]})}))
 test("new NZ Academic Jobs route shows official vacancy and clear deadline/visa caveats",async({page})=>{
+ await mockEmpty(page)
  await page.goto(ROOT+"#nz-jobs")
  await expect(page.getByRole("heading",{name:"Research, Postdoc & Faculty Positions"})).toBeVisible()
  await expect(page.getByText("Postdoctoral Research Fellow — Autonomous Agency")).toBeVisible()
@@ -13,6 +15,7 @@ test("new NZ Academic Jobs route shows official vacancy and clear deadline/visa 
  await expect(page.getByRole("combobox",{name:"Lọc toàn bộ dashboard theo dự án"})).toHaveCount(0)
 })
 test("NZ job filters distinguish postdoc, lecturer and research specialties",async({page})=>{
+ await mockEmpty(page)
  await page.goto(ROOT+"#nz-jobs")
  await page.getByRole("combobox",{name:"Lọc cấp bậc học thuật"}).click()
  await page.getByRole("option",{name:"Postdoc",exact:true}).click()
@@ -23,6 +26,7 @@ test("NZ job filters distinguish postdoc, lecturer and research specialties",asy
  await expect(page.getByText("Chưa có việc phù hợp",{exact:false})).toBeVisible()
 })
 test("future watchlist never presents the closed Canterbury position as actively recruitable",async({page})=>{
+ await mockEmpty(page)
  await page.goto(ROOT+"#nz-jobs")
  await page.getByRole("button",{name:/Theo dõi trường & viện/}).click()
  await expect(page.getByText("University of Canterbury — Wireless Research Centre")).toBeVisible()
@@ -31,6 +35,7 @@ test("future watchlist never presents the closed Canterbury position as actively
  await expect(page.getByRole("link",{name:/Tuyển dụng chính thức/}).first()).toHaveAttribute("target","_blank")
 })
 test("academic application tracking is browser-private and survives reload and JSON download",async({page})=>{
+ await mockEmpty(page)
  await page.goto(ROOT+"#nz-jobs")
  const control=page.getByRole("combobox",{name:/Trạng thái ứng tuyển: Postdoctoral Research Fellow/})
  await control.click()
@@ -64,6 +69,7 @@ test("fresh official API candidates are distinguishable from manually verified v
  await expect(page.getByText("Research Fellow - AI-powered Wireless Communications")).toBeVisible()
 })
 test("mobile academic jobs view stays within viewport and honors dark mode",async({page})=>{
+ await mockEmpty(page)
  await page.setViewportSize({width:390,height:844})
  await page.emulateMedia({colorScheme:"dark",reducedMotion:"reduce"})
  await page.goto(ROOT+"#nz-jobs")
