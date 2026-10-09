@@ -61,6 +61,7 @@ export type OpportunityRow = Opportunity & {
 
 export const DATA = raw as unknown as {
   built_at: string
+  source_digest: string
   categories: string[]
   statuses: Status[]
   projects: string[]

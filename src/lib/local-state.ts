@@ -1,6 +1,7 @@
 import * as React from "react"
 import type { Opportunity, Status } from "@/lib/opps"
 import { STATUSES } from "@/lib/opps"
+import type { ReviewPhase } from "@/lib/editorial-progress"
 
 /** Personal workspace data stays in this browser unless explicitly exported. */
 const KEY = "oppScout.v1"
@@ -9,6 +10,9 @@ export type PersonalEntry = {
   status?: Status
   note?: string
   nextAction?: string
+  /** Personal editorial workflow only; never source verification. */
+  reviewPhase?: ReviewPhase
+  reviewStamp?: string
   tasks?: ChecklistTask[]
   updated?: string
 }
@@ -23,6 +27,8 @@ function cleanEntry(value: unknown): PersonalEntry {
   if (typeof value.status === "string" && STATUSES.includes(value.status as Status)) out.status = value.status as Status
   if (typeof value.note === "string") out.note = value.note.slice(0, 10000)
   if (typeof value.nextAction === "string") out.nextAction = value.nextAction.slice(0, 500)
+  if (["not_started", "checking", "waiting_source", "proposal_ready"].includes(String(value.reviewPhase))) out.reviewPhase = value.reviewPhase as ReviewPhase
+  if (typeof value.reviewStamp === "string" && /^[a-f0-9]{8}$/.test(value.reviewStamp)) out.reviewStamp = value.reviewStamp
   if (Array.isArray(value.tasks)) {
     out.tasks = value.tasks.slice(0, 30).filter(isRecord).map((task, i) => ({
       id: typeof task.id === "string" ? task.id.slice(0, 60) : String(i),

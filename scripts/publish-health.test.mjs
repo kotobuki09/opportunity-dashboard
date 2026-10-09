@@ -23,3 +23,25 @@ test("unsafe, duplicated, future and unexpected monitor data fails closed",()=>{
  assert.throws(()=>publicHealth({...source,results:[{url:"https://one.example.org",health:"hacked",status_code:200}]},canonical,clock))
  assert.throws(()=>publicHealth({...source,generated_at:"2050-01-01T00:00:00.000Z"},canonical,clock))
 })
+
+test("source snapshots carry the exact stable URL population fingerprint",()=>{
+ const result=publicHealth(source,canonical,new Date("2026-10-09T11:00:00Z"))
+ assert.match(result.source_digest,/^[0-9a-f]{64}$/)
+ assert.throws(()=>publicHealth({...source,total:9},canonical,new Date("2026-10-09T11:00:00Z")))
+})
+test("repeat transport failures are counted without converting HTTP errors into evidence of closure",()=>{
+ const first=publicHealth(source,canonical,new Date("2026-10-09T11:00:00Z"))
+ const second=publicHealth({...source,generated_at:"2026-10-10T10:12:00.000Z"},
+   canonical,new Date("2026-10-10T11:00:00Z"),first)
+ assert.equal(second.results.find(x=>x.health==="restricted").unreachable_streak,2)
+ assert.equal(second.results.find(x=>x.health==="reachable").unreachable_streak,0)
+ const recovered=publicHealth({...source,generated_at:"2026-10-11T10:12:00.000Z",
+  results:source.results.map(x=>({...x,health:"reachable",status_code:200}))},
+  canonical,new Date("2026-10-11T11:00:00Z"),second)
+ assert.equal(recovered.results[1].unreachable_streak,0)
+ assert.equal(recovered.results[1].previous_health,"restricted")
+ const mismatched={...first,source_digest:"0".repeat(64)}
+ const reset=publicHealth({...source,generated_at:"2026-10-11T10:12:00.000Z"},
+  canonical,new Date("2026-10-11T11:00:00Z"),mismatched)
+ assert.equal(reset.results[1].unreachable_streak,1)
+})

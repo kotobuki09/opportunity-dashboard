@@ -7,6 +7,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs"
 import { execFileSync } from "node:child_process"
 import { createHash } from "node:crypto"
+import { sourceUniverseDigest } from "./source-universe.mjs"
 import { dirname, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
@@ -80,7 +81,7 @@ if (!Array.isArray(data)) data = data.items || []
 const items = data.filter((x) => x && typeof x === "object").map(normalize)
 const categories = [...CATEGORIES, ...[...new Set(items.map((i) => i.category))].filter((c) => !CATEGORIES.includes(c)).sort()]
 const projects = [...PROJECTS.filter((p) => items.some((i) => i.project.includes(p))), ...[...new Set(items.flatMap((i) => i.project))].filter((p) => !PROJECTS.includes(p)).sort()]
-const body = { categories, statuses: STATUSES, projects, fx: FX_TO_USD, items }
+const body = { categories, statuses: STATUSES, projects, fx: FX_TO_USD, source_digest: sourceUniverseDigest(items), items }
 // built_at = when the data last changed, in VN time: the last commit touching the
 // input file, or "now" if the file has uncommitted edits / git is unavailable.
 // Deterministic for a given commit, so CI and local builds agree.

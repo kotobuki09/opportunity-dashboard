@@ -108,3 +108,7 @@ It overrides the `status` stored in `data/seen.json` on that browser.
 The optional `review_evidence` entries are proof links for **specific corrected fields**, not blanket claims that the program is accepting applications. A reviewer should record the source URL, the field it supports, the VN calendar day they personally read it, and a precise summary. Do not populate `checked_at` from an automatic HTTP check. An AI-generated proposal may contain metadata suggestions but cannot assert `verified_at` unless a human independently confirms current application status.
 
 The Quality Studio inspector produces a **downloadable patch proposal** (or clipboard copy), **not a GitHub commit**. It includes stable id/title/url, changed public fields, and optional attested evidence. Reviewers must apply approved values and `review_evidence` to `data/seen.json` through a pull request. The viewer does not request OAuth credentials or export local application notes.
+
+## V3.3 reviewer semantics
+
+`review_evidence` is optional per-field evidence and can be added only from manual source review. The browser's separate `reviewPhase`/record-change stamp lives in personal localStorage state; it **must never** be written to `data/seen.json` or confused with `verified_at`. When proposing multiple metadata changes, a single URL/note can substantiate only one selected field; other changes remain unverified proposals. The source-health `source_digest` SHA-256 and repeated HTTP observation history are generated operational signals, not source attestation or opportunity closure.

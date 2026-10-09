@@ -10,9 +10,11 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ReviewInspector } from "@/components/review-inspector"
 import { qualityFor, qualitySummary } from "@/lib/data-quality"
+import { effectiveReviewPhase, phaseIsActive, reviewRecordStamp, REVIEW_PHASE_LABELS, type EffectiveReviewPhase, type ReviewPhase } from "@/lib/editorial-progress"
+import type { LocalApi } from "@/lib/local-state"
 import { buildQualityCsv } from "@/lib/quality-export"
-import { formatDate, stripVi, type OpportunityRow } from "@/lib/opps"
-import { HEALTH_LABEL, healthByUrl, parseSourceHealth, sourceSnapshotAge, type PublicHealth } from "@/lib/source-health"
+import { DATA, formatDate, stripVi, type OpportunityRow } from "@/lib/opps"
+import { HEALTH_LABEL, healthByUrl, parseSourceHealth, sourceSnapshotAge, snapshotCompatible, type PublicHealth } from "@/lib/source-health"
 
 type Filter="review"|"verification"|"normalization"|"availability"|"links"|"normalized"|"all"
 type Sort="priority"|"deadline"|"title"
@@ -38,12 +40,13 @@ const transportTone:Record<string,string>={
 }
 const percent=(a:number,b:number)=>b?Math.round(100*a/b):0
 
-export function QualityReview({rows,onOpen,now=new Date()}:{
- rows:OpportunityRow[];onOpen:(id:string)=>void;now?:Date
+export function QualityReview({rows,onOpen,now=new Date(),local}:{
+ rows:OpportunityRow[];onOpen:(id:string)=>void;now?:Date;local:LocalApi
 }){
  const [filter,setFilter]=React.useState<Filter>("review")
  const [query,setQuery]=React.useState("")
  const [sort,setSort]=React.useState<Sort>("priority")
+ const [progressFilter,setProgressFilter]=React.useState<EffectiveReviewPhase|"all">("all")
  const [visibleCount,setVisibleCount]=React.useState(PAGE_SIZE)
  const [selectedId,setSelectedId]=React.useState<string|null>(null)
  const [snapshot,setSnapshot]=React.useState<PublicHealth|null>(null)
@@ -61,31 +64,36 @@ export function QualityReview({rows,onOpen,now=new Date()}:{
  },[])
 
  const quality=React.useMemo(()=>qualitySummary(rows,now),[rows,now])
- const byUrl=React.useMemo(()=>healthByUrl(snapshot),[snapshot])
- const records=React.useMemo(()=>rows.map(row=>({row,q:qualityFor(row,now),health:byUrl.get(row.url)})),[rows,now,byUrl])
- const linkIssueCount=records.filter(x=>x.health&&unhealthy.has(x.health.health)).length
+ const age=sourceSnapshotAge(snapshot,now)
+ const compatible=!!snapshot && snapshot.source_digest===DATA.source_digest
+ const displayedScan=snapshotCompatible(snapshot,DATA.source_digest,now)?snapshot:null
+ const byUrl=React.useMemo(()=>healthByUrl(displayedScan),[displayedScan])
+ const records=React.useMemo(()=>rows.map(row=>({
+  row,q:qualityFor(row,now),health:byUrl.get(row.url),
+  progress:effectiveReviewPhase(row,local.entryOf(row)),
+ })),[rows,now,byUrl,local])
+ const activeProgress=records.filter(x=>phaseIsActive(x.progress)).length
+ const staleProgress=records.filter(x=>x.progress==="needs_recheck").length
  const choose=(next:Filter)=>{setFilter(next);setVisibleCount(PAGE_SIZE)}
- const countFor=(value:Filter)=>
-  value==="verification"?quality.needsVerification:
-  value==="normalization"?quality.needsNormalization:
-  value==="availability"?quality.needsDeadlineReview:
-  value==="links"?linkIssueCount:
-  value==="normalized"?quality.normalized:
-  value==="review"?quality.needsReview:quality.total
-
- const reports=React.useMemo(()=>records.filter(({row,q,health})=>{
-  if(filter==="review"&&!q.findings.length)return false
-  if(filter==="verification"&&!q.needsVerification)return false
-  if(filter==="normalization"&&!q.needsNormalization)return false
-  if(filter==="availability"&&!q.needsDeadlineReview)return false
-  if(filter==="normalized"&&!q.normalized)return false
-  if(filter==="links"&&(!health||!unhealthy.has(health.health)))return false
-  return !query.trim()||stripVi([row.title,row.category,row.project.join(" "),row.url,...q.issues].join(" ")).includes(stripVi(query.trim()))
- }).sort((a,b)=>
+ const onProgressChange=(row:OpportunityRow,value:ReviewPhase)=>
+  local.patch(row.id,{reviewPhase:value,reviewStamp:reviewRecordStamp(row)})
+ const scoped=React.useMemo(()=>records.filter(({row,q,progress})=>
+   (progressFilter==="all"||progress===progressFilter) &&
+   (!query.trim()||stripVi([row.title,row.category,row.project.join(" "),row.url,...q.issues].join(" ")).includes(stripVi(query.trim())))
+ ),[records,progressFilter,query])
+ const matching=(value:Filter,q:(typeof records)[number])=>
+  value==="verification"?q.q.needsVerification:
+  value==="normalization"?q.q.needsNormalization:
+  value==="availability"?q.q.needsDeadlineReview:
+  value==="links"?!!q.health&&unhealthy.has(q.health.health):
+  value==="normalized"?q.q.normalized:
+  value==="review"?q.q.findings.length>0:true
+ const countFor=(value:Filter)=>scoped.filter(item=>matching(value,item)).length
+ const reports=React.useMemo(()=>scoped.filter(item=>matching(filter,item)).sort((a,b)=>
   sort==="title"?a.row.title.localeCompare(b.row.title,"vi"):
   sort==="deadline"?a.row.rank-b.row.rank:
   b.q.priority-a.q.priority||a.row.rank-b.row.rank
- ),[records,filter,query,sort])
+ ),[scoped,filter,sort])
 
  const onChoose=(id:string)=>{
   setSelectedId(id)
@@ -93,7 +101,7 @@ export function QualityReview({rows,onOpen,now=new Date()}:{
    window.setTimeout(()=>inspectorRef.current?.scrollIntoView({block:"start",behavior:"smooth"}),50)
   }
  }
- const selected=reports.find(x=>x.row.id===selectedId)??null
+ const selected=records.find(x=>x.row.id===selectedId)??null
  const exportReport=()=>{
   const csv=buildQualityCsv(reports.map(x=>x.row),now)
   const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}))
@@ -101,10 +109,11 @@ export function QualityReview({rows,onOpen,now=new Date()}:{
   anchor.href=url;anchor.download="opportunity-quality-review.csv";anchor.click()
   window.setTimeout(()=>URL.revokeObjectURL(url),1000)
  }
- const age=sourceSnapshotAge(snapshot,now)
- const reachable=snapshot?.counts.reachable??0
- const restricted=snapshot?.counts.restricted??0
- const broken=(snapshot?.counts.missing??0)+(snapshot?.counts.server_error??0)+(snapshot?.counts.error??0)+(snapshot?.counts.unsafe??0)
+ const reachable=displayedScan?.counts.reachable??0
+ const restricted=displayedScan?.counts.restricted??0
+ const broken=(displayedScan?.counts.missing??0)+(displayedScan?.counts.server_error??0)+(displayedScan?.counts.error??0)+(displayedScan?.counts.unsafe??0)
+ const newlyUnreachable=displayedScan?.results.filter(x=>x.health!=="reachable"&&x.previous_health==="reachable").length??0
+ const recurringUnreachable=displayedScan?.results.filter(x=>x.unreachable_streak>=2).length??0
  const metrics=[
   {filter:"review" as const,title:"Cần xử lý",amount:quality.needsReview,help:"Có ít nhất một yêu cầu rà soát",icon:SlidersHorizontalIcon},
   {filter:"verification" as const,title:"Chưa kiểm định nguồn",amount:quality.needsVerification,help:"Nguồn chưa hoặc quá hạn xác minh",icon:ShieldCheckIcon},
@@ -156,12 +165,18 @@ export function QualityReview({rows,onOpen,now=new Date()}:{
    )}
   </div>
 
+  <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border bg-card/80 px-4 py-3 text-xs">
+   <span className="font-semibold">Tiến độ rà soát cá nhân</span>
+   <span className="text-muted-foreground">{activeProgress} mục đang được xử lý</span>
+   <span className="text-muted-foreground">· {staleProgress} mục cần xem lại do dữ liệu đổi</span>
+   <span className="text-muted-foreground sm:ml-auto">Lưu trong trình duyệt và bản sao lưu cá nhân</span>
+  </div>
   <div className="grid gap-3 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
    <div className="rounded-xl border bg-card p-4 sm:p-5">
     <div className="flex flex-wrap items-center justify-between gap-3">
      <div>
       <div className="flex items-center gap-2 text-sm font-semibold"><RadioTowerIcon className="size-4 text-blue-600"/> Theo dõi nguồn công khai</div>
-      <p className="mt-1 text-xs text-muted-foreground">{age==="current"?"Bản quét hiện hành":age==="aging"?"Bản quét cần cập nhật":age==="outdated"?"Bản quét đã cũ":"Đang chờ bản quét nguồn"}
+      <p className="mt-1 text-xs text-muted-foreground">{snapshot&&!compatible?"Bản quét không khớp dữ liệu":age==="current"?"Bản quét hiện hành":age==="aging"?"Bản quét cần cập nhật":age==="outdated"?"Bản quét đã cũ":"Đang chờ bản quét nguồn"}
        {snapshot?" · "+new Date(snapshot.generated_at).toLocaleString("vi-VN",{timeZone:"Asia/Ho_Chi_Minh"}):""}
       </p>
      </div>
@@ -169,11 +184,11 @@ export function QualityReview({rows,onOpen,now=new Date()}:{
       target="_blank" rel="noopener noreferrer">Lịch sử quét <ArrowUpRightIcon className="size-4"/></a></Button>
     </div>
     <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-     <div className="rounded-lg bg-emerald-500/8 px-2 py-3"><strong className="block text-xl tabular-nums text-emerald-700 dark:text-emerald-300">{snapshot?reachable:"—"}</strong><span className="text-[11px] text-muted-foreground">Truy cập được</span></div>
-     <div className="rounded-lg bg-amber-500/8 px-2 py-3"><strong className="block text-xl tabular-nums text-amber-700 dark:text-amber-300">{snapshot?restricted:"—"}</strong><span className="text-[11px] text-muted-foreground">Giới hạn</span></div>
-     <div className="rounded-lg bg-rose-500/8 px-2 py-3"><strong className="block text-xl tabular-nums text-rose-700 dark:text-rose-300">{snapshot?broken:"—"}</strong><span className="text-[11px] text-muted-foreground">Lỗi / mất link</span></div>
+     <div className="rounded-lg bg-emerald-500/8 px-2 py-3"><strong className="block text-xl tabular-nums text-emerald-700 dark:text-emerald-300">{displayedScan?reachable:"—"}</strong><span className="text-[11px] text-muted-foreground">Truy cập được</span></div>
+     <div className="rounded-lg bg-amber-500/8 px-2 py-3"><strong className="block text-xl tabular-nums text-amber-700 dark:text-amber-300">{displayedScan?restricted:"—"}</strong><span className="text-[11px] text-muted-foreground">Giới hạn</span></div>
+     <div className="rounded-lg bg-rose-500/8 px-2 py-3"><strong className="block text-xl tabular-nums text-rose-700 dark:text-rose-300">{displayedScan?broken:"—"}</strong><span className="text-[11px] text-muted-foreground">Lỗi / mất link</span></div>
     </div>
-    <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">Kiểm tra HTTP chỉ đo khả năng truy cập, không xác nhận còn nhận hồ sơ hoặc điều kiện người nộp. {scanState==="loading"?"Đang tải báo cáo.":snapshot?"Đã kiểm "+snapshot.checked+"/"+snapshot.total+" URL.":"Chưa có snapshot công khai; xem workflow trên GitHub."}</p>
+    <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">Kiểm tra HTTP chỉ đo khả năng truy cập, không xác nhận còn nhận hồ sơ hoặc điều kiện người nộp. {scanState==="loading"?"Đang tải báo cáo.":snapshot&&!compatible?"Bản quét khác tập URL hiện tại; đã ẩn trạng thái nguồn.":age==="outdated"?"Bản quét quá 14 ngày, đã ẩn kết quả để tránh sai lệch.":displayedScan?"Đã kiểm "+displayedScan.checked+"/"+displayedScan.total+" URL; "+newlyUnreachable+" mới gặp hạn chế, "+recurringUnreachable+" lặp lại từ hai lần quét.":"Chưa có snapshot công khai; xem workflow trên GitHub."}</p>
    </div>
    <div className="rounded-xl border bg-card p-4 sm:p-5">
     <h4 className="text-sm font-semibold">Các trường cần chuẩn hoá</h4>
@@ -224,6 +239,14 @@ export function QualityReview({rows,onOpen,now=new Date()}:{
        <Input value={query} onChange={e=>{setQuery(e.target.value);setVisibleCount(PAGE_SIZE)}}
         aria-label="Tìm trong hàng đợi kiểm định" placeholder="Tìm cơ hội, dự án, nguồn..." className="pl-9"/>
       </div>
+      <Select value={progressFilter} onValueChange={x=>{setProgressFilter(x as EffectiveReviewPhase|"all");setVisibleCount(PAGE_SIZE)}}>
+       <SelectTrigger aria-label="Lọc tiến độ rà soát cá nhân" className="w-full sm:w-48"><SelectValue/></SelectTrigger>
+       <SelectContent>
+        <SelectItem value="all">Mọi tiến độ</SelectItem>
+        {(["not_started","checking","waiting_source","proposal_ready","needs_recheck"] as EffectiveReviewPhase[]).map(key=>
+         <SelectItem key={key} value={key}>{REVIEW_PHASE_LABELS[key]}</SelectItem>)}
+       </SelectContent>
+      </Select>
       <Select value={sort} onValueChange={x=>setSort(x as Sort)}>
        <SelectTrigger aria-label="Sắp xếp hàng đợi kiểm định" className="w-full sm:w-44"><SelectValue/></SelectTrigger>
        <SelectContent>
@@ -235,7 +258,7 @@ export function QualityReview({rows,onOpen,now=new Date()}:{
      </div>
     </CardHeader>
     <CardContent className="divide-y px-4 sm:px-5">
-     {reports.slice(0,visibleCount).map(({row,q,health})=>{
+     {reports.slice(0,visibleCount).map(({row,q,health,progress})=>{
       const focused=filter==="verification"||filter==="normalization"||filter==="availability"?filter:null
       const issues=focused?q.findings.filter(x=>x.group===focused):q.findings
       return <div key={row.id} className={"group relative py-4 first:pt-1 "+(selectedId===row.id?"-mx-3 rounded-xl bg-blue-50/60 px-3 dark:bg-blue-950/25":"")}>
@@ -253,6 +276,7 @@ export function QualityReview({rows,onOpen,now=new Date()}:{
           {health&&<><span>·</span><span className={transportTone[health.health]}>{HEALTH_LABEL[health.health]}</span></>}
          </div>
          <div className="mt-2 flex flex-wrap gap-1">
+          {progress!=="not_started"&&<Badge variant="secondary" className="text-[11px]">{REVIEW_PHASE_LABELS[progress]}</Badge>}
           {issues.slice(0,3).map(issue=><Badge key={issue.code} variant="outline" className={"text-[11px] font-normal "+
            (issue.severity==="high"?"border-amber-500/40 text-amber-800 dark:text-amber-300":"text-muted-foreground")}>{issue.label}</Badge>)}
           {issues.length>3&&<Badge variant="secondary" className="text-[11px]">+{issues.length-3}</Badge>}
@@ -280,7 +304,8 @@ export function QualityReview({rows,onOpen,now=new Date()}:{
    </Card>
 
    <div ref={inspectorRef} className="min-w-0 scroll-mt-5">
-    {selected?<ReviewInspector key={selected.row.id} row={selected.row} health={selected.health} onOpen={onOpen}/>:
+    {selected?<ReviewInspector key={selected.row.id} row={selected.row} health={selected.health}
+      phase={selected.progress} onPhaseChange={value=>onProgressChange(selected.row,value)} onOpen={onOpen}/>:
      <div className="rounded-2xl border border-dashed bg-card/65 p-7 text-center xl:sticky xl:top-5">
       <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-300"><Link2Icon className="size-5"/></span>
       <h4 className="mt-4 text-sm font-semibold">Chọn một hồ sơ để kiểm định</h4>
