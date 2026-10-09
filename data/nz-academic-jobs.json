@@ -1,0 +1,185 @@
+{
+  "last_reviewed": "2026-10-09",
+  "scope": "Manually screened New Zealand academic research opportunities for a PhD in telecommunications, wireless communications, agentic AI and IoT. Eligibility and immigration are not automatically verified.",
+  "listings": [
+    {
+      "id": "uoa-2026-autonomous-agency-60022330",
+      "title": "Postdoctoral Research Fellow — Autonomous Agency",
+      "employer": "University of Auckland",
+      "city": "Auckland",
+      "role": "postdoc",
+      "topics": [
+        "Agentic AI",
+        "Autonomous Systems",
+        "Computational Modelling"
+      ],
+      "fit": "high",
+      "fit_note": "Strong agentic AI and autonomous systems direction; computational agency research is not specifically wireless telecommunications.",
+      "salary_nzd_year": 99788,
+      "contract": "Full-time · 32-month fixed-term",
+      "deadline_day": "2026-10-13",
+      "status": "official_deadline",
+      "published_at": "2026-10-03",
+      "source_url": "https://jobs.smartrecruiters.com/TheUniversityOfAuckland/744000152290238-postdoctural-research-fellow-school-of-computer-science-te-kura-matai-rorohiko-32-month-fixed-term-",
+      "eligibility_note": "PhD completed or nearing completion in computer science, applied maths, complex systems or related field; network/agent-based/dynamical systems and information-theoretic approaches are relevant. Telecommunications PhD requires individualized evaluation.",
+      "international_note": "University support and visa eligibility must be checked with recruitment; not established by this review.",
+      "requirements": [
+        "Cover letter aligned to computational/agent-based autonomy, network models and information-theoretic research",
+        "Academic CV with full list of publications and preprints",
+        "Summary of teaching and service contributions",
+        "Names of academic referees and availability to start",
+        "Confirm PhD-field fit and work-authorization requirements directly with recruitment"
+      ],
+      "reviewed_at": "2026-10-09"
+    },
+    {
+      "id": "uoa-lecturer-data-science-ai",
+      "title": "Lecturer — Data Science / Artificial Intelligence",
+      "employer": "University of Auckland",
+      "city": "Auckland",
+      "role": "lecturer",
+      "topics": [
+        "Artificial Intelligence",
+        "Data Science",
+        "AI for Science"
+      ],
+      "fit": "high",
+      "fit_note": "Potential fit with AI research, responsible agents and teaching, subject to publications and teaching evidence. This is not a telecom-specific role.",
+      "salary_nzd_year": null,
+      "salary_note": "Official career page mentions NZ$99,788–112,730, but confirm current salary and vacancy dates with recruitment.",
+      "contract": "Permanent · full-time (per official career profile)",
+      "deadline_day": null,
+      "status": "needs_confirmation",
+      "published_at": null,
+      "source_url": "https://www.careers.auckland.ac.nz/career/lecturer-data-science-ai/",
+      "eligibility_note": "PhD in Computer Science focused on Data Science/AI or a closely related field, with strong research publications and ability to teach undergraduate/postgraduate students.",
+      "international_note": "Official career profile mentions an in-house immigration manager; sponsorship for this particular vacancy is not guaranteed.",
+      "requirements": [
+        "Research CV and publications",
+        "Research statement and teaching evidence",
+        "Confirm current listing and closing deadline on official application portal"
+      ],
+      "reviewed_at": "2026-10-09"
+    }
+  ],
+  "watchlist": [
+    {
+      "id": "university-canterbury-wireless",
+      "name": "University of Canterbury — Wireless Research Centre",
+      "city": "Christchurch",
+      "topics": [
+        "Wireless/6G",
+        "Telecommunications",
+        "AI Networking"
+      ],
+      "url": "https://www.canterbury.ac.nz/study/academic-study/engineering/research-engineering-forestry-product-design/wireless-research-centre/study-with-wrc",
+      "note": "Best disciplinary fit to monitor. The previous Wireless Research Centre postdoc listing closed 27 Sep 2026; NOT a current vacancy.",
+      "type": "research_centre"
+    },
+    {
+      "id": "university-auckland-careers",
+      "name": "University of Auckland — Academic Careers",
+      "city": "Auckland",
+      "topics": [
+        "AI",
+        "Computer Science",
+        "Engineering"
+      ],
+      "url": "https://www.careers.auckland.ac.nz/academic-careers/",
+      "note": "Current academic jobs and research positions. Check closing date on each official advert.",
+      "type": "university"
+    },
+    {
+      "id": "university-canterbury-jobs",
+      "name": "University of Canterbury — Vacancies",
+      "city": "Christchurch",
+      "topics": [
+        "Engineering",
+        "Wireless/6G",
+        "AI"
+      ],
+      "url": "https://www.canterbury.ac.nz/about-uc/work-at-uc",
+      "note": "Future postdoctoral and lecturer vacancies in Engineering and Computer Science.",
+      "type": "university"
+    },
+    {
+      "id": "aut-academic",
+      "name": "Auckland University of Technology — Academic Careers",
+      "city": "Auckland",
+      "topics": [
+        "Telecommunications",
+        "AI",
+        "Computer Engineering"
+      ],
+      "url": "https://www.aut.ac.nz/about/careers-at-aut/academic-university-careers-at-aut",
+      "note": "Academic roles and alert registration; check visa and eligibility case by case.",
+      "type": "university"
+    },
+    {
+      "id": "university-waikato",
+      "name": "University of Waikato — Careers",
+      "city": "Hamilton",
+      "topics": [
+        "Machine Learning",
+        "Computer Science",
+        "AI"
+      ],
+      "url": "https://www.waikato.ac.nz/int/about/careers/information-for-applicants/",
+      "note": "Academic employment and applicant instructions. NZ work authorization requirements vary by job.",
+      "type": "university"
+    },
+    {
+      "id": "university-otago",
+      "name": "University of Otago — Current Vacancies",
+      "city": "Dunedin",
+      "topics": [
+        "Computer Science",
+        "AI",
+        "Research"
+      ],
+      "url": "https://otago.taleo.net/careersection/2/joblist.ftl?lang=en",
+      "note": "Official current-vacancy portal; offers search and saved job alerts.",
+      "type": "university"
+    },
+    {
+      "id": "victoria-wellington",
+      "name": "Victoria University of Wellington — Academic Vacancies",
+      "city": "Wellington",
+      "topics": [
+        "AI",
+        "Computer Science",
+        "Network Security",
+        "Engineering"
+      ],
+      "url": "https://www.wgtn.ac.nz/about/working-here/current-vacancies-broadbean",
+      "note": "Official academic/professional vacancies. The university requests academic applicants apply through its recruitment system; check each role's PhD and research criteria.",
+      "type": "university"
+    },
+    {
+      "id": "massey-university",
+      "name": "Massey University — Research & Academic Careers",
+      "city": "Palmerston North / Auckland",
+      "topics": [
+        "AI",
+        "Data Science",
+        "Engineering",
+        "Research"
+      ],
+      "url": "https://www.massey.ac.nz/about/jobs-at-massey/applying-to-work-at-massey/",
+      "note": "Official international-applicant guidance: overseas applications are welcomed, but NZ work authorization and advertised local deadlines still apply. Watch for research fellow, postdoc and lecturer vacancies.",
+      "type": "university"
+    }
+  ],
+  "excluded_sources": [
+    {
+      "title": "Post-Doctoral Fellow, Wireless Research Centre",
+      "reason": "Closed 27 September 2026; third-party mirrors can still display it.",
+      "source_url": "https://www.tenurify.com/jobs/post-doctoral-fellow-wireless-research-centre-university-of-canterbury-9a81a042"
+    },
+    {
+      "title": "Bodeker Scientific — Post-doctoral Researcher, Adaptive Façade Intelligence",
+      "reason": "Official application deadline was 24 September 2026; some third-party pages incorrectly list late-October dates.",
+      "source_url": "https://www.bodekerscientific.com/vacancies/post-doctoral-researcher"
+    }
+  ]
+}

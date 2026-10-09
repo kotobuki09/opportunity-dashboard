@@ -80,7 +80,7 @@ jobs:
         run: npm install --no-save --package-lock=false @playwright/test@1.56.1
 
       - name: Install Chromium for browser tests
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps --only-shell chromium
 
       - name: E2E production regression suite
         run: npx playwright test
