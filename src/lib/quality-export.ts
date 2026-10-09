@@ -11,7 +11,7 @@ const FIELDS = [
 /** Protect spreadsheet users from CSV formula execution and preserve Vietnamese UTF-8. */
 function cell(value: string | number | boolean | null | undefined) {
   const raw = String(value ?? "")
-  const safe = /^[\s\u0000-\u001f]*[=+\-@]/.test(raw) ? "'" + raw : raw
+  const safe = /^[\p{Cc}\s]*[=+\-@]/u.test(raw) ? "'" + raw : raw
   return '"' + safe.replace(/"/g, '""').replace(/\r?\n/g, " ") + '"'
 }
 
