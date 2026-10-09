@@ -63,3 +63,13 @@ The public GitHub Pages dashboard hosts non-sensitive opportunity facts and brow
 - The theme provider synchronizes the resolved system/manual appearance, HTML class, native `color-scheme`, and mobile browser `theme-color`. Verify keyboard theme shortcut and the moon/sun toggle.
 - The nightly Pages check verifies SVG favicon, PNG fallback and Apple touch icon URLs with MIME types. CI tests light/dark behavior and browser asset paths.
 - If an older tab icon persists after deploy, reload and fully close/reopen the tab. Do not advise clearing browser storage: doing so can delete personal statuses and notes.
+
+## Quality review workbench — editorial workflow (2026-10-09)
+
+1. Open **Kiểm tra dữ liệu** in the sidebar (the count reflects the currently selected project filter). The **Chưa chuẩn hoá & kiểm định** overview card also leads to this queue.
+2. Choose **Chưa kiểm định nguồn** to review official pages and update `verified_at` only when a person has checked the official announcement and confirmed its status; source-health 200 and AI screenings are not verification.
+3. Choose **Chưa chuẩn hoá** to fill missing eligibility, stage, project, fit rationale or classify `benefit_kind`. Leave `unknown` if a benefit cannot be determined; do not invent a cash equivalent for credits or equity.
+4. Choose **Trạng thái chưa rõ** to recheck intake windows or expired rolling cut-offs. A genuinely rolling call does **not** require an arbitrary application deadline.
+5. Sort by urgency and export the filtered CSV to delegate editorial fixes. The CSV excludes browser-local notes, status and checklists, and quotes spreadsheet-formula-like cells.
+6. Edit the canonical `data/seen.json` in a reviewable PR. Quality warnings are advisory and do not block the existing valid dataset from deploying. Do not infer applicant eligibility from complete metadata.
+7. Unit tests assert that source verification and normalization are independent; Chromium tests exercise the filters, CSV, navigation and pagination.
