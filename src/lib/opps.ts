@@ -11,6 +11,13 @@ export type BenefitKind = keyof typeof BENEFIT_LABELS
 
 export type Status = "mới" | "quan tâm" | "đang làm hồ sơ" | "đã nộp" | "đã tham gia" | "bỏ qua"
 
+export type ReviewEvidence = {
+  field: "deadline" | "deadline_iso" | "deadline_type" | "benefit_kind" | "value_text" | "eligibility_note" | "stage_req" | "project" | "fit_note"
+  source_url: string
+  checked_at: string
+  summary: string
+}
+
 export type Opportunity = {
   id: string
   title: string
@@ -37,6 +44,8 @@ export type Opportunity = {
   stage_req: string
   /** YYYY-MM-DD the official page was last checked (empty if never). */
   verified_at: string
+  /** Field-specific provenance captured explicitly by a human reviewer. */
+  review_evidence: ReviewEvidence[]
 }
 
 
