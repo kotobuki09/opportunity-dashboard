@@ -10,7 +10,8 @@ const base={id:"a",title:"Postdoctoral AI",employer:"University of Auckland",cit
 test("New Zealand local date respects DST, no invented midnight deadline",()=>{
  const t=new Date("2026-10-13T09:00:00.000Z")
  assert.equal(nzDay(t),"2026-10-13")
- assert.equal(nzDeadlineState(base,t),"open")
+ assert.equal(nzDeadlineState(base,t),"closing_today")
+ assert.equal(nzDeadlineState(base,new Date("2026-10-12T09:00:00.000Z")),"open")
  assert.equal(nzDeadlineState(base,new Date("2026-10-13T12:01:00.000Z")),"closed")
  assert.equal(nzDeadlineState({...base,status:"needs_confirmation",deadline_day:null},t),"verify")
 })
