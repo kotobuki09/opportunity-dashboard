@@ -46,6 +46,12 @@ function getSystemTheme(): ResolvedTheme {
   return "light"
 }
 
+function subscribeToSystemTheme(onChange: () => void) {
+  const query = window.matchMedia(COLOR_SCHEME_QUERY)
+  query.addEventListener("change", onChange)
+  return () => query.removeEventListener("change", onChange)
+}
+
 function disableTransitionsTemporarily() {
   const style = document.createElement("style")
   style.appendChild(
@@ -100,9 +106,8 @@ export function ThemeProvider({
     return defaultTheme
   })
 
-  const [resolvedTheme, setResolvedTheme] = React.useState<ResolvedTheme>(() =>
-    theme === "system" ? getSystemTheme() : theme
-  )
+  const systemTheme = React.useSyncExternalStore(subscribeToSystemTheme, getSystemTheme, () => "light")
+  const resolvedTheme: ResolvedTheme = theme === "system" ? systemTheme : theme
 
   const setTheme = React.useCallback(
     (nextTheme: Theme) => {
@@ -113,10 +118,9 @@ export function ThemeProvider({
   )
 
   const applyTheme = React.useCallback(
-    (nextTheme: Theme) => {
+    (nextTheme: ResolvedTheme) => {
       const root = document.documentElement
-      const resolvedTheme =
-        nextTheme === "system" ? getSystemTheme() : nextTheme
+      const resolvedTheme = nextTheme
       const restoreTransitions = disableTransitionOnChange
         ? disableTransitionsTemporarily()
         : null
@@ -128,7 +132,6 @@ export function ThemeProvider({
       if (browserThemeColor) {
         browserThemeColor.content = resolvedTheme === "dark" ? "#171717" : "#FFFFFF"
       }
-      setResolvedTheme(resolvedTheme)
 
       if (restoreTransitions) {
         restoreTransitions()
@@ -138,23 +141,8 @@ export function ThemeProvider({
   )
 
   React.useEffect(() => {
-    applyTheme(theme)
-
-    if (theme !== "system") {
-      return undefined
-    }
-
-    const mediaQuery = window.matchMedia(COLOR_SCHEME_QUERY)
-    const handleChange = () => {
-      applyTheme("system")
-    }
-
-    mediaQuery.addEventListener("change", handleChange)
-
-    return () => {
-      mediaQuery.removeEventListener("change", handleChange)
-    }
-  }, [theme, applyTheme])
+    applyTheme(resolvedTheme)
+  }, [resolvedTheme, applyTheme])
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
