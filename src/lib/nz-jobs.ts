@@ -61,7 +61,7 @@ export function normalizeAutoSnapshot(raw:unknown):NzAutoSnapshot|null{
 }
 export function mergedNzJobs(manual:NzAcademicJob[],automatic:NzAcademicJob[]):NzAcademicJob[]{
  const saved=new Map<string,NzAcademicJob>()
- const canonical=(url:string)=>{try{return new URL(url).pathname.toLowerCase().split("/").slice(0,4).join("/")}catch{return url}}
+ const canonical=(url:string)=>{try{const u=new URL(url);const m=u.pathname.match(/\/TheUniversityOfAuckland\/(\d+)/i);return m?"uoa:"+m[1]:u.origin+u.pathname.toLowerCase()}catch{return url}}
  for(const row of manual)saved.set(canonical(row.source_url),row)
  for(const row of automatic){const key=canonical(row.source_url);if(!saved.has(key))saved.set(key,row)}
  return [...saved.values()]
