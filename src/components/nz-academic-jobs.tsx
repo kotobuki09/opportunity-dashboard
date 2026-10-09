@@ -63,7 +63,7 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
   const r=rank(a)-rank(b)
   return r||String(a.deadline_day||"9999").localeCompare(String(b.deadline_day||"9999"))
  })
- const active=jobs.filter(j=>nzDeadlineState(j,now)==="open").length
+ const active=jobs.filter(j=>["open","closing_today"].includes(nzDeadlineState(j,now))).length
  const saved=Object.values(tracked).filter(x=>["saved","preparing","applied"].includes(x.status)).length
  const importBackup=async(file:File)=>{
   if(file.size>100000)throw Error("File theo dõi quá lớn")
@@ -136,7 +136,7 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
        <div className="min-w-0 flex-1">
         <div className="flex flex-wrap gap-1.5">
          <Badge variant="outline">{ROLE_LABEL[job.role]}</Badge>
-         {state==="open"?<Badge className="bg-emerald-600 text-white">Hạn trên nguồn chính thức</Badge>:state==="closed"?<Badge variant="secondary">Đã hết hạn</Badge>:<Badge variant="outline" className="border-amber-500/50 text-amber-800 dark:text-amber-300"><ShieldAlertIcon className="size-3"/> Cần xác minh đang tuyển</Badge>}
+         {state==="open"?<Badge className="bg-emerald-600 text-white">Hạn trên nguồn chính thức</Badge>:state==="closing_today"?<Badge className="bg-amber-600 text-white">Hôm nay hạn chót · kiểm tra giờ đóng đơn</Badge>:state==="closed"?<Badge variant="secondary">Đã hết hạn</Badge>:<Badge variant="outline" className="border-amber-500/50 text-amber-800 dark:text-amber-300"><ShieldAlertIcon className="size-3"/> Cần xác minh đang tuyển</Badge>}
          {job.status==="auto_candidate"&&<Badge variant="outline" className="border-blue-400/50 text-blue-700 dark:text-blue-300">API phát hiện · chưa duyệt</Badge>}
         </div>
         <h4 className="mt-2 text-base font-semibold sm:text-lg">{job.title}</h4>
