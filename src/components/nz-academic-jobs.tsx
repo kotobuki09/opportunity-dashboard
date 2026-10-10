@@ -131,7 +131,8 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
   </div>
   <div className="flex flex-wrap items-center justify-between gap-3">
    <div className="flex flex-wrap gap-1 rounded-lg border bg-muted/40 p-1" role="group" aria-label="Chọn khu vực việc làm">
-    <Button size="sm" variant={mode==="jobs"?"secondary":"ghost"} aria-pressed={mode==="jobs"} onClick={()=>setMode("jobs")}><BriefcaseBusinessIcon className="size-4"/> Vị trí tuyển dụng</Button>
+    <Button size="sm" variant={mode==="jobs"?"secondary":"ghost"} aria-pressed={mode==="jobs"} onClick={()=>setMode("jobs")}><BriefcaseBusinessIcon className="size-4"/> Việc làm</Button>
+    <Button size="sm" variant={mode==="applications"?"secondary":"ghost"} aria-pressed={mode==="applications"} onClick={()=>setMode("applications")}><ListChecksIcon className="size-4"/> Hồ sơ của tôi <span className="rounded bg-background/85 px-1.5 text-xs tabular-nums">{saved}</span></Button>
     <Button size="sm" variant={mode==="universities"?"secondary":"ghost"} aria-pressed={mode==="universities"} onClick={()=>setMode("universities")}><BellIcon className="size-4"/> Theo dõi trường & viện</Button>
    </div>
    <div className="flex gap-2">
@@ -139,16 +140,27 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
     <Button variant="outline" size="sm" onClick={()=>importInput.current?.click()}><UploadIcon className="size-4"/> Nhập</Button>
    </div>
   </div>
-  {mode==="universities"?<>
+  {mode==="applications"?<NzApplicationWorkspace jobs={jobs} tracked={tracked}
+   onChangeStatus={changeStatus} onChangeNote={changeNote} onChangeNextStep={changeNextStep}
+   onToggleTask={toggleTask} now={now} onBrowse={()=>{setMode("jobs");setScope("actionable")}}
+  />:mode==="universities"?<>
    <div className="rounded-xl border bg-blue-500/5 p-4 text-sm text-muted-foreground"><BellIcon className="mr-2 inline size-4"/>Các đơn vị bên dưới là <strong className="text-foreground">nguồn tìm việc trong tương lai, không phải tin đang tuyển</strong>. Mở cổng chính thức và đăng ký job alert nếu có.</div>
+   <div className="relative max-w-lg">
+    <SearchIcon className="pointer-events-none absolute left-3 top-2.5 size-4 text-muted-foreground"/>
+    <Input className="pl-9" aria-label="Tìm trường và viện nghiên cứu tại New Zealand"
+     value={watchQuery} onChange={event=>setWatchQuery(event.target.value)}
+     placeholder="Canterbury, Wireless, Auckland, AI…"/>
+   </div>
+   <p className="text-xs text-muted-foreground" role="status">{watchlist.length}/{DATA.watchlist.length} cơ sở đang hiển thị</p>
    <div className="grid gap-3 md:grid-cols-2">
-    {DATA.watchlist.map(x=><article key={x.id} className="rounded-xl border bg-card p-5">
+    {watchlist.map(x=><article key={x.id} className="rounded-xl border bg-card p-5">
      <p className="text-xs font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">{x.city}, New Zealand</p>
      <h4 className="mt-2 text-base font-semibold">{x.name}</h4>
      <div className="mt-2 flex flex-wrap gap-1">{x.topics.map(t=><Badge key={t} variant="secondary">{t}</Badge>)}</div>
      <p className="mt-3 text-sm text-muted-foreground">{x.note}</p>
      <Button size="sm" variant="outline" className="mt-4" asChild><a href={x.url} target="_blank" rel="noopener noreferrer">Tuyển dụng chính thức <ExternalLinkIcon className="size-4"/></a></Button>
     </article>)}
+    {!watchlist.length&&<p className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">Không tìm thấy trường hoặc viện phù hợp. Thử tìm theo tên thành phố hoặc lĩnh vực nghiên cứu.</p>}
    </div>
   </>:<>
    <div className="flex flex-wrap gap-2 rounded-xl border bg-card p-4">
@@ -164,6 +176,21 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
     <Select value={role} onValueChange={v=>setRole(v as Role)}><SelectTrigger className="w-full sm:w-44" aria-label="Lọc cấp bậc học thuật"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="all">Mọi vị trí</SelectItem><SelectItem value="postdoc">Postdoc</SelectItem><SelectItem value="researcher">Research Fellow</SelectItem><SelectItem value="lecturer">Lecturer / Faculty</SelectItem></SelectContent></Select>
     <Select value={field} onValueChange={v=>setField(v as Field)}><SelectTrigger className="w-full sm:w-44" aria-label="Lọc chuyên ngành học thuật"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="all">Mọi chuyên ngành</SelectItem><SelectItem value="telecom">Telecom / Wireless</SelectItem><SelectItem value="ai">AI / Data Science</SelectItem><SelectItem value="autonomous">Agentic / Autonomous</SelectItem></SelectContent></Select>
     <Select value={scope} onValueChange={v=>setScope(v as Scope)}><SelectTrigger className="w-full sm:w-44" aria-label="Lọc trạng thái việc làm"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="actionable">Đang xem xét</SelectItem><SelectItem value="saved">Đã lưu / đã nộp</SelectItem><SelectItem value="all">Kể cả đã hết hạn</SelectItem></SelectContent></Select>
+    <Select value={employer} onValueChange={setEmployer}>
+     <SelectTrigger className="w-full sm:w-48" aria-label="Lọc theo đại học và tổ chức tuyển dụng"><SelectValue/></SelectTrigger>
+     <SelectContent><SelectItem value="all">Mọi trường / viện</SelectItem>
+      {employers.map(name=><SelectItem key={name} value={name}>{name}</SelectItem>)}
+     </SelectContent>
+    </Select>
+    <Select value={sortBy} onValueChange={value=>setSortBy(value as CareerSort)}>
+     <SelectTrigger className="w-full sm:w-44" aria-label="Sắp xếp vị trí học thuật"><SelectValue/></SelectTrigger>
+     <SelectContent>
+      <SelectItem value="deadline">Hạn gần nhất</SelectItem>
+      <SelectItem value="fit">Phù hợp chuyên môn</SelectItem>
+      <SelectItem value="newest">Đăng gần đây</SelectItem>
+     </SelectContent>
+    </Select>
+    <Button type="button" size="sm" variant="ghost" onClick={resetFilters}><RotateCcwIcon className="size-4"/> Xóa bộ lọc</Button>
    </div>
    <div className="flex flex-wrap items-center gap-3 rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
     <label className="flex cursor-pointer items-center gap-2 text-xs font-medium">
@@ -173,9 +200,11 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
     <p className="text-xs text-muted-foreground">Tin máy phát hiện chưa được kiểm chứng vẫn được xem ở chế độ đầy đủ. Điểm phù hợp chỉ để sắp xếp, không phải xác suất trúng tuyển.</p>
    </div>
    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-    <span>{filtered.length} vị trí phù hợp bộ lọc</span>
+    <span role="status" aria-live="polite">{filtered.length} vị trí phù hợp bộ lọc · {saved} đang theo dõi</span>
     <span>{feedStatus==="ready"&&snapshot?.generated_at?"Tin tự động từ cổng chính thức · "+new Date(snapshot.generated_at).toLocaleDateString("vi-VN"):feedStatus==="loading"?"Đang tải dữ liệu...":"Chưa có bản quét mới · vẫn dùng dữ liệu thủ công"}</span>
    </div>
+   <NzJobCompare jobs={compared} priority={priority} now={now}
+    onRemove={id=>toggleCompare(id)} onClear={()=>setCompareIds([])}/>
    <div className="grid gap-3">
     {filtered.map(job=>{
      const state=nzDeadlineState(job,now)
