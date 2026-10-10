@@ -84,7 +84,7 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
   <div className="rounded-2xl border bg-gradient-to-br from-blue-50 via-card to-cyan-50/50 p-5 dark:from-blue-950/35 dark:via-card dark:to-slate-900 sm:p-7">
    <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
     <div className="max-w-2xl">
-     <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-blue-700 dark:text-blue-300"><GraduationCapIcon className="size-5"/> Academic Career Radar · New Zealand</span>
+     <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-blue-700 dark:text-blue-300"><GraduationCapIcon className="size-5"/> Academic Career Radar</span>
      <h3 className="mt-3 text-xl font-semibold tracking-tight sm:text-2xl">Research, Postdoc & Faculty Positions</h3>
      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">Tìm việc làm học thuật dành cho PhD về <strong className="text-foreground">Telecommunications, Wireless/6G, AI, IoT và Autonomous Systems</strong>. Ưu tiên trường đại học và phòng nghiên cứu ở New Zealand.</p>
      <p className="mt-2 text-xs text-muted-foreground">Hôm nay tại New Zealand: {displayNzDay(nzDay(now))} · Đối chiếu thủ công: {displayNzDay(DATA.last_reviewed)}</p>
