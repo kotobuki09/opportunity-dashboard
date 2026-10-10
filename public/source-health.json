@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-10-10T00:26:55.079Z",
+  "generated_at": "2026-10-09T12:54:11.309Z",
   "scope": "Automated HTTP transport check only; NOT human verification, open status, deadline or applicant eligibility.",
-  "source_digest": "9ec73a9fb7c527351afa8d37b04d3d0f85b16a0139e82798292737ed62457fdd",
-  "total": 80,
-  "checked": 80,
+  "source_digest": "eab2463a770f85ba759298b9ad8fb16578c34f53c00a6a888c9d84b5e07ea0ee",
+  "total": 78,
+  "checked": 78,
   "counts": {
     "error": 2,
-    "reachable": 71,
+    "reachable": 69,
     "restricted": 7
   },
   "results": [
@@ -14,560 +14,546 @@
       "url": "https://vn.usembassy.gov/fulbright-vietnamese-visiting-scholar-program/",
       "health": "restricted",
       "status_code": 403,
-      "previous_health": "restricted",
-      "unreachable_streak": 2
+      "previous_health": null,
+      "unreachable_streak": 1
     },
     {
       "url": "https://vn.usembassy.gov/fulbright-u-s-asean-visiting-scholar-program/",
       "health": "restricted",
       "status_code": 403,
-      "previous_health": "restricted",
-      "unreachable_streak": 2
+      "previous_health": null,
+      "unreachable_streak": 1
     },
     {
       "url": "https://www.humboldt-foundation.de/en/apply/sponsorship-programmes/humboldt-research-fellowship",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.jsps.go.jp/english/e-fellow/e-ippan/appliguidelines.html",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://fellowship.ercim.eu/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://foresight.org/grants/ai-science-safety-nodes-rfp/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://aria.org.uk/opportunity-spaces/trust-everything-everywhere/safeguarded-ai/funding",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://funds.effectivealtruism.org/funds/transformative-ai",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://openai.com/index/openai-cybersecurity-grant-program/",
       "health": "restricted",
       "status_code": 403,
-      "previous_health": "restricted",
-      "unreachable_streak": 2
+      "previous_health": null,
+      "unreachable_streak": 1
     },
     {
       "url": "https://aws.amazon.com/government-education/research-and-technical-computing/cloud-credit-for-research/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://support.claude.com/en/articles/11199177-anthropic-s-ai-for-science-program",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://mst.gov.vn/keu-goi-de-xuat-nhiem-vu-doi-moi-cong-nghe-ung-dung-ai-tai-tro-toi-da-3-ty-dong-197260916181801488.htm",
-      "health": "reachable",
-      "status_code": 200,
-      "previous_health": "error",
-      "unreachable_streak": 0
+      "health": "error",
+      "status_code": null,
+      "previous_health": null,
+      "unreachable_streak": 1
     },
     {
       "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/HORIZON-CL4-2027-04-DIGITAL-EMERGING-06",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://nlnet.nl/funding.html",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://mst.gov.vn/moi-tham-gia-giai-thuong-san-pham-cong-nghe-so-make-in-viet-nam-nam-2026-197260922122847757.htm",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "error",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://learn.microsoft.com/en-us/startups/microsoft-for-startups/overview",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://apartresearch.com/sprints/ai-collusion-research-sprint-2026-10-23-to-2026-10-25",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://apartresearch.com/sprints/ai-x-epistemics-research-sprint-2026-11-13-to-2026-11-15",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://paypalaihackathon.devpost.com/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.ycombinator.com/apply/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://speedrun.a16z.com/apply",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.techstars.com/accelerators/baltimore-ai-health",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.techstars.com/accelerators/boston",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://500.co/founders/flagship",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://apply.joinef.com/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.antler.co/location/vietnam",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://iterative.vc/apply",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://surge.peakxv.com/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://cloud.google.com/startup/benefits",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://aws.amazon.com/startups/credits/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.cloudflare.com/startups/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.mongodb.com/solutions/startups",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://elevenlabs.io/startup-grants",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://claude.com/programs/startups",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://github.com/open-source/github-secure-open-source-fund/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.mercatus.org/emergent-ventures",
       "health": "restricted",
       "status_code": 403,
-      "previous_health": "restricted",
-      "unreachable_streak": 2
+      "previous_health": null,
+      "unreachable_streak": 1
     },
     {
       "url": "https://catalyze-impact.org/incubator",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.tenity.com/program/digital-health-accelerator/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://baochinhphu.vn/phat-dong-cuoc-thi-tim-kiem-tai-nang-khoi-nghiep-sang-tao-quoc-gia-techfest-2026-102260821180208373.htm",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://hitc.org.vn/uom-tao/thong-bao-phat-dong-cuoc-thi-khoi-nghiep-doi-moi-sang-tao-hitc-innostar-2026/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://hello-tomorrow.org/global-challenge/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.nvidia.com/en-us/startups/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.alibabacloud.com/startup",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://outlier.ai/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://work.mercor.com/jobs/list_AAABn7GGjCWSrvaOt-lIFoB2/ai-safety-experts-english-vietnamese",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://work.turing.com/r/B51B_U9WYG",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://mindrift.ai/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.meridial.ai/projects",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://researcher-help.prolific.com/en/articles/445224-who-are-the-participants-on-prolific",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://muasamcong.mpi.gov.vn/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://nhansu.vn/van-ban-phap-luat/Nghi-quyet-58-2026-NQ-HDND-chinh-sach-phat-trien-khoi-nghiep-sang-tao-doi-moi-sang-tao-Ha-Noi-711919.html#dieu-7",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://openai.com/index/security-on-the-path-to-agi/",
       "health": "restricted",
       "status_code": 403,
-      "previous_health": "restricted",
-      "unreachable_streak": 2
+      "previous_health": null,
+      "unreachable_streak": 1
     },
     {
       "url": "https://openai.com/index/safety-bug-bounty/",
       "health": "restricted",
       "status_code": 403,
-      "previous_health": "restricted",
-      "unreachable_streak": 2
+      "previous_health": null,
+      "unreachable_streak": 1
     },
     {
       "url": "https://support.claude.com/en/articles/12119250-model-safety-bug-bounty-program",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://bughunters.google.com/about/rules/google-friends/ai-vulnerability-reward-program-rules",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://huntr.com/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://blackhat.com/call-for-papers.html",
       "health": "restricted",
       "status_code": 403,
-      "previous_health": "restricted",
-      "unreachable_streak": 2
+      "previous_health": null,
+      "unreachable_streak": 1
     },
     {
       "url": "https://docs.github.com/en/sponsors/getting-started-with-github-sponsors/about-github-sponsors",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://nhansu.vn/van-ban-phap-luat/Nghi-quyet-58-2026-NQ-HDND-chinh-sach-phat-trien-khoi-nghiep-sang-tao-doi-moi-sang-tao-Ha-Noi-711919.html#dieu-14",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://aunsec.org/aun-action/scholarships/jsps-international-fellowships-research-japan",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://aisafetylab.eu/open-calls/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.jsps.go.jp/english/e-inv/application/index.html",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://pifi.cas.cn/front/mobi/PIFI.html",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/HORIZON-MSCA-2027-SE-01-01",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://dichvucong.nafosted.gov.vn/thong-tin-dich-vu-cong.php?TTHC=1.005349",
       "health": "error",
       "status_code": null,
-      "previous_health": "error",
-      "unreachable_streak": 2
+      "previous_health": null,
+      "unreachable_streak": 1
     },
     {
       "url": "https://www.amazon.science/research-awards/call-for-proposals/ai-for-information-security-call-for-proposals-fall-2026",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.unesco.org/en/articles/call-papers-advancing-research-ethics-artificial-intelligence",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://ai-evaluation.org/apply",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.campusfrance.org/en/mopga-2027",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://eventyay.com/fossasia/summit2027/cfp",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.icwoc.org/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.agriwefiitkgp.in/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.amazon.science/research-awards/call-for-proposals/aws-agentic-ai-call-for-proposals-fall-2026",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.amazon.science/research-awards/call-for-proposals/multilingual-and-contextual-ai-evaluation-call-for-proposals-fall-2026",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://www.amazon.science/research-awards/call-for-proposals/automated-reasoning-call-for-proposals-fall-2026",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/opportunities/topic-details/HORIZON-EIC-2026-PATHFINDERCHALLENGES-01-03",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     },
     {
       "url": "https://events.vtools.ieee.org/m/583094",
-      "health": "error",
-      "status_code": null,
-      "previous_health": "reachable",
-      "unreachable_streak": 1
+      "health": "reachable",
+      "status_code": 200,
+      "previous_health": null,
+      "unreachable_streak": 0
     },
     {
       "url": "https://nafosted.gov.vn/thong-bao-ke-hoach-tai-tro-nhiem-vu-phat-trien-cong-nghe-thuoc-chuong-trinh-hop-tac-nghien-cuu-viet-nam-o-xtray-li-a-ve-cong-nghe-chien-luoc-giai-doan-2026-2028/",
       "health": "reachable",
       "status_code": 200,
-      "previous_health": "reachable",
-      "unreachable_streak": 0
-    },
-    {
-      "url": "https://vinuni.edu.vn/job/ay26-27-researcher-computer-science-ai-and-machine-learning-for-sustainable-development/",
-      "health": "reachable",
-      "status_code": 200,
-      "previous_health": "reachable",
-      "unreachable_streak": 0
-    },
-    {
-      "url": "https://saigonaihub.com/",
-      "health": "reachable",
-      "status_code": 200,
-      "previous_health": "reachable",
+      "previous_health": null,
       "unreachable_streak": 0
     }
   ]
