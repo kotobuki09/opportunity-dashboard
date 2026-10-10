@@ -248,17 +248,19 @@
   {
     "title": "Apart Research - AI Collusion Research Sprint",
     "url": "https://apartresearch.com/sprints/ai-collusion-research-sprint-2026-10-23-to-2026-10-25",
-    "deadline": "Cửa sổ nộp trên trang hiện báo đã đóng (sprint 23–25/10/2026)",
+    "deadline": "Form vẫn báo đã đóng; theo trang, nộp bài đóng 2026-10-25 23:59 AoE (sprint 23–25/10/2026)",
     "first_seen": "2026-10-08",
     "category": "Kiếm tiền khác",
-    "deadline_iso": null,
-    "deadline_type": "unknown",
-    "value_text": "giải nhất $1.000 + fast-track vào Apart Fellowship",
+    "deadline_iso": "2026-10-26T18:59:00+07:00",
+    "deadline_type": "fixed",
+    "value_text": "giải nhất $1.000 (tổng giải $2.000) + fast-track vào Apart Fellowship",
     "value_usd_estimate": 1000,
     "fit_note": "Đúng mảng multi-agent safety. Sprint 23–25/10.",
-    "eligibility_note": "Trang có dòng \"submission window has closed\", nhiều khả năng chỉ vì form chưa mở. Kiểm tra nguồn ngày 09/10/2026: Trang Apart Research ghi rõ 'The submission window has closed' dù ngày sprint ở tương lai. Không xem là đang nhận hồ sơ cho tới khi xác minh có cửa sổ nộp mới.",
+    "eligibility_note": "Kiểm tra nguồn ngày 2026-10-10: form dự án vẫn hiện \"The submission window has closed\", nhưng trang vẫn ghi sprint 23–25/10/2026 và hạn nộp 25/10 23:59 AoE, có 667 người đăng ký. Nhiều khả năng cửa sổ nộp bài mở khi sprint bắt đầu 23/10; chưa coi là đang nhận bài cho tới khi form mở lại. Giải $2.000 tổng (nhất $1.000) + fast-track Apart Fellowship.",
     "status": "mới",
-    "project": "ActantOS"
+    "project": "ActantOS",
+    "opens_iso": "2026-10-23",
+    "verified_at": "2026-10-10"
   },
   {
     "title": "Apart Research - AI x Epistemics Research Sprint",
