@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-10T02:41:14.312Z",
+  "generated_at": "2026-10-10T04:36:40.229Z",
   "source": "SmartRecruiters public company Posting API · University of Auckland",
   "scope": "Machine-selected active postings from the official job API. Verify deadline, PhD eligibility, working rights and continued availability manually before applying.",
   "observed_count": 41,
@@ -33,5 +33,12 @@
       "reviewed_at": null,
       "match_score": 33
     }
-  ]
+  ],
+  "changes": {
+    "baseline_at": "2026-10-10T02:41:14.312Z",
+    "new_ids": [],
+    "updated_ids": [],
+    "not_returned_ids": []
+  },
+  "recent_events": []
 }
