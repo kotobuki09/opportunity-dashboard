@@ -3,9 +3,9 @@ import { readFile } from "node:fs/promises"
 
 const ROOT="/opportunity-dashboard/"
 const mockEmpty=page=>page.route("**/nz-academic-jobs-auto.json",route=>route.fulfill({status:200,contentType:"application/json",body:JSON.stringify({generated_at:null,listings:[]})}))
-test("new NZ Academic Jobs route shows official vacancy and clear deadline/visa caveats",async({page})=>{
+test("renamed Academic Jobs route shows official vacancy and clear deadline/visa caveats",async({page})=>{
  await mockEmpty(page)
- await page.goto(ROOT+"#nz-jobs")
+ await page.goto(ROOT+"#academic-jobs")
  await expect(page.getByRole("heading",{name:"Research, Postdoc & Faculty Positions"})).toBeVisible()
  await expect(page.getByText("Postdoctoral Research Fellow — Autonomous Agency")).toBeVisible()
  await expect(page.getByText("13/10/2026 (NZ)")).toBeVisible()
@@ -16,7 +16,7 @@ test("new NZ Academic Jobs route shows official vacancy and clear deadline/visa 
 })
 test("NZ job filters distinguish postdoc, lecturer and research specialties",async({page})=>{
  await mockEmpty(page)
- await page.goto(ROOT+"#nz-jobs")
+ await page.goto(ROOT+"#academic-jobs")
  await page.getByRole("combobox",{name:"Lọc cấp bậc học thuật"}).click()
  await page.getByRole("option",{name:"Postdoc",exact:true}).click()
  await expect(page.getByText("Postdoctoral Research Fellow — Autonomous Agency")).toBeVisible()
@@ -27,7 +27,7 @@ test("NZ job filters distinguish postdoc, lecturer and research specialties",asy
 })
 test("future watchlist never presents the closed Canterbury position as actively recruitable",async({page})=>{
  await mockEmpty(page)
- await page.goto(ROOT+"#nz-jobs")
+ await page.goto(ROOT+"#academic-jobs")
  await page.getByRole("button",{name:/Theo dõi trường & viện/}).click()
  await expect(page.getByText("University of Canterbury — Wireless Research Centre")).toBeVisible()
  await expect(page.getByText("closed 27 Sep 2026",{exact:false})).toBeVisible()
@@ -36,7 +36,7 @@ test("future watchlist never presents the closed Canterbury position as actively
 })
 test("academic application tracking is browser-private and survives reload and JSON download",async({page})=>{
  await mockEmpty(page)
- await page.goto(ROOT+"#nz-jobs")
+ await page.goto(ROOT+"#academic-jobs")
  const control=page.getByRole("combobox",{name:/Trạng thái ứng tuyển: Postdoctoral Research Fellow/})
  await control.click()
  await page.getByRole("option",{name:"Chuẩn bị hồ sơ"}).click()
@@ -61,7 +61,7 @@ test("fresh official API candidates are distinguishable from manually verified v
    source_url:"https://jobs.smartrecruiters.com/TheUniversityOfAuckland/999999999",
    eligibility_note:"Unverified",international_note:"Visa unknown",requirements:[],reviewed_at:null}]}
  await page.route("**/nz-academic-jobs-auto.json",route=>route.fulfill({status:200,contentType:"application/json",body:JSON.stringify(json)}))
- await page.goto(ROOT+"#nz-jobs")
+ await page.goto(ROOT+"#academic-jobs")
  await expect(page.getByText("Research Fellow - AI-powered Wireless Communications")).toBeVisible()
  await expect(page.getByText("API phát hiện · chưa duyệt")).toBeVisible()
  await page.getByRole("combobox",{name:"Lọc chuyên ngành học thuật"}).click()
@@ -72,7 +72,7 @@ test("mobile academic jobs view stays within viewport and honors dark mode",asyn
  await mockEmpty(page)
  await page.setViewportSize({width:390,height:844})
  await page.emulateMedia({colorScheme:"dark",reducedMotion:"reduce"})
- await page.goto(ROOT+"#nz-jobs")
+ await page.goto(ROOT+"#academic-jobs")
  await expect(page.getByRole("heading",{name:"Research, Postdoc & Faculty Positions"})).toBeVisible()
  const dims=await page.evaluate(()=>({body:document.documentElement.scrollWidth,viewport:window.innerWidth}))
  expect(dims.body).toBeLessThanOrEqual(dims.viewport+1)
@@ -81,7 +81,7 @@ test("mobile academic jobs view stays within viewport and honors dark mode",asyn
 
 test("NZ jobs provides official university portals and a dated calendar without unconfirmed leads",async({page})=>{
  await mockEmpty(page)
- await page.goto(ROOT+"#nz-jobs")
+ await page.goto(ROOT+"#academic-jobs")
  await expect(page.getByRole("region",{name:"Academic career discovery tools"})).toBeVisible()
  const section=page.getByRole("region",{name:"Academic career discovery tools"})
  await expect(section.getByRole("link",{name:/UC · Careers/})).toHaveAttribute("href",/canterbury\.ac\.nz/)
@@ -94,4 +94,12 @@ test("NZ jobs provides official university portals and a dated calendar without 
  expect(ics).toContain("TRIGGER:-P1D")
  expect(ics).not.toContain("33862")
  expect(ics).not.toContain("33877")
+})
+
+test("Academic Jobs keeps legacy NZ Jobs bookmarks working",async({page})=>{
+ await mockEmpty(page)
+ await page.goto(ROOT+"#nz-jobs")
+ await expect(page.getByRole("heading",{name:"Academic Jobs",exact:true})).toBeVisible()
+ await expect(page.getByRole("button",{name:"Academic Jobs",exact:true})).toBeVisible()
+ await expect(page.getByText("Postdoctoral Research Fellow — Autonomous Agency")).toBeVisible()
 })
