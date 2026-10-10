@@ -222,7 +222,7 @@ test("saved API candidate remains in private application workspace after automat
  await page.getByRole("button",{name:"Xóa dữ liệu NZ Jobs trong trình duyệt"}).click()
  await page.getByRole("button",{name:"Xác nhận xóa NZ Jobs"}).click()
  await expect(page.getByText(candidate.title)).toHaveCount(0)
- await page.locator('input[type="file"]').setInputFiles({
+ await page.locator('input[type="file"][accept=".json,application/json"]').setInputFiles({
   name:"my-nz-backup.json",mimeType:"application/json",buffer:Buffer.from(content),
  })
  await expect(page.getByText(candidate.title)).toBeVisible()
