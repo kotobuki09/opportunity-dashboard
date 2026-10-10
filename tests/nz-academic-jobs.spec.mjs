@@ -96,3 +96,15 @@ test("NZ career fit controls and confirmed all-day deadline reminder",async({pag
  expect(ics).toContain("DTSTART;VALUE=DATE:20261013")
  expect(ics).toContain("Check exact NZ local closing time")
 })
+
+test("expired academic lecturer and Canterbury UAV engineer are hidden from actionable jobs",async({page})=>{
+ await mockEmpty(page)
+ await page.goto(ROOT+"#nz-jobs")
+ await expect(page.getByText("Lecturer — Data Science / Artificial Intelligence")).toHaveCount(0)
+ await expect(page.getByText("Research Engineer — Autonomous Robotics and UAV Research")).toHaveCount(0)
+ await page.getByRole("combobox",{name:"Lọc trạng thái việc làm"}).click()
+ await page.getByRole("option",{name:"Kể cả đã hết hạn"}).click()
+ await expect(page.getByText("Lecturer — Data Science / Artificial Intelligence")).toBeVisible()
+ await expect(page.getByText("Research Engineer — Autonomous Robotics and UAV Research")).toBeVisible()
+ await expect(page.getByText("Đã hết hạn").first()).toBeVisible()
+})
