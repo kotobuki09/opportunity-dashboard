@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button"
 import { nzJobFitDetails,nzDaysUntilDeadline,type CareerPriority } from "@/lib/nz-career-tools"
 import { nzDay,nzDeadlineState,displayNzDay,ROLE_LABEL,type NzAcademicJob } from "@/lib/nz-jobs"
 
-export function NzJobCompare({jobs,priority,now,onRemove,onClear}:{
- jobs:NzAcademicJob[];priority:CareerPriority;now:Date
+export function NzJobCompare({jobs,archivedIds,priority,now,onRemove,onClear}:{
+ jobs:NzAcademicJob[];archivedIds:Set<string>;priority:CareerPriority;now:Date
  onRemove:(id:string)=>void;onClear:()=>void
 }){
  if(!jobs.length)return null
@@ -29,6 +29,7 @@ export function NzJobCompare({jobs,priority,now,onRemove,onClear}:{
       <Button aria-label={"Bỏ so sánh: "+job.title} size="icon-sm" variant="ghost" onClick={()=>onRemove(job.id)}><XIcon className="size-4"/></Button>
      </div>
      <h5 className="text-sm font-semibold leading-snug">{job.title}</h5>
+     {archivedIds.has(job.id)&&<Badge variant="outline" className="border-amber-500/50 text-amber-800 dark:text-amber-300">Tin lưu từ lần quét cũ · chưa xác minh</Badge>}
      <p className="text-xs text-muted-foreground">{job.employer} · {job.city}</p>
      <div className="space-y-2 text-xs">
       <div className="flex items-center justify-between gap-2"><span className="text-muted-foreground">Phù hợp chuyên môn</span><strong className="tabular-nums">{result.score}/100</strong></div>
