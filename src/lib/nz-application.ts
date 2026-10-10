@@ -1,5 +1,5 @@
 import type { NzPersonalEntry } from "./nz-jobs"
-import { safeNzJobSnapshot } from "./nz-saved-jobs"
+import { safeNzJobSnapshot } from "./nz-saved-jobs.ts"
 
 export const NZ_APPLICATION_TASKS=[
  {id:"eligibility",label:"Kiểm tra điều kiện PhD và quyền làm việc",hint:"Đối chiếu nội dung tuyển dụng; không suy đoán visa"},
