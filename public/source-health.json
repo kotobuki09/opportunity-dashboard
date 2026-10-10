@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-10-09T12:54:11.309Z",
+  "generated_at": "2026-10-10T00:24:28.330Z",
   "scope": "Automated HTTP transport check only; NOT human verification, open status, deadline or applicant eligibility.",
-  "source_digest": "eab2463a770f85ba759298b9ad8fb16578c34f53c00a6a888c9d84b5e07ea0ee",
-  "total": 78,
-  "checked": 78,
+  "source_digest": "9ec73a9fb7c527351afa8d37b04d3d0f85b16a0139e82798292737ed62457fdd",
+  "total": 80,
+  "checked": 80,
   "counts": {
-    "error": 2,
-    "reachable": 69,
+    "error": 3,
+    "reachable": 70,
     "restricted": 7
   },
   "results": [
@@ -110,10 +110,10 @@
     },
     {
       "url": "https://mst.gov.vn/moi-tham-gia-giai-thuong-san-pham-cong-nghe-so-make-in-viet-nam-nam-2026-197260922122847757.htm",
-      "health": "reachable",
-      "status_code": 200,
+      "health": "error",
+      "status_code": null,
       "previous_health": null,
-      "unreachable_streak": 0
+      "unreachable_streak": 1
     },
     {
       "url": "https://learn.microsoft.com/en-us/startups/microsoft-for-startups/overview",
@@ -551,6 +551,20 @@
     },
     {
       "url": "https://nafosted.gov.vn/thong-bao-ke-hoach-tai-tro-nhiem-vu-phat-trien-cong-nghe-thuoc-chuong-trinh-hop-tac-nghien-cuu-viet-nam-o-xtray-li-a-ve-cong-nghe-chien-luoc-giai-doan-2026-2028/",
+      "health": "reachable",
+      "status_code": 200,
+      "previous_health": null,
+      "unreachable_streak": 0
+    },
+    {
+      "url": "https://vinuni.edu.vn/job/ay26-27-researcher-computer-science-ai-and-machine-learning-for-sustainable-development/",
+      "health": "reachable",
+      "status_code": 200,
+      "previous_health": null,
+      "unreachable_streak": 0
+    },
+    {
+      "url": "https://saigonaihub.com/",
       "health": "reachable",
       "status_code": 200,
       "previous_health": null,
