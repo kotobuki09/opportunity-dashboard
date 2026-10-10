@@ -1,4 +1,3 @@
-import * as React from "react"
 import { CalendarPlusIcon, ExternalLinkIcon, RadarIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { displayNzDay, nzDeadlineState, type NzAcademicJob } from "@/lib/nz-jobs"
@@ -43,6 +42,6 @@ export function NzCareerTools({jobs,now}:{jobs:NzAcademicJob[];now:Date}){
     <span className="flex items-center justify-between gap-2 text-sm font-medium">{s.label}<ExternalLinkIcon className="size-3.5 shrink-0"/></span><span className="mt-1 block text-xs text-muted-foreground">{s.topics}</span>
    </a>)}
   </div>
-  <p className="text-xs text-muted-foreground">Lịch dùng ngày tại New Zealand, không tự đặt giờ kết thúc. Tin có hạn chưa xác minh không được đưa vào lịch. Lần đối chiếu gần nhất: {displayNzDay(now.toISOString().slice(0,10))} chỉ là ngày xem, không phải ngày xác minh nguồn.</p>
+  <p className="text-xs text-muted-foreground">Lịch dùng ngày tại New Zealand, không tự đặt giờ kết thúc. Tin có hạn chưa xác minh không được đưa vào lịch. Ngày xem: {displayNzDay(now.toISOString().slice(0,10))}, không phải ngày xác minh nguồn.</p>
  </section>
 }
