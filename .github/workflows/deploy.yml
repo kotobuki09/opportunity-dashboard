@@ -35,6 +35,12 @@ on:
       - "components.json"
       - ".github/workflows/deploy.yml"
   workflow_dispatch:
+  # GITHUB_TOKEN commits from the NZ scanner do not trigger ordinary push workflows.
+  # workflow_run is the native, token-free handoff after the scanner job finishes.
+  workflow_run:
+    workflows: ["NZ academic careers discovery"]
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: read
@@ -47,6 +53,7 @@ concurrency:
 jobs:
   build:
     name: Validate, test, audit and build
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
