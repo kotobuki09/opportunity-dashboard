@@ -17,7 +17,7 @@ test("New Zealand local date respects DST, no invented midnight deadline",()=>{
 })
 test("auto-discovery jobs are always explicitly unverified",()=>{
  const result={generated_at:"2026-10-09T12:00:00Z",source:"SmartRecruiters",
- listings:[{...base,id:"uoa-auto-744000152290238",source_url:"https://jobs.smartrecruiters.com/TheUniversityOfAuckland/744000152290238",status:"auto_candidate",deadline_day:null,reviewed_at:null}]}
+ listings:[{...base,id:"uoa-auto-744000152290238",source_url:"https://jobs.smartrecruiters.com/TheUniversityOfAuckland/744000152290238",status:"auto_candidate",deadline_day:null,reviewed_at:null,salary_nzd_year:null}]}
  assert.equal(normalizeAutoSnapshot(result)?.listings[0].status,"auto_candidate")
  assert.equal(normalizeAutoSnapshot({...result,listings:[{...result.listings[0],source_url:"https://evil.example.org"}]}),null)
  assert.equal(normalizeAutoSnapshot({...result,generated_at:null}),null)
@@ -32,7 +32,7 @@ test("manual curated vacancy outranks auto search duplicate and external protoco
 
 test("malformed auto feed cannot inject unvalidated content or claimed verification",()=>{
  const candidate={...base,id:"uoa-auto-744000152290238",source_url:"https://jobs.smartrecruiters.com/TheUniversityOfAuckland/744000152290238",
-  status:"auto_candidate",deadline_day:null,reviewed_at:null}
+  status:"auto_candidate",deadline_day:null,reviewed_at:null,salary_nzd_year:null}
  const feed={generated_at:"2026-10-09T12:00:00Z",listings:[candidate]}
  assert.equal(normalizeAutoSnapshot(feed)?.listings.length,1)
  assert.equal(normalizeAutoSnapshot({...feed,listings:[{...candidate,requirements:null}]}),null)
