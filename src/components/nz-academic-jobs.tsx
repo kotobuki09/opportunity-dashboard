@@ -2,6 +2,7 @@ import * as React from "react"
 import { ArrowUpRightIcon, BellIcon, BookmarkIcon, BriefcaseBusinessIcon, DownloadIcon, ExternalLinkIcon, GraduationCapIcon, MapPinIcon, SearchIcon, ShieldAlertIcon, UploadIcon } from "lucide-react"
 import { toast } from "sonner"
 import curatedRaw from "../../data/nz-academic-jobs.json"
+import { NzCareerTools } from "@/components/nz-career-tools"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -182,6 +183,7 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
     {!filtered.length&&<div className="rounded-xl border border-dashed py-12 text-center text-sm text-muted-foreground">Chưa có việc phù hợp. Hãy mở “Theo dõi trường & viện” hoặc điều chỉnh bộ lọc.</div>}
    </div>
   </>}
+  <NzCareerTools jobs={jobs} now={now}/>
   <p className="rounded-xl border bg-muted/30 p-4 text-xs leading-relaxed text-muted-foreground">
    <ShieldAlertIcon className="mr-1 inline size-4"/> Không coi dữ liệu từ API là xác minh điều kiện/visa. Các hạn nộp chỉ chính thức khi có nguồn cụ thể; không tự đặt giờ. Hồ sơ nghiên cứu, ghi chú và trạng thái ứng tuyển được giữ trong trình duyệt của bạn.
   </p>
