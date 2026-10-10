@@ -1242,5 +1242,43 @@
     "stage_req": "Pháp nhân Việt Nam đủ năng lực R&D làm tổ chức chủ trì, có đối tác Australia phối hợp, chứng minh phần kinh phí đối ứng hợp pháp; thời gian tối đa 24 tháng.",
     "eligibility_note": "Theo thông báo chính thức NAFOSTED 29/09/2026: 5–7 nhiệm vụ; tổng ngân sách dự kiến tối đa 20 tỷ đồng, mức hỗ trợ tối đa 4 tỷ/nhiệm vụ và 50% dự toán. Nộp trên STM (stm.mst.gov.vn), ký số hoặc hồ sơ bản giấy. Chỉ nên theo đuổi nếu đã có đối tác Australia và phương án vốn đối ứng; cần người có thẩm quyền tổ chức kiểm tra điều kiện trước khi nộp. AI-assisted screening 09/10/2026; chưa đặt verified_at vì chưa xác nhận thủ công.",
     "status": "mới"
+  },
+  {
+    "title": "VinUni RESEARCHER200 – Research Fellow AI/ML (GREEN-X)",
+    "url": "https://vinuni.edu.vn/job/ay26-27-researcher-computer-science-ai-and-machine-learning-for-sustainable-development/",
+    "deadline": "2026-12-28",
+    "first_seen": "2026-10-10",
+    "category": "Học bổng/Fellowship",
+    "deadline_iso": "2026-12-28T23:59:00+07:00",
+    "deadline_type": "fixed",
+    "value_text": "lương tới US$40.000/năm, 24 tháng",
+    "value_usd_estimate": 40000,
+    "fit_note": "Fellowship nhà nghiên cứu trẻ AI/agentic tại Hà Nội, hợp hướng ActantOS/Agent Platform",
+    "project": [
+      "ActantOS",
+      "Agent Platform"
+    ],
+    "eligibility_note": "Vị trí toàn thời gian tại VinUni; nộp cover letter, CV, 2 người giới thiệu",
+    "status": "mới",
+    "verified_at": "2026-10-10"
+  },
+  {
+    "title": "Saigon AI Hub – Cohort 2 (Call for Challenges, Research Call 12/2026)",
+    "url": "https://saigonaihub.com/",
+    "deadline": "Call for Challenges mở 8/10–cuối 11/2026; Research Call cho nhóm nghiên cứu mở 12/2026",
+    "first_seen": "2026-10-10",
+    "category": "Tài trợ/Grant",
+    "deadline_iso": null,
+    "deadline_type": "opens_later",
+    "value_text": "không rõ",
+    "value_usd_estimate": null,
+    "fit_note": "Chu kỳ nghiên cứu 6 tháng từ 2/2027 hướng thử nghiệm thực tế & thương mại hoá; hợp AIMed/ScienzaOS",
+    "project": [
+      "AIMed",
+      "ScienzaOS"
+    ],
+    "eligibility_note": "Giai đoạn hiện tại dành cho bên đưa bài toán; nhóm nghiên cứu nộp khi Research Call mở tháng 12",
+    "status": "mới",
+    "verified_at": "2026-10-10"
   }
 ]
