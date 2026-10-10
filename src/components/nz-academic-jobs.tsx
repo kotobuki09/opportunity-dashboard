@@ -232,7 +232,7 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
     <span role="status" aria-live="polite">{filtered.length} vị trí phù hợp bộ lọc · {saved} đang theo dõi</span>
     <span>{feedStatus==="ready"&&snapshot?.generated_at?"Tin tự động từ cổng chính thức · "+new Date(snapshot.generated_at).toLocaleDateString("vi-VN"):feedStatus==="loading"?"Đang tải dữ liệu...":"Chưa có bản quét mới · vẫn dùng dữ liệu thủ công"}</span>
    </div>
-   <NzJobCompare jobs={compared} priority={priority} now={now}
+   <NzJobCompare jobs={compared} archivedIds={archivedIds} priority={priority} now={now}
     onRemove={id=>toggleCompare(id)} onClear={()=>setCompareIds([])}/>
    <div className="grid gap-3">
     {filtered.map(job=>{
