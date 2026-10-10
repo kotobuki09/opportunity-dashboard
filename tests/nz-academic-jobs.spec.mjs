@@ -248,3 +248,56 @@ test("malformed recruiter metadata is rejected without hiding verified manual va
  await expect(page.getByText("Postdoctoral Fellow - AI")).toHaveCount(0)
  await expect(page.getByText("Chưa có bản quét mới",{exact:false})).toBeVisible()
 })
+
+test("Scan Updates shows newly observed and missing-from-API postings without marking missing as closed",async({page})=>{
+ const time=new Date(),at=time.toISOString(),previous=new Date(time.getTime()-86400000).toISOString()
+ const candidate={
+  id:"uoa-auto-744000152290299",title:"Postdoctoral Research Fellow - RF Machine Learning",
+  employer:"University of Auckland",city:"Auckland",role:"postdoc",
+  topics:["Telecommunications","Artificial Intelligence"],fit:"high",
+  fit_note:"Automatically screened; applicant eligibility not verified",
+  salary_nzd_year:null,contract:"Academic fixed-term role",deadline_day:null,
+  status:"auto_candidate",published_at:"2026-10-09",
+  source_url:"https://jobs.smartrecruiters.com/TheUniversityOfAuckland/744000152290299",
+  eligibility_note:"Check PhD subject directly with employer",
+  international_note:"No immigration/visa decision inferred",
+  requirements:["CV","Check official employer advert"],reviewed_at:null,
+ }
+ const missing={
+  id:"uoa-auto-744000152290298",kind:"not_returned",
+  title:"Research Scientist - AI Security",
+  source_url:"https://jobs.smartrecruiters.com/TheUniversityOfAuckland/744000152290298",at,
+ }
+ const snapshot={generated_at:at,source:"Official API",scope:"Machine-screened",
+  observed_count:22,candidate_count:2,listings:[candidate],
+  changes:{baseline_at:previous,new_ids:[candidate.id],updated_ids:[],not_returned_ids:[missing.id]},
+  recent_events:[{kind:"new",id:candidate.id,title:candidate.title,source_url:candidate.source_url,at},missing],
+ }
+ await page.route("**/nz-academic-jobs-auto.json",route=>route.fulfill({
+  status:200,contentType:"application/json",body:JSON.stringify(snapshot),
+ }))
+ await page.goto(ROOT+"#nz-jobs")
+ await page.getByRole("group",{name:"Chọn khu vực việc làm"}).getByRole("button",{name:/Scan Updates/}).click()
+ const timeline=page.getByRole("region",{name:"Lịch sử quét việc làm học thuật"})
+ await expect(timeline).toBeVisible()
+ await expect(timeline.getByText(candidate.title)).toBeVisible()
+ await expect(timeline.getByText("Không còn được trả về")).toBeVisible()
+ await expect(timeline.getByText("Chưa thể kết luận vị trí đã đóng.",{exact:false})).toBeVisible()
+ const rss=timeline.getByRole("link",{name:"Mở RSS cập nhật tuyển dụng học thuật"})
+ await expect(rss).toHaveAttribute("href","/opportunity-dashboard/nz-academic-updates.xml")
+ await expect(rss).toHaveAttribute("target","_blank")
+ await timeline.getByRole("button",{name:/Xem vị trí mới/}).click()
+ await expect(page.getByText(candidate.title)).toBeVisible()
+ await expect(page.getByText("Postdoctoral Research Fellow — Autonomous Agency")).toHaveCount(0)
+ await page.getByRole("button",{name:"Xóa bộ lọc"}).click()
+ await expect(page.getByText("Postdoctoral Research Fellow — Autonomous Agency")).toBeVisible()
+})
+
+test("Scan Updates does not invent new jobs before baseline scan",async({page})=>{
+ await mockEmpty(page)
+ await page.goto(ROOT+"#nz-jobs")
+ await page.getByRole("group",{name:"Chọn khu vực việc làm"}).getByRole("button",{name:/Scan Updates/}).click()
+ const timeline=page.getByRole("region",{name:"Lịch sử quét việc làm học thuật"})
+ await expect(timeline.getByText("Chưa có đủ hai bản quét hợp lệ",{exact:false})).toBeVisible()
+ await expect(timeline.getByRole("button",{name:/Xem vị trí mới/})).toBeDisabled()
+})
