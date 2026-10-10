@@ -209,7 +209,10 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
     {filtered.map(job=>{
      const state=nzDeadlineState(job,now)
      const progress=tracked[job.id]?.status||"new"
-     return <article key={job.id} className="rounded-2xl border bg-card p-4 shadow-sm sm:p-5">
+     const fit=nzJobFitDetails(job,priority)
+     const remaining=nzDaysUntilDeadline(job,nzDay(now))
+     const inCompare=compareIds.includes(job.id)
+     return <article key={job.id} className="min-w-0 rounded-2xl border bg-card p-4 shadow-sm transition-[border-color,box-shadow] hover:border-blue-500/30 hover:shadow-md motion-reduce:transition-none sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
        <div className="min-w-0 flex-1">
         <div className="flex flex-wrap gap-1.5">
@@ -217,29 +220,57 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
          {state==="open"?<Badge className="bg-emerald-600 text-white">Hạn trên nguồn chính thức</Badge>:state==="closing_today"?<Badge className="bg-amber-600 text-white">Hôm nay hạn chót · kiểm tra giờ đóng đơn</Badge>:state==="closed"?<Badge variant="secondary">Đã hết hạn</Badge>:<Badge variant="outline" className="border-amber-500/50 text-amber-800 dark:text-amber-300"><ShieldAlertIcon className="size-3"/> Cần xác minh đang tuyển</Badge>}
          {job.status==="auto_candidate"&&<Badge variant="outline" className="border-blue-400/50 text-blue-700 dark:text-blue-300">API phát hiện · chưa duyệt</Badge>}
         </div>
-        <div className="mt-2 text-xs font-semibold text-blue-700 dark:text-blue-300">Độ phù hợp chuyên môn tham khảo: {nzJobFitScore(job,priority)}/100</div>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+         <div className="min-w-30 max-w-48 flex-1">
+          <div className="flex items-center justify-between gap-2 text-xs">
+           <span className="font-medium text-muted-foreground">Khớp chuyên môn</span>
+           <strong className="tabular-nums text-blue-700 dark:text-blue-300">{fit.score}/100</strong>
+          </div>
+          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted" role="progressbar"
+           aria-label={"Điểm so khớp: "+job.title} aria-valuemin={0} aria-valuemax={100} aria-valuenow={fit.score}>
+           <div className="h-full rounded-full bg-blue-600 transition-[width] motion-reduce:transition-none" style={{width:fit.score+"%"}}/>
+          </div>
+         </div>
+         <span className="text-xs text-muted-foreground">{fit.signals.length?fit.signals.join(" · "):"Chuyên ngành gần, cần đối chiếu"}</span>
+        </div>
         <h4 className="mt-2 text-base font-semibold sm:text-lg">{job.title}</h4>
         <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
          <span><GraduationCapIcon className="mr-1 inline size-3.5"/>{job.employer}</span>
          <span><MapPinIcon className="mr-1 inline size-3.5"/>{job.city}, NZ</span>
          <span>{displayNzDay(job.deadline_day)}</span>
+         {remaining!==null&&remaining>=0&&remaining<=7&&job.status==="official_deadline"&&<span className="font-semibold text-amber-800 dark:text-amber-300">{remaining===0?"Hôm nay là hạn theo lịch NZ":"Còn "+remaining+" ngày theo lịch NZ"}</span>}
+         {job.salary_nzd_year!==null&&<span>NZ$ {job.salary_nzd_year.toLocaleString("en-NZ")}/năm</span>}
         </div>
        </div>
-       <div className="flex flex-wrap gap-2">
+       <div className="flex flex-wrap items-center gap-2">
+        <Button size="sm" variant={progress==="new"?"secondary":"outline"}
+         onClick={()=>progress==="new"?changeStatus(job.id,"saved"):setMode("applications")}
+         aria-label={(progress==="new"?"Lưu việc làm: ":"Mở hồ sơ đang theo dõi: ")+job.title}>
+         <BookmarkIcon className="size-4"/>{progress==="new"?"Lưu việc":"Hồ sơ của tôi"}
+        </Button>
+        <Button size="sm" variant={inCompare?"secondary":"outline"} aria-pressed={inCompare}
+         onClick={()=>toggleCompare(job.id)}
+         disabled={!inCompare&&compareIds.length>=3}
+         aria-label={"So sánh: "+job.title}><ScaleIcon className="size-4"/> {inCompare?"Đã chọn":"So sánh"}</Button>
         {job.status==="official_deadline"&&job.deadline_day&&state!=="closed"&&
          <Button size="sm" variant="outline" onClick={()=>downloadCalendar(job)}><DownloadIcon className="size-4"/> Nhắc hạn (.ics)</Button>}
-       <Button size="sm" asChild><a href={job.source_url} target="_blank" rel="noopener noreferrer">Xem / Apply <ArrowUpRightIcon className="size-4"/></a></Button>
+        <Button size="sm" asChild><a href={job.source_url} target="_blank" rel="noopener noreferrer">Xem / Apply <ArrowUpRightIcon className="size-4"/></a></Button>
        </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-1">{job.topics.map(t=><Badge key={t} variant="secondary">{t}</Badge>)}</div>
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{job.fit_note}</p>
-      <div className="mt-3 grid gap-3 rounded-lg border bg-muted/25 p-3 text-xs sm:grid-cols-2">
-       <p><strong>Điều kiện:</strong> {job.eligibility_note}</p>
-       <p><strong>Visa:</strong> {job.international_note}</p>
-       {job.salary_nzd_year&&<p><strong>Lương:</strong> NZ$ {job.salary_nzd_year.toLocaleString("en-NZ")} / năm</p>}
-       {job.salary_note&&<p><strong>Lương tham khảo:</strong> {job.salary_note}</p>}
-       <p><strong>Hợp đồng:</strong> {job.contract}</p>
-      </div>
+      <details className="mt-3 overflow-hidden rounded-lg border bg-muted/15">
+       <summary className="cursor-pointer px-3 py-2.5 text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        Điều kiện PhD · Visa · Lương · Hợp đồng
+       </summary>
+       <div className="grid gap-3 border-t p-3 text-xs leading-relaxed sm:grid-cols-2">
+        <p><strong>Điều kiện:</strong> {job.eligibility_note}</p>
+        <p><strong>Visa:</strong> {job.international_note}</p>
+        {job.salary_nzd_year&&<p><strong>Lương:</strong> NZ$ {job.salary_nzd_year.toLocaleString("en-NZ")} / năm</p>}
+        {job.salary_note&&<p><strong>Lương tham khảo:</strong> {job.salary_note}</p>}
+        <p><strong>Hợp đồng:</strong> {job.contract}</p>
+       </div>
+      </details>
       {job.requirements.length>0&&<details className="mt-3 rounded-lg border bg-card">
        <summary className="cursor-pointer px-3 py-2.5 text-xs font-semibold text-foreground focus-visible:outline-2 focus-visible:outline-ring">
         Hồ sơ cần chuẩn bị / Đối chiếu yêu cầu
@@ -258,11 +289,19 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
       </div>
       {progress!=="new"&&progress!=="dismissed"&&<div className="mt-3 space-y-1">
        <label className="text-xs font-medium" htmlFor={"nz-note-"+job.id}>Ghi chú cá nhân</label>
-       <Input id={"nz-note-"+job.id} value={tracked[job.id]?.note||""} maxLength={2000} onChange={e=>changeNote(job.id,e.target.value)} placeholder="CV, liên hệ PI, đề cương, visa…"/>
+       <Textarea id={"nz-note-"+job.id} rows={2} value={tracked[job.id]?.note||""} maxLength={2000} onChange={e=>changeNote(job.id,e.target.value)} placeholder="CV, liên hệ PI, đề cương, visa…"/>
       </div>}
      </article>
     })}
-    {!filtered.length&&<div className="rounded-xl border border-dashed py-12 text-center text-sm text-muted-foreground">Chưa có việc phù hợp. Hãy mở “Theo dõi trường & viện” hoặc điều chỉnh bộ lọc.</div>}
+    {!filtered.length&&<div className="rounded-xl border border-dashed bg-card px-4 py-12 text-center">
+      <SearchIcon className="mx-auto size-8 text-muted-foreground/50"/>
+      <p className="mt-3 text-sm font-semibold">Chưa có việc phù hợp bộ lọc</p>
+      <p className="mt-2 text-sm text-muted-foreground">Có thể thay đổi chuyên ngành, trường hoặc xem các nguồn việc làm trong tương lai.</p>
+      <div className="mt-4 flex flex-wrap justify-center gap-2">
+       <Button size="sm" onClick={resetFilters}><RotateCcwIcon className="size-4"/> Xóa bộ lọc</Button>
+       <Button size="sm" variant="outline" onClick={()=>setMode("universities")}><BellIcon className="size-4"/> Theo dõi trường & viện</Button>
+      </div>
+    </div>}
    </div>
   </>}
   <p className="rounded-xl border bg-muted/30 p-4 text-xs leading-relaxed text-muted-foreground">
