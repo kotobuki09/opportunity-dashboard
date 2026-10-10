@@ -44,20 +44,52 @@
         "AI for Science"
       ],
       "fit": "high",
-      "fit_note": "Potential fit with AI research, responsible agents and teaching, subject to publications and teaching evidence. This is not a telecom-specific role.",
+      "fit_note": "Strong AI teaching/research alignment, but this exact published vacancy closed 31 March 2026. Retained only as a historical role model; follow official university careers for future openings.",
       "salary_nzd_year": null,
       "salary_note": "Official career page mentions NZ$99,788–112,730, but confirm current salary and vacancy dates with recruitment.",
       "contract": "Permanent · full-time (per official career profile)",
-      "deadline_day": null,
-      "status": "needs_confirmation",
+      "deadline_day": "2026-03-31",
+      "status": "official_deadline",
       "published_at": null,
       "source_url": "https://www.careers.auckland.ac.nz/career/lecturer-data-science-ai/",
-      "eligibility_note": "PhD in Computer Science focused on Data Science/AI or a closely related field, with strong research publications and ability to teach undergraduate/postgraduate students.",
+      "eligibility_note": "PhD in Computer Science focused on Data Science/AI or a closely related field, with strong research publications and ability to teach undergraduate/postgraduate students. Original career advert closed 31 March 2026; not an active vacancy.",
       "international_note": "Official career profile mentions an in-house immigration manager; sponsorship for this particular vacancy is not guaranteed.",
       "requirements": [
         "Research CV and publications",
         "Research statement and teaching evidence",
         "Confirm current listing and closing deadline on official application portal"
+      ],
+      "reviewed_at": "2026-10-09"
+    },
+    {
+      "id": "uc-2026-research-engineer-autonomous-robotics-33783",
+      "title": "Research Engineer — Autonomous Robotics and UAV Research",
+      "employer": "University of Canterbury",
+      "city": "Christchurch",
+      "role": "researcher",
+      "topics": [
+        "Autonomous Systems",
+        "Robotics",
+        "Unmanned Aerial Systems",
+        "Computer Vision",
+        "Sensor Fusion"
+      ],
+      "fit": "medium",
+      "fit_note": "Relevant to autonomous robotics, perception and UAVs, but official advert states closing date 8 October 2026, so this is a HISTORICAL CLOSED role; use Canterbury watchlist for future openings.",
+      "salary_nzd_year": 80000,
+      "contract": "Full-time · one-year fixed term",
+      "deadline_day": "2026-10-08",
+      "status": "official_deadline",
+      "published_at": "2026-09-23",
+      "source_url": "https://jobs.govt.nz/jobtools/jncustomsearch.viewFullSingle?in_jnCounter=226692414&in_organid=16563",
+      "eligibility_note": "Employer advert says a PhD in Computer Science/Computer Vision and at least ten years relevant industry experience are ideal; a telecommunications PhD may not satisfy specific criteria.",
+      "international_note": "Directly confirm international-applicant eligibility and visa/working-right requirements with Canterbury recruitment.",
+      "requirements": [
+        "CLOSED: advertised final application deadline 8 October 2026 (New Zealand time). Do not attempt to apply from an expired listing; use Canterbury official careers for future openings.",
+        "Academic CV with research/publication record and substantial hands-on autonomous robotics experience",
+        "Demonstrate C++, Python, ROS/ROS2, robotics navigation, computer vision, sensor fusion and UAV-related contributions",
+        "Cover letter matched to autonomous research and 10+ years engineering requirement",
+        "Check any updated application deadline and work-rights arrangements on the actual university career portal"
       ],
       "reviewed_at": "2026-10-09"
     }
@@ -180,6 +212,11 @@
       "title": "Bodeker Scientific — Post-doctoral Researcher, Adaptive Façade Intelligence",
       "reason": "Official application deadline was 24 September 2026; some third-party pages incorrectly list late-October dates.",
       "source_url": "https://www.bodekerscientific.com/vacancies/post-doctoral-researcher"
+    },
+    {
+      "title": "University of Auckland — Lecturer in Data Science/AI (March 2026 cycle)",
+      "reason": "The official career profile may still be indexed, but the advert explicitly closed 31 March 2026. Historical card only; do not treat as accepting applications.",
+      "source_url": "https://www.careers.auckland.ac.nz/career/lecturer-data-science-ai/"
     }
   ]
 }
