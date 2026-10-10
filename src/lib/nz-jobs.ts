@@ -1,6 +1,7 @@
 import { safeNzPersonalEntry } from "./nz-application.ts"
 import { validAutoJobUrl } from "./nz-saved-jobs.ts"
 import type { NzSavedJobSnapshot } from "./nz-saved-jobs.ts"
+import { normalizeNzScanSummary, type NzScanChanges, type NzScanEvent } from "./nz-scan-changes.ts"
 export type NzAcademicRole = "postdoc" | "lecturer" | "researcher"
 export type NzJobStatus = "official_deadline" | "needs_confirmation" | "auto_candidate"
 export type NzFit = "high" | "medium" | "low"
@@ -13,7 +14,7 @@ export type NzAcademicJob = {
 }
 export type NzInstitution={id:string;name:string;city:string;topics:string[];url:string;note:string;type:string}
 export type NzDataset={last_reviewed:string;scope:string;listings:NzAcademicJob[];watchlist:NzInstitution[];excluded_sources:{title:string;reason:string;source_url:string}[]}
-export type NzAutoSnapshot={generated_at:string|null;source:string;scope:string;observed_count:number;candidate_count:number;listings:NzAcademicJob[]}
+export type NzAutoSnapshot={generated_at:string|null;source:string;scope:string;observed_count:number;candidate_count:number;listings:NzAcademicJob[];changes:NzScanChanges|null;recent_events:NzScanEvent[]}
 export type NzPersonalStatus="new"|"saved"|"preparing"|"applied"|"dismissed"
 export type NzPersonalEntry={status:NzPersonalStatus;note?:string;next_step?:string;checked?:string[];updated_at:string;job_snapshot?:NzSavedJobSnapshot}
 export const ROLE_LABEL:Record<NzAcademicRole,string>={
@@ -103,6 +104,7 @@ export function normalizeAutoSnapshot(raw:unknown):NzAutoSnapshot|null{
   observed_count:Number.isInteger(p.observed_count)&&Number(p.observed_count)>=0?Math.min(10000,p.observed_count as number):0,
   candidate_count:Number.isInteger(p.candidate_count)&&Number(p.candidate_count)>=0?Math.min(10000,p.candidate_count as number):0,
   listings:rows,
+  ...normalizeNzScanSummary(p),
  }
 }
 
