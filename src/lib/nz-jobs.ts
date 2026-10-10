@@ -14,7 +14,6 @@ export type NzDataset={last_reviewed:string;scope:string;listings:NzAcademicJob[
 export type NzAutoSnapshot={generated_at:string|null;source:string;scope:string;observed_count:number;candidate_count:number;listings:NzAcademicJob[]}
 export type NzPersonalStatus="new"|"saved"|"preparing"|"applied"|"dismissed"
 export type NzPersonalEntry={status:NzPersonalStatus;note?:string;next_step?:string;checked?:string[];updated_at:string}
-const STATUSES=new Set<NzPersonalStatus>(["new","saved","preparing","applied","dismissed"])
 export const ROLE_LABEL:Record<NzAcademicRole,string>={
  postdoc:"Postdoc",lecturer:"Lecturer / Faculty",researcher:"Research Scientist / Fellow"
 }
