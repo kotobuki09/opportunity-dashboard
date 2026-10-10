@@ -77,3 +77,21 @@ test("mobile academic jobs view stays within viewport and honors dark mode",asyn
  const dims=await page.evaluate(()=>({body:document.documentElement.scrollWidth,viewport:window.innerWidth}))
  expect(dims.body).toBeLessThanOrEqual(dims.viewport+1)
 })
+
+
+test("NZ jobs provides official university portals and a dated calendar without unconfirmed leads",async({page})=>{
+ await mockEmpty(page)
+ await page.goto(ROOT+"#nz-jobs")
+ await expect(page.getByRole("region",{name:"Academic career discovery tools"})).toBeVisible()
+ const section=page.getByRole("region",{name:"Academic career discovery tools"})
+ await expect(section.getByRole("link",{name:/UC · Careers/})).toHaveAttribute("href",/canterbury\.ac\.nz/)
+ const downloading=page.waitForEvent("download")
+ await section.getByRole("button",{name:/Xuất 1 hạn đã xác minh/}).click()
+ const file=await downloading
+ const ics=await readFile(await file.path(),"utf8")
+ expect(ics).toContain("BEGIN:VCALENDAR")
+ expect(ics).toContain("DTSTART;VALUE=DATE:20261013")
+ expect(ics).toContain("TRIGGER:-P1D")
+ expect(ics).not.toContain("33862")
+ expect(ics).not.toContain("33877")
+})
