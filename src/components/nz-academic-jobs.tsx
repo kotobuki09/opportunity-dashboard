@@ -1,11 +1,15 @@
 import * as React from "react"
-import { ArrowUpRightIcon, BellIcon, BookmarkIcon, BriefcaseBusinessIcon, DownloadIcon, ExternalLinkIcon, GraduationCapIcon, MapPinIcon, SearchIcon, ShieldAlertIcon, UploadIcon } from "lucide-react"
+import { ArrowUpRightIcon, BellIcon, BookmarkIcon, BriefcaseBusinessIcon, DownloadIcon, ExternalLinkIcon, GraduationCapIcon, ListChecksIcon, MapPinIcon, SearchIcon, ShieldAlertIcon, UploadIcon, ScaleIcon, RotateCcwIcon } from "lucide-react"
 import { toast } from "sonner"
 import curatedRaw from "../../data/nz-academic-jobs.json"
-import { nzJobFitScore, nzCalendarEvent, type CareerPriority } from "@/lib/nz-career-tools"
+import { nzJobFitDetails, nzJobFitScore, nzCalendarEvent, nzDaysUntilDeadline, sortNzAcademicJobs, type CareerPriority, type CareerSort } from "@/lib/nz-career-tools"
+import { NzApplicationWorkspace } from "@/components/nz-application-workspace"
+import { NzJobCompare } from "@/components/nz-job-compare"
+import { nzToggleChecklist, safeNzPersonalEntry, type NzApplicationTaskId } from "@/lib/nz-application"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ROLE_LABEL, STATUS_LABEL, displayNzDay, loadNzTracking, mergedNzJobs, normalizeAutoSnapshot, nzDeadlineState, nzDay, type NzAcademicJob, type NzAutoSnapshot, type NzDataset, type NzPersonalEntry, type NzPersonalStatus } from "@/lib/nz-jobs"
 
@@ -21,18 +25,27 @@ const exportBackup=(value:unknown)=>{
  window.setTimeout(()=>URL.revokeObjectURL(href),1000)
 }
 export function NzAcademicJobs({now=new Date()}:{now?:Date}){
- const [mode,setMode]=React.useState<"jobs"|"universities">("jobs")
+ const [mode,setMode]=React.useState<"jobs"|"applications"|"universities">("jobs")
  const [scope,setScope]=React.useState<Scope>("actionable")
  const [role,setRole]=React.useState<Role>("all")
  const [field,setField]=React.useState<Field>("all")
  const [query,setQuery]=React.useState("")
  const [priority,setPriority]=React.useState<CareerPriority>("balanced")
+ const [sortBy,setSortBy]=React.useState<CareerSort>("deadline")
+ const [employer,setEmployer]=React.useState("all")
+ const [compareIds,setCompareIds]=React.useState<string[]>([])
+ const [watchQuery,setWatchQuery]=React.useState("")
  const [verifiedOnly,setVerifiedOnly]=React.useState(false)
  const [tracked,setTracked]=React.useState<Record<string,NzPersonalEntry>>(()=>loadNzTracking())
  const [snapshot,setSnapshot]=React.useState<NzAutoSnapshot|null>(null)
  const [feedStatus,setFeedStatus]=React.useState<"loading"|"ready"|"unavailable">("loading")
  const importInput=React.useRef<HTMLInputElement>(null)
  React.useEffect(()=>{try{localStorage.setItem(KEY,JSON.stringify(tracked))}catch{ /* optional */ }},[tracked])
+ React.useEffect(()=>{
+  const onStorage=(event:StorageEvent)=>{if(event.key===KEY)setTracked(loadNzTracking())}
+  window.addEventListener("storage",onStorage)
+  return ()=>window.removeEventListener("storage",onStorage)
+ },[])
  React.useEffect(()=>{
   const controller=new AbortController()
   fetch(import.meta.env.BASE_URL+"nz-academic-jobs-auto.json",{signal:controller.signal,cache:"no-store"})
@@ -49,24 +62,30 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
  },[])
  const jobs=React.useMemo(()=>mergedNzJobs(DATA.listings,snapshot?.listings||[]),[snapshot])
  const changeStatus=(id:string,status:NzPersonalStatus)=>setTracked(prev=>({...prev,[id]:{...prev[id],status,updated_at:new Date().toISOString()}}))
- const changeNote=(id:string,note:string)=>setTracked(prev=>({...prev,[id]:{status:prev[id]?.status||"new",note:note.slice(0,2000),updated_at:new Date().toISOString()}}))
- const filtered=jobs.filter(job=>{
+ const changeNote=(id:string,note:string)=>setTracked(prev=>({...prev,[id]:{...prev[id],status:prev[id]?.status||"saved",note:note.slice(0,2000),updated_at:new Date().toISOString()}}))
+ const changeNextStep=(id:string,nextStep:string)=>setTracked(prev=>({...prev,[id]:{...prev[id],status:prev[id]?.status||"saved",next_step:nextStep.slice(0,250),updated_at:new Date().toISOString()}}))
+ const toggleTask=(id:string,task:NzApplicationTaskId)=>setTracked(prev=>({...prev,[id]:{...prev[id],status:prev[id]?.status==="new"||!prev[id]?"saved":prev[id].status,checked:nzToggleChecklist(prev[id],task),updated_at:new Date().toISOString()}}))
+ const toggleCompare=(id:string)=>setCompareIds(prev=>prev.includes(id)?prev.filter(value=>value!==id):prev.length<3?[...prev,id]:prev)
+ const resetFilters=()=>{setQuery("");setRole("all");setField("all");setScope("actionable");setVerifiedOnly(false);setEmployer("all");setSortBy("deadline")}
+ const employers=React.useMemo(()=>[...new Set(jobs.map(job=>job.employer))].sort(),[jobs])
+ const filtered=sortNzAcademicJobs(jobs.filter(job=>{
   const active=nzDeadlineState(job,now)
   const personal=tracked[job.id]?.status||"new"
   if(scope==="actionable"&&(active==="closed"||personal==="dismissed"))return false
   if(verifiedOnly&&job.status!=="official_deadline")return false
   if(scope==="saved"&&!["saved","preparing","applied"].includes(personal))return false
   if(role!=="all"&&job.role!==role)return false
+  if(employer!=="all"&&job.employer!==employer)return false
   const disciplines=(job.title+" "+job.topics.join(" ")).toLowerCase()
   const content=(job.title+" "+job.employer+" "+job.city+" "+job.topics.join(" ")+" "+job.fit_note).toLowerCase()
-  // Scope specialty matches to positive role keywords, not negative wording in reviewer caveats.
   if(field!=="all"&&!MATCH[field].some(t=>disciplines.includes(t)))return false
   return content.includes(query.trim().toLowerCase())
- }).sort((a,b)=>{
-  const rank=(j:NzAcademicJob)=>nzDeadlineState(j,now)==="closed"?3:j.status==="official_deadline"?0:j.status==="needs_confirmation"?1:2
-  const r=rank(a)-rank(b)
-  return r||nzJobFitScore(b,priority)-nzJobFitScore(a,priority)||
-    String(a.deadline_day||"9999").localeCompare(String(b.deadline_day||"9999"))
+ }),sortBy,priority,nzDay(now))
+ const compared=jobs.filter(job=>compareIds.includes(job.id))
+ const savedJobs=jobs.filter(job=>["saved","preparing","applied"].includes(tracked[job.id]?.status||"new"))
+ const watchlist=DATA.watchlist.filter(w=>{
+  const value=[w.name,w.city,...w.topics,w.note].join(" ").toLowerCase()
+  return value.includes(watchQuery.trim().toLowerCase())
  })
  const active=jobs.filter(j=>["open","closing_today"].includes(nzDeadlineState(j,now))).length
  const downloadCalendar=(job:NzAcademicJob)=>{
@@ -78,9 +97,9 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
    toast.success("Đã xuất lịch. Kiểm tra lại giờ đóng đơn theo múi giờ NZ.")
   }catch(e){toast.error(e instanceof Error?e.message:"Không có hạn chính thức")}
  }
- const saved=Object.values(tracked).filter(x=>["saved","preparing","applied"].includes(x.status)).length
+ const saved=savedJobs.length
  const importBackup=async(file:File)=>{
-  if(file.size>100000)throw Error("File theo dõi quá lớn")
+  if(file.size>500000)throw Error("File theo dõi quá lớn")
   const raw:unknown=JSON.parse(await file.text())
   if(!raw||typeof raw!=="object")throw Error("File không hợp lệ")
   const v=raw as Record<string,unknown>
@@ -90,7 +109,8 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
    if(!known.has(id)||!value||typeof value!=="object")continue
    const e=value as Record<string,unknown>
    if(!["new","saved","preparing","applied","dismissed"].includes(String(e.status)))continue
-   update[id]={status:e.status as NzPersonalStatus,note:typeof e.note==="string"?e.note.slice(0,2000):"",updated_at:new Date().toISOString()}
+   const safe=safeNzPersonalEntry({...e,updated_at:new Date().toISOString()})
+   if(safe)update[id]=safe
   }
   setTracked(prev=>({...prev,...update}));toast.success("Đã nhập "+Object.keys(update).length+" mục.")
  }
