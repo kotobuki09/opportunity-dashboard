@@ -1,6 +1,7 @@
 import { readFileSync, mkdirSync, writeFileSync } from "node:fs"
 import { resolve, dirname } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
+import { buildNzScanHistory, nzJobUpdatesRss } from "./nz-scan-history.mjs"
 
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),"..")
 const API="https://api.smartrecruiters.com/v1/companies/TheUniversityOfAuckland/postings"
@@ -98,10 +99,15 @@ export async function discoverJobs(fetcher=fetch,now=new Date()){
 }
 export async function main(){
  const output=resolve(ROOT,"public/nz-academic-jobs-auto.json")
+ // Compare with the previous public feed only. Never read applicant data.
+ let previous=null
+ try{previous=JSON.parse(readFileSync(output,"utf8"))}catch{ /* initial scan */ }
  const file=await discoverJobs()
+ const published={...file,...buildNzScanHistory(file,previous,new Date(file.generated_at))}
  mkdirSync(dirname(output),{recursive:true})
- writeFileSync(output,JSON.stringify(file,null,2)+"\n")
- console.log("NZ academic jobs: "+file.listings.length+" candidate listings; "+file.observed_count+" postings observed")
+ writeFileSync(output,JSON.stringify(published,null,2)+"\n")
+ writeFileSync(resolve(ROOT,"public/nz-academic-updates.xml"),nzJobUpdatesRss(published))
+ console.log("NZ academic jobs: "+file.listings.length+" listings; "+file.observed_count+" postings observed; "+published.changes.new_ids.length+" newly seen; "+published.changes.updated_ids.length+" updated; "+published.changes.not_returned_ids.length+" not seen in latest scan")
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(resolve(process.argv[1])).href){
  main().catch(error=>{console.error("Academic job discovery failed:",error);process.exitCode=1})

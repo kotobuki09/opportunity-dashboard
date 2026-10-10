@@ -1,10 +1,11 @@
 import * as React from "react"
-import { ArrowUpRightIcon, BellIcon, BookmarkIcon, BriefcaseBusinessIcon, DownloadIcon, ExternalLinkIcon, GraduationCapIcon, ListChecksIcon, MapPinIcon, SearchIcon, ShieldAlertIcon, UploadIcon, ScaleIcon, RotateCcwIcon, Trash2Icon } from "lucide-react"
+import { ArrowUpRightIcon, BellIcon, BookmarkIcon, BriefcaseBusinessIcon, DownloadIcon, ExternalLinkIcon, GraduationCapIcon, ListChecksIcon, MapPinIcon, SearchIcon, ShieldAlertIcon, UploadIcon, ScaleIcon, RotateCcwIcon, Trash2Icon, HistoryIcon } from "lucide-react"
 import { toast } from "sonner"
 import curatedRaw from "../../data/nz-academic-jobs.json"
 import { nzJobFitDetails, nzCalendarEvent, nzDaysUntilDeadline, sortNzAcademicJobs, type CareerPriority, type CareerSort } from "@/lib/nz-career-tools"
 import { NzApplicationWorkspace } from "@/components/nz-application-workspace"
 import { NzJobCompare } from "@/components/nz-job-compare"
+import { NzScanUpdates } from "@/components/nz-scan-updates"
 import { nzToggleChecklist, safeNzPersonalEntry, type NzApplicationTaskId } from "@/lib/nz-application"
 import { mergeNzSavedJobs, nzSnapshotFromJob } from "@/lib/nz-saved-jobs"
 import { Badge } from "@/components/ui/badge"
@@ -26,13 +27,14 @@ const exportBackup=(value:unknown)=>{
  window.setTimeout(()=>URL.revokeObjectURL(href),1000)
 }
 export function NzAcademicJobs({now=new Date()}:{now?:Date}){
- const [mode,setMode]=React.useState<"jobs"|"applications"|"universities">("jobs")
+ const [mode,setMode]=React.useState<"jobs"|"applications"|"universities"|"updates">("jobs")
  const [scope,setScope]=React.useState<Scope>("actionable")
  const [role,setRole]=React.useState<Role>("all")
  const [field,setField]=React.useState<Field>("all")
  const [query,setQuery]=React.useState("")
  const [priority,setPriority]=React.useState<CareerPriority>("balanced")
  const [sortBy,setSortBy]=React.useState<CareerSort>("deadline")
+ const [changeFilter,setChangeFilter]=React.useState<"all"|"new"|"updated">("all")
  const [employer,setEmployer]=React.useState("all")
  const [compareIds,setCompareIds]=React.useState<string[]>([])
  const [watchQuery,setWatchQuery]=React.useState("")
@@ -81,13 +83,14 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
   checked:nzToggleChecklist(entry,task),
  }))
  const toggleCompare=(id:string)=>setCompareIds(prev=>prev.includes(id)?prev.filter(value=>value!==id):prev.length<3?[...prev,id]:prev)
- const resetFilters=()=>{setQuery("");setRole("all");setField("all");setScope("actionable");setVerifiedOnly(false);setEmployer("all");setSortBy("deadline")}
+ const resetFilters=()=>{setQuery("");setRole("all");setField("all");setScope("actionable");setVerifiedOnly(false);setEmployer("all");setSortBy("deadline");setChangeFilter("all")}
  const employers=React.useMemo(()=>[...new Set(jobs.map(job=>job.employer))].sort(),[jobs])
  const filtered=sortNzAcademicJobs(jobs.filter(job=>{
   const active=nzDeadlineState(job,now)
   const personal=tracked[job.id]?.status||"new"
   if(scope==="actionable"&&(active==="closed"||personal==="dismissed"||archivedIds.has(job.id)))return false
   if(verifiedOnly&&job.status!=="official_deadline")return false
+  if(changeFilter!=="all"&&!(changeFilter==="new"?snapshot?.changes?.new_ids:snapshot?.changes?.updated_ids)?.includes(job.id))return false
   if(scope==="saved"&&!["saved","preparing","applied"].includes(personal))return false
   if(role!=="all"&&job.role!==role)return false
   if(employer!=="all"&&job.employer!==employer)return false
@@ -97,6 +100,12 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
   return content.includes(query.trim().toLowerCase())
  }),sortBy,priority,nzDay(now))
  const compared=jobs.filter(job=>compareIds.includes(job.id))
+ const scanNews=(snapshot?.changes?.new_ids.length||0)+(snapshot?.changes?.updated_ids.length||0)
+ const showChanges=(kind:"new"|"updated")=>{
+  resetFilters()
+  setChangeFilter(kind)
+  setMode("jobs")
+ }
  const savedJobs=jobs.filter(job=>["saved","preparing","applied"].includes(tracked[job.id]?.status||"new"))
  const watchlist=DATA.watchlist.filter(w=>{
   const value=[w.name,w.city,...w.topics,w.note].join(" ").toLowerCase()
@@ -151,6 +160,7 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
     <Button size="sm" variant={mode==="jobs"?"secondary":"ghost"} aria-pressed={mode==="jobs"} onClick={()=>setMode("jobs")}><BriefcaseBusinessIcon className="size-4"/> Việc làm</Button>
     <Button size="sm" variant={mode==="applications"?"secondary":"ghost"} aria-pressed={mode==="applications"} onClick={()=>setMode("applications")}><ListChecksIcon className="size-4"/> Hồ sơ của tôi <span className="rounded bg-background/85 px-1.5 text-xs tabular-nums">{saved}</span></Button>
     <Button size="sm" variant={mode==="universities"?"secondary":"ghost"} aria-pressed={mode==="universities"} onClick={()=>setMode("universities")}><BellIcon className="size-4"/> Theo dõi trường & viện</Button>
+    <Button size="sm" variant={mode==="updates"?"secondary":"ghost"} aria-pressed={mode==="updates"} onClick={()=>setMode("updates")}><HistoryIcon className="size-4"/> Scan Updates {scanNews>0?<span className="rounded bg-background/85 px-1.5 text-xs tabular-nums">{scanNews}</span>:null}</Button>
    </div>
    <div className="flex flex-wrap gap-2">
     <Button variant="outline" size="sm" onClick={()=>exportBackup({app:"nz-academic-jobs",version:1,exported_at:new Date().toISOString(),items:tracked})}><DownloadIcon className="size-4"/> Xuất</Button>
@@ -169,11 +179,16 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
    }}>Xác nhận xóa NZ Jobs</Button>
    <Button size="sm" variant="outline" onClick={()=>setResetPending(false)}>Hủy</Button>
   </div>}
-  {mode==="applications"?<NzApplicationWorkspace jobs={jobs} tracked={tracked} archivedIds={archivedIds}
+  {mode==="updates"?<NzScanUpdates snapshot={snapshot} feedStatus={feedStatus} onShowJobs={showChanges}/>:mode==="applications"?<NzApplicationWorkspace jobs={jobs} tracked={tracked} archivedIds={archivedIds}
    onChangeStatus={changeStatus} onChangeNote={changeNote} onChangeNextStep={changeNextStep}
    onToggleTask={toggleTask} now={now} onBrowse={()=>{setMode("jobs");setScope("actionable")}}
   />:mode==="universities"?<>
    <div className="rounded-xl border bg-blue-500/5 p-4 text-sm text-muted-foreground"><BellIcon className="mr-2 inline size-4"/>Các đơn vị bên dưới là <strong className="text-foreground">nguồn tìm việc trong tương lai, không phải tin đang tuyển</strong>. Mở cổng chính thức và đăng ký job alert nếu có.</div>
+   <div className="flex flex-wrap gap-2">
+    <Button size="sm" variant="outline" asChild><a href="https://uniroles.co.nz/" target="_blank" rel="noopener noreferrer">UniRoles NZ · nguồn tổng hợp <ExternalLinkIcon className="size-3"/></a></Button>
+    <Button size="sm" variant="outline" asChild><a href="https://jobs.govt.nz/" target="_blank" rel="noopener noreferrer">NZ Government Jobs <ExternalLinkIcon className="size-3"/></a></Button>
+   </div>
+   <p className="text-xs text-muted-foreground">UniRoles là trang tổng hợp, không phải cổng tuyển dụng của từng trường. Luôn mở lại thông báo chính thức để đối chiếu còn nhận hồ sơ, hạn nộp và điều kiện visa.</p>
    <div className="relative max-w-lg">
     <SearchIcon className="pointer-events-none absolute left-3 top-2.5 size-4 text-muted-foreground"/>
     <Input className="pl-9" aria-label="Tìm trường và viện nghiên cứu tại New Zealand"
@@ -228,6 +243,15 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
     </label>
     <p className="text-xs text-muted-foreground">Tin máy phát hiện chưa được kiểm chứng vẫn được xem ở chế độ đầy đủ. Điểm phù hợp chỉ để sắp xếp, không phải xác suất trúng tuyển.</p>
    </div>
+   {snapshot?.changes?.baseline_at&&<div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-blue-500/15 bg-blue-500/5 px-3 py-2">
+    <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Lọc vị trí theo thay đổi từ lần quét trước">
+     {([
+      ["all","Tất cả vị trí"],["new","Mới qua API"],["updated","Thông tin thay đổi"],
+     ] as const).map(([value,label])=><Button key={value} type="button" size="sm" variant={changeFilter===value?"secondary":"ghost"} aria-pressed={changeFilter===value}
+      onClick={()=>setChangeFilter(value)}>{label}{value!=="all"?<span className="rounded bg-background/80 px-1.5 text-xs tabular-nums">{value==="new"?snapshot.changes?.new_ids.length||0:snapshot.changes?.updated_ids.length||0}</span>:null}</Button>)}
+    </div>
+    <Button type="button" size="sm" variant="ghost" onClick={()=>setMode("updates")}><HistoryIcon className="size-3.5"/> Xem lịch sử</Button>
+   </div>}
    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
     <span role="status" aria-live="polite">{filtered.length} vị trí phù hợp bộ lọc · {saved} đang theo dõi</span>
     <span>{feedStatus==="ready"&&snapshot?.generated_at?"Tin tự động từ cổng chính thức · "+new Date(snapshot.generated_at).toLocaleDateString("vi-VN"):feedStatus==="loading"?"Đang tải dữ liệu...":"Chưa có bản quét mới · vẫn dùng dữ liệu thủ công"}</span>
