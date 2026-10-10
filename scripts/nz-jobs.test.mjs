@@ -3,7 +3,7 @@ import assert from "node:assert/strict"
 import {nzDay,nzDeadlineState,normalizeAutoSnapshot,mergedNzJobs,isSafeAcademicUrl} from "../src/lib/nz-jobs.ts"
 
 const base={id:"a",title:"Postdoctoral AI",employer:"University of Auckland",city:"Auckland",
- role:"postdoc",topics:["Artificial Intelligence"],fit:"high",fit_note:"",salary_nzd_year:99788,
+ role:"postdoc",topics:["Artificial Intelligence"],fit:"high",fit_note:"Manual review required for applicant eligibility.",salary_nzd_year:99788,
  contract:"32 months",deadline_day:"2026-10-13",status:"official_deadline",published_at:null,
  source_url:"https://jobs.smartrecruiters.com/TheUniversityOfAuckland/744000152290238-postdoc",
  eligibility_note:"PhD",international_note:"Unknown",requirements:[],reviewed_at:"2026-10-09"}
