@@ -86,7 +86,7 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
  const filtered=sortNzAcademicJobs(jobs.filter(job=>{
   const active=nzDeadlineState(job,now)
   const personal=tracked[job.id]?.status||"new"
-  if(scope==="actionable"&&(active==="closed"||personal==="dismissed"))return false
+  if(scope==="actionable"&&(active==="closed"||personal==="dismissed"||archivedIds.has(job.id)))return false
   if(verifiedOnly&&job.status!=="official_deadline")return false
   if(scope==="saved"&&!["saved","preparing","applied"].includes(personal))return false
   if(role!=="all"&&job.role!==role)return false
@@ -152,12 +152,24 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
     <Button size="sm" variant={mode==="applications"?"secondary":"ghost"} aria-pressed={mode==="applications"} onClick={()=>setMode("applications")}><ListChecksIcon className="size-4"/> Hồ sơ của tôi <span className="rounded bg-background/85 px-1.5 text-xs tabular-nums">{saved}</span></Button>
     <Button size="sm" variant={mode==="universities"?"secondary":"ghost"} aria-pressed={mode==="universities"} onClick={()=>setMode("universities")}><BellIcon className="size-4"/> Theo dõi trường & viện</Button>
    </div>
-   <div className="flex gap-2">
+   <div className="flex flex-wrap gap-2">
     <Button variant="outline" size="sm" onClick={()=>exportBackup({app:"nz-academic-jobs",version:1,exported_at:new Date().toISOString(),items:tracked})}><DownloadIcon className="size-4"/> Xuất</Button>
     <Button variant="outline" size="sm" onClick={()=>importInput.current?.click()}><UploadIcon className="size-4"/> Nhập</Button>
+    <Button variant="ghost" size="sm" onClick={()=>setResetPending(true)} aria-label="Xóa dữ liệu NZ Jobs trong trình duyệt"><Trash2Icon className="size-4"/> Xóa dữ liệu</Button>
    </div>
   </div>
-  {mode==="applications"?<NzApplicationWorkspace jobs={jobs} tracked={tracked}
+  {resetPending&&<div role="alert" className="flex flex-wrap items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm">
+   <p className="min-w-0 flex-1"><strong>Xóa dữ liệu cá nhân NZ Jobs?</strong> Ghi chú, checklist, tin đã lưu và tiến độ ứng tuyển trong trình duyệt hiện tại sẽ bị xóa. Hãy xuất bản sao lưu trước nếu cần.</p>
+   <Button size="sm" variant="destructive" onClick={()=>{
+    setTracked({})
+    setCompareIds([])
+    setResetPending(false)
+    try{localStorage.removeItem(KEY)}catch{ /* optional storage */ }
+    toast.success("Đã xóa dữ liệu NZ Jobs trên trình duyệt này.")
+   }}>Xác nhận xóa NZ Jobs</Button>
+   <Button size="sm" variant="outline" onClick={()=>setResetPending(false)}>Hủy</Button>
+  </div>}
+  {mode==="applications"?<NzApplicationWorkspace jobs={jobs} tracked={tracked} archivedIds={archivedIds}
    onChangeStatus={changeStatus} onChangeNote={changeNote} onChangeNextStep={changeNextStep}
    onToggleTask={toggleTask} now={now} onBrowse={()=>{setMode("jobs");setScope("actionable")}}
   />:mode==="universities"?<>
@@ -229,13 +241,14 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
      const fit=nzJobFitDetails(job,priority)
      const remaining=nzDaysUntilDeadline(job,nzDay(now))
      const inCompare=compareIds.includes(job.id)
+     const archived=archivedIds.has(job.id)
      return <article key={job.id} className="min-w-0 rounded-2xl border bg-card p-4 shadow-sm transition-[border-color,box-shadow] hover:border-blue-500/30 hover:shadow-md motion-reduce:transition-none sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
        <div className="min-w-0 flex-1">
         <div className="flex flex-wrap gap-1.5">
          <Badge variant="outline">{ROLE_LABEL[job.role]}</Badge>
          {state==="open"?<Badge className="bg-emerald-600 text-white">Hạn trên nguồn chính thức</Badge>:state==="closing_today"?<Badge className="bg-amber-600 text-white">Hôm nay hạn chót · kiểm tra giờ đóng đơn</Badge>:state==="closed"?<Badge variant="secondary">Đã hết hạn</Badge>:<Badge variant="outline" className="border-amber-500/50 text-amber-800 dark:text-amber-300"><ShieldAlertIcon className="size-3"/> Cần xác minh đang tuyển</Badge>}
-         {job.status==="auto_candidate"&&<Badge variant="outline" className="border-blue-400/50 text-blue-700 dark:text-blue-300">API phát hiện · chưa duyệt</Badge>}
+         {archived?<Badge variant="outline" className="border-amber-500/50 text-amber-800 dark:text-amber-300">Đã rời nguồn quét · kiểm tra lại</Badge>:job.status==="auto_candidate"&&<Badge variant="outline" className="border-blue-400/50 text-blue-700 dark:text-blue-300">API phát hiện · chưa duyệt</Badge>}
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3">
          <div className="min-w-30 max-w-48 flex-1">
