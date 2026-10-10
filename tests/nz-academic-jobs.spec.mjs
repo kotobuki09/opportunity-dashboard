@@ -173,3 +173,78 @@ test("institution watchlist search filters the future-hiring sources, not live v
  await expect(page.getByText("University of Canterbury — Wireless Research Centre")).toBeVisible()
  await expect(page.getByText("University of Otago — Current Vacancies")).toHaveCount(0)
 })
+
+
+test("saved API candidate remains in private application workspace after automatic feed removes it",async({page})=>{
+ const candidate={
+  id:"uoa-auto-999999997",title:"Research Fellow - Applied Wireless Learning",
+  employer:"University of Auckland",city:"Auckland",role:"researcher",
+  topics:["Telecommunications","Artificial Intelligence"],fit:"high",
+  fit_note:"Screened candidate only; check employer requirements",salary_nzd_year:null,
+  contract:"Fixed term",deadline_day:null,status:"auto_candidate",published_at:"2026-10-09",
+  source_url:"https://jobs.smartrecruiters.com/TheUniversityOfAuckland/999999997",
+  eligibility_note:"Unverified PhD requirements",international_note:"Visa not verified",
+  requirements:["Check PhD eligibility"],reviewed_at:null,
+ }
+ let report={generated_at:new Date().toISOString(),listings:[candidate]}
+ await page.route("**/nz-academic-jobs-auto.json",route=>route.fulfill({
+  status:200,contentType:"application/json",body:JSON.stringify(report),
+ }))
+ await page.goto(ROOT+"#nz-jobs")
+ await expect(page.getByText(candidate.title)).toBeVisible()
+ await page.getByRole("button",{name:"Lưu việc làm: "+candidate.title}).click()
+ await page.getByRole("group",{name:"Chọn khu vực việc làm"}).getByRole("button",{name:/Hồ sơ của tôi/}).click()
+ await page.getByRole("checkbox",{name:/CV học thuật và danh sách công bố: Research Fellow - Applied Wireless/}).check()
+ await page.getByRole("textbox",{name:"Bước tiếp theo (cá nhân)"}).fill("Email PI about research fit")
+ await page.getByRole("textbox",{name:"Ghi chú ứng tuyển"}).fill("I have tailored research CV")
+ // University removes the posting from the next successful scanner run.
+ report={...report,generated_at:new Date().toISOString(),listings:[]}
+ await page.reload()
+ await expect(page.getByText(candidate.title)).toHaveCount(0)
+ await page.getByRole("group",{name:"Chọn khu vực việc làm"}).getByRole("button",{name:/Hồ sơ của tôi/}).click()
+ await expect(page.getByText(candidate.title)).toBeVisible()
+ await expect(page.getByText("Tin đã rời nguồn hiện hành")).toBeVisible()
+ await expect(page.getByRole("checkbox",{name:/CV học thuật và danh sách công bố: Research Fellow - Applied Wireless/})).toBeChecked()
+ await expect(page.getByRole("textbox",{name:"Bước tiếp theo (cá nhân)"})).toHaveValue("Email PI about research fit")
+ await expect(page.getByRole("textbox",{name:"Ghi chú ứng tuyển"})).toHaveValue("I have tailored research CV")
+ const dl=page.waitForEvent("download")
+ await page.getByRole("button",{name:"Xuất",exact:true}).click()
+ const downloaded=await dl
+ const content=await readFile(await downloaded.path(),"utf8")
+ const backup=JSON.parse(content)
+ expect(backup.items[candidate.id].job_snapshot.title).toBe(candidate.title)
+ expect(backup.items[candidate.id].job_snapshot.status).toBeUndefined()
+ // Wipe the NZ-specific data only after a deliberate confirmation, then restore.
+ await page.getByRole("button",{name:"Xóa dữ liệu NZ Jobs trong trình duyệt"}).click()
+ await expect(page.getByRole("button",{name:"Xác nhận xóa NZ Jobs"})).toBeVisible()
+ await page.getByRole("button",{name:"Hủy"}).click()
+ await expect(page.getByText(candidate.title)).toBeVisible()
+ await page.getByRole("button",{name:"Xóa dữ liệu NZ Jobs trong trình duyệt"}).click()
+ await page.getByRole("button",{name:"Xác nhận xóa NZ Jobs"}).click()
+ await expect(page.getByText(candidate.title)).toHaveCount(0)
+ await page.locator('input[type="file"]').setInputFiles({
+  name:"my-nz-backup.json",mimeType:"application/json",buffer:Buffer.from(content),
+ })
+ await expect(page.getByText(candidate.title)).toBeVisible()
+ await expect(page.getByRole("textbox",{name:"Ghi chú ứng tuyển"})).toHaveValue("I have tailored research CV")
+})
+
+test("malformed recruiter metadata is rejected without hiding verified manual vacancies",async({page})=>{
+ const invalid={generated_at:new Date().toISOString(),
+  listings:[{id:"uoa-auto-999999999",title:"Postdoctoral Fellow - AI",
+   employer:"University of Auckland",city:"Auckland",role:"postdoc",
+   topics:["Artificial Intelligence"],fit:"high",fit_note:"candidate",salary_nzd_year:null,
+   contract:"Fixed term",deadline_day:null,status:"auto_candidate",published_at:null,
+   source_url:"https://jobs.smartrecruiters.com/TheUniversityOfAuckland/999999999",
+   eligibility_note:"Unverified",international_note:"Unverified",
+   requirements:{error:"malformed"},reviewed_at:null,
+  }]
+ }
+ await page.route("**/nz-academic-jobs-auto.json",route=>route.fulfill({
+  status:200,contentType:"application/json",body:JSON.stringify(invalid),
+ }))
+ await page.goto(ROOT+"#nz-jobs")
+ await expect(page.getByText("Postdoctoral Research Fellow — Autonomous Agency")).toBeVisible()
+ await expect(page.getByText("Postdoctoral Fellow - AI")).toHaveCount(0)
+ await expect(page.getByText("Chưa có bản quét mới",{exact:false})).toBeVisible()
+})
