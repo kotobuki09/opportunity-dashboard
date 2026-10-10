@@ -1,4 +1,5 @@
 import type { NzPersonalEntry } from "./nz-jobs"
+import { safeNzJobSnapshot } from "./nz-saved-jobs.ts"
 
 export const NZ_APPLICATION_TASKS=[
  {id:"eligibility",label:"Kiểm tra điều kiện PhD và quyền làm việc",hint:"Đối chiếu nội dung tuyển dụng; không suy đoán visa"},
@@ -30,6 +31,7 @@ export function safeNzPersonalEntry(raw:unknown):NzPersonalEntry|null{
   note:typeof value.note==="string"?value.note.slice(0,2000):"",
   next_step:typeof value.next_step==="string"?value.next_step.slice(0,250):"",
   checked:validNzChecked(value.checked),
+  ...(safeNzJobSnapshot(value.job_snapshot)?{job_snapshot:safeNzJobSnapshot(value.job_snapshot)!}:{}),
   updated_at:typeof value.updated_at==="string"&&Number.isFinite(Date.parse(value.updated_at))?value.updated_at:"",
  }
 }

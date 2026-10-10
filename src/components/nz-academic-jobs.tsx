@@ -1,11 +1,12 @@
 import * as React from "react"
-import { ArrowUpRightIcon, BellIcon, BookmarkIcon, BriefcaseBusinessIcon, DownloadIcon, ExternalLinkIcon, GraduationCapIcon, ListChecksIcon, MapPinIcon, SearchIcon, ShieldAlertIcon, UploadIcon, ScaleIcon, RotateCcwIcon } from "lucide-react"
+import { ArrowUpRightIcon, BellIcon, BookmarkIcon, BriefcaseBusinessIcon, DownloadIcon, ExternalLinkIcon, GraduationCapIcon, ListChecksIcon, MapPinIcon, SearchIcon, ShieldAlertIcon, UploadIcon, ScaleIcon, RotateCcwIcon, Trash2Icon } from "lucide-react"
 import { toast } from "sonner"
 import curatedRaw from "../../data/nz-academic-jobs.json"
 import { nzJobFitDetails, nzCalendarEvent, nzDaysUntilDeadline, sortNzAcademicJobs, type CareerPriority, type CareerSort } from "@/lib/nz-career-tools"
 import { NzApplicationWorkspace } from "@/components/nz-application-workspace"
 import { NzJobCompare } from "@/components/nz-job-compare"
 import { nzToggleChecklist, safeNzPersonalEntry, type NzApplicationTaskId } from "@/lib/nz-application"
+import { mergeNzSavedJobs, nzSnapshotFromJob } from "@/lib/nz-saved-jobs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -35,6 +36,7 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
  const [employer,setEmployer]=React.useState("all")
  const [compareIds,setCompareIds]=React.useState<string[]>([])
  const [watchQuery,setWatchQuery]=React.useState("")
+ const [resetPending,setResetPending]=React.useState(false)
  const [verifiedOnly,setVerifiedOnly]=React.useState(false)
  const [tracked,setTracked]=React.useState<Record<string,NzPersonalEntry>>(()=>loadNzTracking())
  const [snapshot,setSnapshot]=React.useState<NzAutoSnapshot|null>(null)
@@ -60,18 +62,31 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
    .catch(()=>{if(!controller.signal.aborted)setFeedStatus("unavailable")})
   return ()=>controller.abort()
  },[])
- const jobs=React.useMemo(()=>mergedNzJobs(DATA.listings,snapshot?.listings||[]),[snapshot])
- const changeStatus=(id:string,status:NzPersonalStatus)=>setTracked(prev=>({...prev,[id]:{...prev[id],status,updated_at:new Date().toISOString()}}))
- const changeNote=(id:string,note:string)=>setTracked(prev=>({...prev,[id]:{...prev[id],status:prev[id]?.status||"saved",note:note.slice(0,2000),updated_at:new Date().toISOString()}}))
- const changeNextStep=(id:string,nextStep:string)=>setTracked(prev=>({...prev,[id]:{...prev[id],status:prev[id]?.status||"saved",next_step:nextStep.slice(0,250),updated_at:new Date().toISOString()}}))
- const toggleTask=(id:string,task:NzApplicationTaskId)=>setTracked(prev=>({...prev,[id]:{...prev[id],status:prev[id]?.status==="new"||!prev[id]?"saved":prev[id].status,checked:nzToggleChecklist(prev[id],task),updated_at:new Date().toISOString()}}))
+ const currentJobs=React.useMemo(()=>mergedNzJobs(DATA.listings,snapshot?.listings||[]),[snapshot])
+ const {jobs,archivedIds}=React.useMemo(()=>mergeNzSavedJobs(currentJobs,tracked),[currentJobs,tracked])
+ const patchEntry=(id:string,edit:(entry:NzPersonalEntry|undefined)=>Partial<NzPersonalEntry>)=>
+  setTracked(prev=>{
+   const prior=prev[id],source=currentJobs.find(job=>job.id===id)
+   const snapshot=prior?.job_snapshot||(source?nzSnapshotFromJob(source):null)
+   return {...prev,[id]:{
+    ...prior,...(snapshot?{job_snapshot:snapshot}:{}),
+    status:prior?.status||"saved",...edit(prior),updated_at:new Date().toISOString(),
+   }}
+  })
+ const changeStatus=(id:string,status:NzPersonalStatus)=>patchEntry(id,()=>({status}))
+ const changeNote=(id:string,note:string)=>patchEntry(id,()=>({note:note.slice(0,2000)}))
+ const changeNextStep=(id:string,nextStep:string)=>patchEntry(id,()=>({next_step:nextStep.slice(0,250)}))
+ const toggleTask=(id:string,task:NzApplicationTaskId)=>patchEntry(id,entry=>({
+  status:!entry||entry.status==="new"?"saved":entry.status,
+  checked:nzToggleChecklist(entry,task),
+ }))
  const toggleCompare=(id:string)=>setCompareIds(prev=>prev.includes(id)?prev.filter(value=>value!==id):prev.length<3?[...prev,id]:prev)
  const resetFilters=()=>{setQuery("");setRole("all");setField("all");setScope("actionable");setVerifiedOnly(false);setEmployer("all");setSortBy("deadline")}
  const employers=React.useMemo(()=>[...new Set(jobs.map(job=>job.employer))].sort(),[jobs])
  const filtered=sortNzAcademicJobs(jobs.filter(job=>{
   const active=nzDeadlineState(job,now)
   const personal=tracked[job.id]?.status||"new"
-  if(scope==="actionable"&&(active==="closed"||personal==="dismissed"))return false
+  if(scope==="actionable"&&(active==="closed"||personal==="dismissed"||archivedIds.has(job.id)))return false
   if(verifiedOnly&&job.status!=="official_deadline")return false
   if(scope==="saved"&&!["saved","preparing","applied"].includes(personal))return false
   if(role!=="all"&&job.role!==role)return false
@@ -99,20 +114,22 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
  }
  const saved=savedJobs.length
  const importBackup=async(file:File)=>{
-  if(file.size>500000)throw Error("File theo dõi quá lớn")
+  if(file.size>2_000_000)throw Error("File theo dõi quá lớn")
   const raw:unknown=JSON.parse(await file.text())
   if(!raw||typeof raw!=="object")throw Error("File không hợp lệ")
   const v=raw as Record<string,unknown>
-  if(v.app!=="nz-academic-jobs"||v.version!==1||!v.items||typeof v.items!=="object")throw Error("Sai định dạng bản sao lưu")
-  const known=new Set(jobs.map(j=>j.id)),update:Record<string,NzPersonalEntry>={}
-  for(const [id,value] of Object.entries(v.items as Record<string,unknown>)){
-   if(!known.has(id)||!value||typeof value!=="object")continue
-   const e=value as Record<string,unknown>
-   if(!["new","saved","preparing","applied","dismissed"].includes(String(e.status)))continue
-   const safe=safeNzPersonalEntry({...e,updated_at:new Date().toISOString()})
-   if(safe)update[id]=safe
+  if(v.app!=="nz-academic-jobs"||v.version!==1||!v.items||typeof v.items!=="object"||Array.isArray(v.items))throw Error("Sai định dạng bản sao lưu")
+  const known=new Set(currentJobs.map(job=>job.id)),update:Record<string,NzPersonalEntry>={}
+  for(const [id,value] of Object.entries(v.items as Record<string,unknown>).slice(0,250)){
+   if(!/^[a-zA-Z0-9-]{2,100}$/.test(id))continue
+   const safe=safeNzPersonalEntry(value)
+   if(!safe||(!known.has(id)&&safe.job_snapshot?.id!==id))continue
+   update[id]={...safe,updated_at:new Date().toISOString()}
   }
-  setTracked(prev=>({...prev,...update}));toast.success("Đã nhập "+Object.keys(update).length+" mục.")
+  const count=Object.keys(update).length
+  if(!count)throw Error("Bản sao lưu không có hồ sơ hợp lệ.")
+  setTracked(prev=>({...prev,...update}))
+  toast.success("Đã nhập "+count+" mục, kể cả tin đã rời nguồn (nếu có).")
  }
  return <section className="space-y-5 px-4 pb-8 lg:px-6">
   <div className="rounded-2xl border bg-gradient-to-br from-blue-50 via-card to-cyan-50/50 p-5 dark:from-blue-950/35 dark:via-card dark:to-slate-900 sm:p-7">
@@ -135,12 +152,24 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
     <Button size="sm" variant={mode==="applications"?"secondary":"ghost"} aria-pressed={mode==="applications"} onClick={()=>setMode("applications")}><ListChecksIcon className="size-4"/> Hồ sơ của tôi <span className="rounded bg-background/85 px-1.5 text-xs tabular-nums">{saved}</span></Button>
     <Button size="sm" variant={mode==="universities"?"secondary":"ghost"} aria-pressed={mode==="universities"} onClick={()=>setMode("universities")}><BellIcon className="size-4"/> Theo dõi trường & viện</Button>
    </div>
-   <div className="flex gap-2">
+   <div className="flex flex-wrap gap-2">
     <Button variant="outline" size="sm" onClick={()=>exportBackup({app:"nz-academic-jobs",version:1,exported_at:new Date().toISOString(),items:tracked})}><DownloadIcon className="size-4"/> Xuất</Button>
     <Button variant="outline" size="sm" onClick={()=>importInput.current?.click()}><UploadIcon className="size-4"/> Nhập</Button>
+    <Button variant="ghost" size="sm" onClick={()=>setResetPending(true)} aria-label="Xóa dữ liệu NZ Jobs trong trình duyệt"><Trash2Icon className="size-4"/> Xóa dữ liệu</Button>
    </div>
   </div>
-  {mode==="applications"?<NzApplicationWorkspace jobs={jobs} tracked={tracked}
+  {resetPending&&<div role="alert" className="flex flex-wrap items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm">
+   <p className="min-w-0 flex-1"><strong>Xóa dữ liệu cá nhân NZ Jobs?</strong> Ghi chú, checklist, tin đã lưu và tiến độ ứng tuyển trong trình duyệt hiện tại sẽ bị xóa. Hãy xuất bản sao lưu trước nếu cần.</p>
+   <Button size="sm" variant="destructive" onClick={()=>{
+    setTracked({})
+    setCompareIds([])
+    setResetPending(false)
+    try{localStorage.removeItem(KEY)}catch{ /* optional storage */ }
+    toast.success("Đã xóa dữ liệu NZ Jobs trên trình duyệt này.")
+   }}>Xác nhận xóa NZ Jobs</Button>
+   <Button size="sm" variant="outline" onClick={()=>setResetPending(false)}>Hủy</Button>
+  </div>}
+  {mode==="applications"?<NzApplicationWorkspace jobs={jobs} tracked={tracked} archivedIds={archivedIds}
    onChangeStatus={changeStatus} onChangeNote={changeNote} onChangeNextStep={changeNextStep}
    onToggleTask={toggleTask} now={now} onBrowse={()=>{setMode("jobs");setScope("actionable")}}
   />:mode==="universities"?<>
@@ -203,7 +232,7 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
     <span role="status" aria-live="polite">{filtered.length} vị trí phù hợp bộ lọc · {saved} đang theo dõi</span>
     <span>{feedStatus==="ready"&&snapshot?.generated_at?"Tin tự động từ cổng chính thức · "+new Date(snapshot.generated_at).toLocaleDateString("vi-VN"):feedStatus==="loading"?"Đang tải dữ liệu...":"Chưa có bản quét mới · vẫn dùng dữ liệu thủ công"}</span>
    </div>
-   <NzJobCompare jobs={compared} priority={priority} now={now}
+   <NzJobCompare jobs={compared} archivedIds={archivedIds} priority={priority} now={now}
     onRemove={id=>toggleCompare(id)} onClear={()=>setCompareIds([])}/>
    <div className="grid gap-3">
     {filtered.map(job=>{
@@ -212,13 +241,14 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
      const fit=nzJobFitDetails(job,priority)
      const remaining=nzDaysUntilDeadline(job,nzDay(now))
      const inCompare=compareIds.includes(job.id)
+     const archived=archivedIds.has(job.id)
      return <article key={job.id} className="min-w-0 rounded-2xl border bg-card p-4 shadow-sm transition-[border-color,box-shadow] hover:border-blue-500/30 hover:shadow-md motion-reduce:transition-none sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
        <div className="min-w-0 flex-1">
         <div className="flex flex-wrap gap-1.5">
          <Badge variant="outline">{ROLE_LABEL[job.role]}</Badge>
          {state==="open"?<Badge className="bg-emerald-600 text-white">Hạn trên nguồn chính thức</Badge>:state==="closing_today"?<Badge className="bg-amber-600 text-white">Hôm nay hạn chót · kiểm tra giờ đóng đơn</Badge>:state==="closed"?<Badge variant="secondary">Đã hết hạn</Badge>:<Badge variant="outline" className="border-amber-500/50 text-amber-800 dark:text-amber-300"><ShieldAlertIcon className="size-3"/> Cần xác minh đang tuyển</Badge>}
-         {job.status==="auto_candidate"&&<Badge variant="outline" className="border-blue-400/50 text-blue-700 dark:text-blue-300">API phát hiện · chưa duyệt</Badge>}
+         {archived?<Badge variant="outline" className="border-amber-500/50 text-amber-800 dark:text-amber-300">Đã rời nguồn quét · kiểm tra lại</Badge>:job.status==="auto_candidate"&&<Badge variant="outline" className="border-blue-400/50 text-blue-700 dark:text-blue-300">API phát hiện · chưa duyệt</Badge>}
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-3">
          <div className="min-w-30 max-w-48 flex-1">

@@ -12,10 +12,11 @@ import { nzDaysUntilDeadline } from "@/lib/nz-career-tools"
 
 const STAGES:["all",NzPersonalStatus,NzPersonalStatus,NzPersonalStatus]=["all","saved","preparing","applied"]
 export function NzApplicationWorkspace({
- jobs,tracked,onChangeStatus,onChangeNote,onChangeNextStep,onToggleTask,onBrowse,now,
+ jobs,tracked,archivedIds,onChangeStatus,onChangeNote,onChangeNextStep,onToggleTask,onBrowse,now,
 }:{
  jobs:NzAcademicJob[]
  tracked:Record<string,NzPersonalEntry>
+ archivedIds:Set<string>
  onChangeStatus:(id:string,status:NzPersonalStatus)=>void
  onChangeNote:(id:string,note:string)=>void
  onChangeNextStep:(id:string,nextStep:string)=>void
@@ -38,7 +39,10 @@ export function NzApplicationWorkspace({
     </div>
     <Button size="sm" variant="outline" onClick={onBrowse}><ArrowUpRightIcon className="size-4"/> Khám phá thêm việc làm</Button>
    </div>
-   <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
+   {followed.some(job=>archivedIds.has(job.id))&&<div className="mt-4 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-900 dark:text-amber-200" role="status">
+   Một số tin đã lưu không còn xuất hiện trong nguồn tự động hiện tại. Checklist vẫn được giữ, nhưng hãy kiểm tra trang tuyển dụng trực tiếp trước khi nộp hồ sơ.
+  </div>}
+  <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
     <div className="rounded-xl bg-blue-50 px-3 py-3 dark:bg-blue-950/30">
      <strong className="block text-xl font-semibold tabular-nums">{followed.length}</strong>
      <span className="text-xs text-muted-foreground">Vị trí đang theo dõi</span>
@@ -78,13 +82,14 @@ export function NzApplicationWorkspace({
     const progress=nzChecklistProgress(entry)
     const checked=new Set(validNzChecked(entry?.checked))
     const closing=nzDeadlineState(job,now)
+    const archived=archivedIds.has(job.id)
     const days=nzDaysUntilDeadline(job,today)
     return <article key={job.id} className="min-w-0 overflow-hidden rounded-2xl border bg-card shadow-sm">
      <div className="flex flex-wrap items-start justify-between gap-3 border-b bg-muted/20 p-4 sm:p-5">
       <div className="min-w-0 flex-1">
        <div className="flex flex-wrap items-center gap-2">
         <Badge variant="outline">{job.role==="postdoc"?"Postdoc":job.role==="lecturer"?"Lecturer":"Research Fellow"}</Badge>
-        {closing==="closed"?<Badge variant="secondary">Đã hết hạn</Badge>:
+        {archived?<Badge variant="outline" className="border-amber-500/50 text-amber-900 dark:text-amber-300">Tin đã rời nguồn hiện hành</Badge>:closing==="closed"?<Badge variant="secondary">Đã hết hạn</Badge>:
          closing==="open"||closing==="closing_today"?
           <Badge variant={days!==null&&days<=7?"destructive":"outline"}>{days===0?"Hạn hôm nay":days===1?"Còn 1 ngày":days!==null?"Còn "+days+" ngày":"Hạn đã công bố"}</Badge>:
           <Badge variant="outline">Chưa xác minh hạn</Badge>}
@@ -92,7 +97,7 @@ export function NzApplicationWorkspace({
        <h5 className="mt-2 text-base font-semibold leading-snug">{job.title}</h5>
        <p className="mt-1 text-xs text-muted-foreground">{job.employer} · {job.city} · {displayNzDay(job.deadline_day)}</p>
       </div>
-      <Button size="sm" variant="outline" asChild><a href={job.source_url} target="_blank" rel="noopener noreferrer">Trang tuyển dụng <ArrowUpRightIcon className="size-4"/></a></Button>
+      <Button size="sm" variant="outline" asChild><a href={job.source_url} target="_blank" rel="noopener noreferrer">{archived?"Kiểm tra nguồn gốc":"Trang tuyển dụng"} <ArrowUpRightIcon className="size-4"/></a></Button>
      </div>
      <div className="grid gap-5 p-4 sm:p-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
       <section className="min-w-0">
