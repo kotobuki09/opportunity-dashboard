@@ -60,6 +60,66 @@
         "Confirm current listing and closing deadline on official application portal"
       ],
       "reviewed_at": "2026-10-09"
+    },
+    {
+      "id": "uc-2026-cs-edge-network-security-33862",
+      "title": "Lecturer / Senior Lecturer — Computer Science & Software Engineering (Edge / Network Security)",
+      "employer": "University of Canterbury",
+      "city": "Christchurch",
+      "role": "lecturer",
+      "topics": [
+        "Network Security",
+        "Edge Computing",
+        "Distributed Systems",
+        "Computer Science"
+      ],
+      "fit": "medium",
+      "fit_note": "Phù hợp theo hướng secure networking, edge/distributed systems và giảng dạy; không phải tuyển dụng RF/wireless thuần túy. Hai nhánh tuyển: scalable computing hoặc software/network security. Hạn 25/10 do nguồn tuyển dụng học thuật công bố; cần đối chiếu lại trên cổng tuyển UC.",
+      "salary_nzd_year": null,
+      "contract": "Full-time · continuing/permanent · teaching cooperation with China",
+      "deadline_day": "2026-10-25",
+      "status": "needs_confirmation",
+      "published_at": "2026-09-29",
+      "source_url": "https://jobs.canterbury.ac.nz/?job=33862",
+      "eligibility_note": "PhD Computer Science, Software Engineering hoặc ngành gần; yêu cầu hồ sơ nghiên cứu, khả năng giảng dạy đại học/sau đại học, và định hướng edge/distributed systems hoặc software/network security.",
+      "international_note": "Không mặc định cấp visa. Có nhiệm vụ giảng dạy cho chương trình hợp tác tại Trung Quốc; cần xác nhận yêu cầu di chuyển và giấy phép lao động với UC.",
+      "requirements": [
+        "Chọn một trong hai hướng: Scalable Data & Computing Systems hoặc Software & Network Security",
+        "1 trang cover letter + research statement 1–2 trang + teaching philosophy 1–2 trang (theo cách gộp tệp của UC)",
+        "Academic CV kèm danh mục công bố khoa học",
+        "Cổng tuyển chỉ cho tải lên tối đa 2 tài liệu; xác minh lại yêu cầu và hạn 25/10/2026 từ thông báo gốc",
+        "Hỏi UC về tư cách ứng tuyển quốc tế, lịch giảng dạy tại Trung Quốc và thời gian nhận việc"
+      ],
+      "reviewed_at": "2026-10-09"
+    },
+    {
+      "id": "uc-2026-software-engineering-teaching-33877",
+      "title": "Lecturer — Software Engineering (Teaching & Administration)",
+      "employer": "University of Canterbury",
+      "city": "Christchurch",
+      "role": "lecturer",
+      "topics": [
+        "Software Engineering",
+        "Software Security",
+        "University Teaching"
+      ],
+      "fit": "medium",
+      "fit_note": "Lựa chọn thiên về giảng dạy và quản trị học thuật hơn nghiên cứu. Có liên hệ với secure software và hệ thống AI, nhưng không tập trung Telecommunications. Hạn 28/10 được nguồn thứ cấp công bố; xác nhận tại cổng UC trước khi nộp.",
+      "salary_nzd_year": null,
+      "contract": "Full-time · continuing/permanent · includes teaching partnership with China",
+      "deadline_day": "2026-10-28",
+      "status": "needs_confirmation",
+      "published_at": "2026-09-30",
+      "source_url": "https://jobs.canterbury.ac.nz/?job=33877",
+      "eligibility_note": "Tập trung giảng dạy Software Engineering và hỗ trợ quản trị đào tạo; đọc mô tả gốc để đối chiếu yêu cầu học vị và năng lực phát triển môn học.",
+      "international_note": "Phải kiểm tra quyền làm việc tại NZ theo tuyển dụng thực tế; có nhiệm vụ tại chương trình hợp tác quốc tế ở Trung Quốc.",
+      "requirements": [
+        "1 trang cover letter + teaching statement 1–2 trang; đề cập Master of Software Engineering và secure software engineering",
+        "CV mô tả trình độ, kinh nghiệm giảng dạy, phát triển môn học và hoạt động chuyên môn",
+        "Cổng tuyển UC giới hạn tối đa 2 tệp đính kèm",
+        "Xác nhận hạn 28/10/2026 và điều kiện tuyển dụng trên cổng chính thức trước khi ứng tuyển"
+      ],
+      "reviewed_at": "2026-10-09"
     }
   ],
   "watchlist": [
@@ -180,6 +240,11 @@
       "title": "Bodeker Scientific — Post-doctoral Researcher, Adaptive Façade Intelligence",
       "reason": "Official application deadline was 24 September 2026; some third-party pages incorrectly list late-October dates.",
       "source_url": "https://www.bodekerscientific.com/vacancies/post-doctoral-researcher"
+    },
+    {
+      "title": "Research Fellow — Taiaho free-space optical communications observatory",
+      "reason": "University of Auckland official deadline 8 October 2026; highly relevant to optical communications but already expired on 9 October 2026.",
+      "source_url": "https://jobs.smartrecruiters.com/TheUniversityOfAuckland/744000152581378-research-fellow-department-of-physics-te-kura-matai-ahupungao-fixed-term-26-months-"
     }
   ]
 }
