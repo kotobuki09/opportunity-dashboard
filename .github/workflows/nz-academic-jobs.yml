@@ -9,6 +9,8 @@ on:
       - ".github/workflows/nz-academic-jobs.yml"
       - "scripts/discover-nz-jobs.mjs"
       - "scripts/discover-nz-jobs.test.mjs"
+      - "scripts/nz-scan-history.mjs"
+      - "scripts/nz-scan-history.test.mjs"
       - "data/nz-academic-jobs.json"
   schedule:
     # Monday and Thursday mornings New Zealand daylight time (UTC 21:15).
@@ -38,7 +40,7 @@ jobs:
         with:
           node-version: 22
       - name: Test role filters and official API normalization
-        run: node --experimental-strip-types --test scripts/discover-nz-jobs.test.mjs scripts/nz-jobs.test.mjs
+        run: node --experimental-strip-types --test scripts/discover-nz-jobs.test.mjs scripts/nz-scan-history.test.mjs scripts/nz-jobs.test.mjs
       - name: Discover active New Zealand academic postings
         run: node scripts/discover-nz-jobs.mjs
       - name: Save machine-screened candidates
@@ -46,7 +48,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/nz-academic-jobs-auto.json
+          git add public/nz-academic-jobs-auto.json public/nz-academic-updates.xml
           if ! git diff --cached --quiet; then
             git commit -m "ops: refresh NZ academic research candidate snapshot"
             git push origin HEAD:main
