@@ -10,7 +10,7 @@ test("new NZ Academic Jobs route shows official vacancy and clear deadline/visa 
  await expect(page.getByText("Postdoctoral Research Fellow — Autonomous Agency")).toBeVisible()
  await expect(page.getByText("13/10/2026 (NZ)")).toBeVisible()
  await expect(page.getByText("Hạn trên nguồn chính thức")).toBeVisible()
- await expect(page.getByText("Cần xác minh đang tuyển")).toBeVisible()
+ await expect(page.getByText("Lecturer — Data Science / Artificial Intelligence")).toHaveCount(0)
  await expect(page.getByRole("link",{name:/Xem \/ Apply/}).first()).toHaveAttribute("target","_blank")
  await expect(page.getByRole("combobox",{name:"Lọc toàn bộ dashboard theo dự án"})).toHaveCount(0)
 })
