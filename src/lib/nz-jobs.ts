@@ -1,6 +1,6 @@
 import { safeNzPersonalEntry } from "./nz-application.ts"
-import { validAutoJobUrl } from "./nz-saved-jobs"
-import type { NzSavedJobSnapshot } from "./nz-saved-jobs"
+import { validAutoJobUrl } from "./nz-saved-jobs.ts"
+import type { NzSavedJobSnapshot } from "./nz-saved-jobs.ts"
 export type NzAcademicRole = "postdoc" | "lecturer" | "researcher"
 export type NzJobStatus = "official_deadline" | "needs_confirmation" | "auto_candidate"
 export type NzFit = "high" | "medium" | "low"
