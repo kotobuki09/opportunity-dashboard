@@ -68,7 +68,7 @@ export function AppSidebar({
   const overview: NavItem[] = [
     { id: "overview", title: "Tổng quan", icon: <LayoutDashboardIcon /> },
     { id: "explore", title: "Khám phá cơ hội", icon: <SearchIcon />, count: counts.overview },
-    { id: "nz-jobs", title: "Academic Jobs · NZ", icon: <BriefcaseBusinessIcon /> },
+    { id: "academic-jobs", title: "Academic Jobs", icon: <BriefcaseBusinessIcon /> },
     { id: "board", title: "Pipeline hồ sơ", icon: <Columns3Icon />, count: counts.tracking },
     { id: "calendar", title: "Lịch hạn nộp", icon: <CalendarDaysIcon />, count: counts.due30 },
     { id: "shortlist", title: "Đang theo đuổi", icon: <ListChecksIcon />, count: counts.tracking },
