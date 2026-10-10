@@ -1,3 +1,4 @@
+import { safeNzPersonalEntry } from "./nz-application.ts"
 export type NzAcademicRole = "postdoc" | "lecturer" | "researcher"
 export type NzJobStatus = "official_deadline" | "needs_confirmation" | "auto_candidate"
 export type NzFit = "high" | "medium" | "low"
@@ -12,7 +13,7 @@ export type NzInstitution={id:string;name:string;city:string;topics:string[];url
 export type NzDataset={last_reviewed:string;scope:string;listings:NzAcademicJob[];watchlist:NzInstitution[];excluded_sources:{title:string;reason:string;source_url:string}[]}
 export type NzAutoSnapshot={generated_at:string|null;source:string;scope:string;observed_count:number;candidate_count:number;listings:NzAcademicJob[]}
 export type NzPersonalStatus="new"|"saved"|"preparing"|"applied"|"dismissed"
-export type NzPersonalEntry={status:NzPersonalStatus;note?:string;updated_at:string}
+export type NzPersonalEntry={status:NzPersonalStatus;note?:string;next_step?:string;checked?:string[];updated_at:string}
 const STATUSES=new Set<NzPersonalStatus>(["new","saved","preparing","applied","dismissed"])
 export const ROLE_LABEL:Record<NzAcademicRole,string>={
  postdoc:"Postdoc",lecturer:"Lecturer / Faculty",researcher:"Research Scientist / Fellow"
@@ -76,11 +77,10 @@ export function loadNzTracking(key="nzAcademicJobs.v1"):Record<string,NzPersonal
   const raw:unknown=JSON.parse(src)
   if(!raw||typeof raw!=="object"||Array.isArray(raw))return {}
   return Object.fromEntries(Object.entries(raw as Record<string,unknown>).slice(0,250).flatMap(([id,obj])=>{
-   if(!/^[a-zA-Z0-9-]{2,100}$/.test(id)||!obj||typeof obj!=="object")return []
-   const x=obj as Record<string,unknown>
-   if(!STATUSES.has(x.status as NzPersonalStatus))return []
-   return [[id,{status:x.status as NzPersonalStatus,note:typeof x.note==="string"?x.note.slice(0,2000):"",
-     updated_at:typeof x.updated_at==="string"&&Number.isFinite(Date.parse(x.updated_at))?x.updated_at:""}]]
+   if(!/^[a-zA-Z0-9-]{2,100}$/.test(id))return []
+   const safe=safeNzPersonalEntry(obj)
+   return safe?[[id,safe]]:[]
+
   }))
  }catch{return {}}
 }
