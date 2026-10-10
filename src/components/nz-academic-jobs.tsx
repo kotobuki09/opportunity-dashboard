@@ -1,11 +1,12 @@
 import * as React from "react"
-import { ArrowUpRightIcon, BellIcon, BookmarkIcon, BriefcaseBusinessIcon, DownloadIcon, ExternalLinkIcon, GraduationCapIcon, ListChecksIcon, MapPinIcon, SearchIcon, ShieldAlertIcon, UploadIcon, ScaleIcon, RotateCcwIcon } from "lucide-react"
+import { ArrowUpRightIcon, BellIcon, BookmarkIcon, BriefcaseBusinessIcon, DownloadIcon, ExternalLinkIcon, GraduationCapIcon, ListChecksIcon, MapPinIcon, SearchIcon, ShieldAlertIcon, UploadIcon, ScaleIcon, RotateCcwIcon, Trash2Icon } from "lucide-react"
 import { toast } from "sonner"
 import curatedRaw from "../../data/nz-academic-jobs.json"
 import { nzJobFitDetails, nzCalendarEvent, nzDaysUntilDeadline, sortNzAcademicJobs, type CareerPriority, type CareerSort } from "@/lib/nz-career-tools"
 import { NzApplicationWorkspace } from "@/components/nz-application-workspace"
 import { NzJobCompare } from "@/components/nz-job-compare"
 import { nzToggleChecklist, safeNzPersonalEntry, type NzApplicationTaskId } from "@/lib/nz-application"
+import { mergeNzSavedJobs, nzSnapshotFromJob } from "@/lib/nz-saved-jobs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -35,6 +36,7 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
  const [employer,setEmployer]=React.useState("all")
  const [compareIds,setCompareIds]=React.useState<string[]>([])
  const [watchQuery,setWatchQuery]=React.useState("")
+ const [resetPending,setResetPending]=React.useState(false)
  const [verifiedOnly,setVerifiedOnly]=React.useState(false)
  const [tracked,setTracked]=React.useState<Record<string,NzPersonalEntry>>(()=>loadNzTracking())
  const [snapshot,setSnapshot]=React.useState<NzAutoSnapshot|null>(null)
@@ -60,11 +62,24 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
    .catch(()=>{if(!controller.signal.aborted)setFeedStatus("unavailable")})
   return ()=>controller.abort()
  },[])
- const jobs=React.useMemo(()=>mergedNzJobs(DATA.listings,snapshot?.listings||[]),[snapshot])
- const changeStatus=(id:string,status:NzPersonalStatus)=>setTracked(prev=>({...prev,[id]:{...prev[id],status,updated_at:new Date().toISOString()}}))
- const changeNote=(id:string,note:string)=>setTracked(prev=>({...prev,[id]:{...prev[id],status:prev[id]?.status||"saved",note:note.slice(0,2000),updated_at:new Date().toISOString()}}))
- const changeNextStep=(id:string,nextStep:string)=>setTracked(prev=>({...prev,[id]:{...prev[id],status:prev[id]?.status||"saved",next_step:nextStep.slice(0,250),updated_at:new Date().toISOString()}}))
- const toggleTask=(id:string,task:NzApplicationTaskId)=>setTracked(prev=>({...prev,[id]:{...prev[id],status:prev[id]?.status==="new"||!prev[id]?"saved":prev[id].status,checked:nzToggleChecklist(prev[id],task),updated_at:new Date().toISOString()}}))
+ const currentJobs=React.useMemo(()=>mergedNzJobs(DATA.listings,snapshot?.listings||[]),[snapshot])
+ const {jobs,archivedIds}=React.useMemo(()=>mergeNzSavedJobs(currentJobs,tracked),[currentJobs,tracked])
+ const patchEntry=(id:string,edit:(entry:NzPersonalEntry|undefined)=>Partial<NzPersonalEntry>)=>
+  setTracked(prev=>{
+   const prior=prev[id],source=currentJobs.find(job=>job.id===id)
+   const snapshot=prior?.job_snapshot||(source?nzSnapshotFromJob(source):null)
+   return {...prev,[id]:{
+    ...prior,...(snapshot?{job_snapshot:snapshot}:{}),
+    status:prior?.status||"saved",...edit(prior),updated_at:new Date().toISOString(),
+   }}
+  })
+ const changeStatus=(id:string,status:NzPersonalStatus)=>patchEntry(id,()=>({status}))
+ const changeNote=(id:string,note:string)=>patchEntry(id,()=>({note:note.slice(0,2000)}))
+ const changeNextStep=(id:string,nextStep:string)=>patchEntry(id,()=>({next_step:nextStep.slice(0,250)}))
+ const toggleTask=(id:string,task:NzApplicationTaskId)=>patchEntry(id,entry=>({
+  status:!entry||entry.status==="new"?"saved":entry.status,
+  checked:nzToggleChecklist(entry,task),
+ }))
  const toggleCompare=(id:string)=>setCompareIds(prev=>prev.includes(id)?prev.filter(value=>value!==id):prev.length<3?[...prev,id]:prev)
  const resetFilters=()=>{setQuery("");setRole("all");setField("all");setScope("actionable");setVerifiedOnly(false);setEmployer("all");setSortBy("deadline")}
  const employers=React.useMemo(()=>[...new Set(jobs.map(job=>job.employer))].sort(),[jobs])
@@ -99,20 +114,22 @@ export function NzAcademicJobs({now=new Date()}:{now?:Date}){
  }
  const saved=savedJobs.length
  const importBackup=async(file:File)=>{
-  if(file.size>500000)throw Error("File theo dõi quá lớn")
+  if(file.size>2_000_000)throw Error("File theo dõi quá lớn")
   const raw:unknown=JSON.parse(await file.text())
   if(!raw||typeof raw!=="object")throw Error("File không hợp lệ")
   const v=raw as Record<string,unknown>
-  if(v.app!=="nz-academic-jobs"||v.version!==1||!v.items||typeof v.items!=="object")throw Error("Sai định dạng bản sao lưu")
-  const known=new Set(jobs.map(j=>j.id)),update:Record<string,NzPersonalEntry>={}
-  for(const [id,value] of Object.entries(v.items as Record<string,unknown>)){
-   if(!known.has(id)||!value||typeof value!=="object")continue
-   const e=value as Record<string,unknown>
-   if(!["new","saved","preparing","applied","dismissed"].includes(String(e.status)))continue
-   const safe=safeNzPersonalEntry({...e,updated_at:new Date().toISOString()})
-   if(safe)update[id]=safe
+  if(v.app!=="nz-academic-jobs"||v.version!==1||!v.items||typeof v.items!=="object"||Array.isArray(v.items))throw Error("Sai định dạng bản sao lưu")
+  const known=new Set(currentJobs.map(job=>job.id)),update:Record<string,NzPersonalEntry>={}
+  for(const [id,value] of Object.entries(v.items as Record<string,unknown>).slice(0,250)){
+   if(!/^[a-zA-Z0-9-]{2,100}$/.test(id))continue
+   const safe=safeNzPersonalEntry(value)
+   if(!safe||(!known.has(id)&&safe.job_snapshot?.id!==id))continue
+   update[id]={...safe,updated_at:new Date().toISOString()}
   }
-  setTracked(prev=>({...prev,...update}));toast.success("Đã nhập "+Object.keys(update).length+" mục.")
+  const count=Object.keys(update).length
+  if(!count)throw Error("Bản sao lưu không có hồ sơ hợp lệ.")
+  setTracked(prev=>({...prev,...update}))
+  toast.success("Đã nhập "+count+" mục, kể cả tin đã rời nguồn (nếu có).")
  }
  return <section className="space-y-5 px-4 pb-8 lg:px-6">
   <div className="rounded-2xl border bg-gradient-to-br from-blue-50 via-card to-cyan-50/50 p-5 dark:from-blue-950/35 dark:via-card dark:to-slate-900 sm:p-7">
